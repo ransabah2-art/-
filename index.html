@@ -89,20 +89,28 @@
   .modal-overlay.active { display: flex; }
   .modal-content { background: var(--surface); width: 100%; border-radius: 25px 25px 0 0; padding: 30px 20px 50px; border-top: 2px solid var(--accent); }
 
- /* זה הקוד שמעלים את הפס הירוק */
-.toast { 
-  display: none; /* זה מבטיח שהאלמנט לא תופס מקום ולא נראה כשהוא לא פעיל */
-  position: fixed; 
-  bottom: 110px; 
-  left: 50%; 
-  transform: translateX(-50%) translateY(200px); 
-  /* שאר העיצוב... */
-}
+  /* Toast - FIXED */
+  .toast { 
+    display: none; 
+    position: fixed; 
+    bottom: 110px; 
+    left: 50%; 
+    transform: translateX(-50%) translateY(200px); 
+    background: var(--green); 
+    color: #0d2318;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: 800;
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
 
-.toast.visible { 
-  display: block; /* רק כשיש הודעה הוא מופיע */
-  transform: translateX(-50%) translateY(0); 
-}
+  .toast.visible { 
+    display: block; 
+    transform: translateX(-50%) translateY(0); 
+  }
+
   /* Quote Design */
   .quote-box { background: #fff; color: #111; border-radius: 15px; padding: 25px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 </style>
@@ -290,7 +298,8 @@
 
   function toast(m) {
     const t = document.getElementById('toast-msg');
-    t.innerText = m; t.style.display = 'block';
+    t.innerText = m; 
+    t.style.display = 'block';
     setTimeout(() => t.classList.add('visible'), 10);
     setTimeout(() => { 
       t.classList.remove('visible'); 
@@ -298,7 +307,6 @@
     }, 2500);
   }
 
-  // Init
   updateDash();
 </script>
 </body>
