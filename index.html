@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>נ.מ.ר ביצוע פרויקטים</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -20,111 +20,94 @@
     --red: #f26464;
     --yellow: #f5c842;
     --radius: 16px;
-    --radius-sm: 10px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; overflow-x: hidden; }
 
+  /* Header */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 16px;
+    padding: 0 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 60px;
+    height: 70px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
-  .logo { display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
-  .logo-text { font-size: 15px; font-weight: 800; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .logo-text { font-size: 18px; font-weight: 900; }
   .logo-text span { color: var(--accent); }
 
-  .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; gap: 4px; }
-  .tab { padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+  /* Navigation */
+  .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 10px; }
+  .tab { flex: 1; text-align: center; padding: 15px 5px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  main { padding: 20px 16px 120px; max-width: 640px; margin: 0 auto; }
-  .page { display: none; }
+  main { padding: 20px 15px 120px; max-width: 600px; margin: 0 auto; }
+  .page { display: none; animation: fadeIn 0.3s ease; }
   .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Stats */
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 10px; text-align: center; }
-  .stat-num { font-size: 24px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
-  .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+  /* Cards & Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 5px; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 800; color: var(--accent); display: block; }
+  .stat-label { font-size: 11px; color: var(--text-muted); }
 
-  .status-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
-  .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .status-row-label { font-size: 11px; width: 45px; color: var(--text-muted); }
-  .status-row-bar-wrap { flex: 1; height: 6px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
-  .status-row-bar { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
-  .status-count { font-size: 11px; font-weight: 700; width: 15px; }
+  .chart-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .bar-label { font-size: 13px; width: 50px; }
+  .bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
 
-  .projects-list { display: flex; flex-direction: column; gap: 10px; }
-  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-  .progress-bar-bg { height: 5px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin-top: 10px; }
-  .progress-bar { height: 100%; background: var(--accent); transition: width 0.4s; }
+  /* Project List */
+  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; position: relative; }
+  .project-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .prog-container { height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden; margin: 10px 0; }
+  .prog-val { height: 100%; background: var(--accent); transition: width 0.5s; }
+  .delete-btn { color: var(--red); font-size: 12px; border: none; background: none; font-weight: 700; padding: 5px 0; cursor: pointer; }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 10px; border: none; font-family: inherit; font-weight: 700; cursor: pointer; }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #111; }
-  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-
-  /* FAB UI - FIXED */
-  .fab-row {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    z-index: 99;
-    background: transparent;
-  }
-  .fab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 22px;
-    border-radius: 40px;
-    border: none;
-    font-weight: 800;
-    font-size: 14px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    cursor: pointer;
-  }
-  .fab-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #111; }
-  .fab-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-
-  /* TOAST - REMOVED DEFAULT VISIBILITY */
-  .toast {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%) translateY(150px);
-    background: var(--green);
-    color: #0d2318;
-    font-weight: 800;
-    padding: 12px 24px;
-    border-radius: 40px;
-    z-index: 1000;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    pointer-events: none;
-    visibility: hidden; /* הסתרה מוחלטת כשהוא לא פעיל */
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); visibility: visible; }
-
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: flex-end; }
-  .overlay.open { display: flex; }
-  .modal { background: var(--surface); width: 100%; border-radius: 24px 24px 0 0; padding: 24px 20px 40px; border-top: 1px solid var(--border); }
-  
-  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; color: var(--text); margin-bottom: 15px; font-family: inherit; font-size: 15px; outline: none; }
+  /* Form Elements */
+  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--text); margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; }
   input:focus { border-color: var(--accent); }
+  .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #111; }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; }
 
-  .quote-preview { background: #fff; color: #111; border-radius: 15px; padding: 25px; margin-top: 20px; }
+  /* Floating Action Buttons */
+  .fab-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 90; }
+  .fab { padding: 15px 25px; border-radius: 50px; border: none; font-weight: 800; font-size: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .fab-add { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #111; }
+  .fab-quote { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  /* Modals */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: flex-end; }
+  .modal-overlay.active { display: flex; }
+  .modal-content { background: var(--surface); width: 100%; border-radius: 25px 25px 0 0; padding: 30px 20px 50px; border-top: 2px solid var(--accent); }
+
+  /* Toast - FIXED (No Green Bar) */
+  .toast { 
+    position: fixed; 
+    bottom: 110px; 
+    left: 50%; 
+    transform: translateX(-50%) translateY(200px); 
+    background: var(--green); 
+    color: #0d2318; 
+    padding: 12px 25px; 
+    border-radius: 50px; 
+    font-weight: 800; 
+    z-index: 1000; 
+    transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+    display: none; /* מסתיר לחלוטין כשהוא לא פעיל */
+  }
+  .toast.visible { display: block; transform: translateX(-50%) translateY(0); }
+
+  /* Quote Design */
+  .quote-box { background: #fff; color: #111; border-radius: 15px; padding: 25px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 </style>
 </head>
 <body>
@@ -137,197 +120,189 @@
 </header>
 
 <div class="tabs">
-  <div class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">📊 דשבורד</div>
-  <div class="tab" id="tab-projects" onclick="switchTab('projects')">📋 פרויקטים</div>
-  <div class="tab" id="tab-quote" onclick="switchTab('quote')">📄 הצעת מחיר</div>
+  <div class="tab active" id="tab-dash" onclick="showPage('dash')">📊 דשבורד</div>
+  <div class="tab" id="tab-projs" onclick="showPage('projs')">📋 פרויקטים</div>
+  <div class="tab" id="tab-quote" onclick="showPage('quote')">📄 הצעה</div>
 </div>
 
 <main>
-  <div class="page active" id="page-dashboard">
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-num" id="dash-total">0</div><div class="stat-label">סה״כ</div></div>
-      <div class="stat-card"><div class="stat-num" id="dash-active" style="color:var(--green)">0</div><div class="stat-label">פעילים</div></div>
-      <div class="stat-card"><div class="stat-num" id="dash-done" style="color:var(--blue)">0</div><div class="stat-label">הושלמו</div></div>
+  <div class="page active" id="page-dash">
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num" id="s-total">0</span><span class="stat-label">פרויקטים</span></div>
+      <div class="stat-card"><span class="stat-num" id="s-active" style="color:var(--green)">0</span><span class="stat-label">בביצוע</span></div>
+      <div class="stat-card"><span class="stat-num" id="s-done" style="color:var(--blue)">0</span><span class="stat-label">הושלמו</span></div>
     </div>
-    <div class="status-breakdown" id="status-bars"></div>
+    <div class="chart-section" id="dash-bars"></div>
   </div>
 
-  <div class="page" id="page-projects">
-    <div class="projects-list" id="projectsList"></div>
+  <div class="page" id="page-projs">
+    <div id="projects-container"></div>
   </div>
 
   <div class="page" id="page-quote">
-    <div id="quoteForm">
-      <input type="text" id="qClient" placeholder="שם הלקוח">
-      <textarea id="qDesc" placeholder="תיאור העבודה/פרויקט" style="min-height:120px"></textarea>
-      <input type="number" id="qPrice" placeholder="מחיר לפני מע״מ (₪)">
-      <button class="btn btn-primary" style="width:100%" onclick="generateQuote()">צור הצעת מחיר מעוצבת</button>
+    <div id="quote-editor">
+      <input type="text" id="qt-client" placeholder="שם הלקוח">
+      <textarea id="qt-work" placeholder="פירוט העבודה והחומרים..." style="min-height:120px"></textarea>
+      <input type="number" id="qt-price" placeholder="מחיר לפני מע״מ (₪)">
+      <button class="btn btn-primary" onclick="generateQuote()">הפק הצעת מחיר</button>
     </div>
-    <div id="quotePreviewWrap" style="display:none">
-      <div class="quote-preview" id="quotePreview"></div>
-      <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="copyQuote()">📋 העתק ושיתוף בוואטסאפ</button>
-      <button class="btn btn-ghost" style="width:100%; margin-top:10px" onclick="showQuoteForm()">חזור לעריכה</button>
+    <div id="quote-result" style="display:none">
+      <div class="quote-box" id="quote-ui"></div>
+      <button class="btn btn-primary" style="margin-top:15px" onclick="copyQuote()">📋 העתק הכל לשיתוף</button>
+      <button class="btn btn-ghost" onclick="editQuote()">חזור לעריכה</button>
     </div>
   </div>
 </main>
 
-<div class="fab-row" id="fabRow">
-  <button class="fab fab-secondary" onclick="switchTab('quote')">📄 הצעת מחיר</button>
-  <button class="fab fab-primary" onclick="openProjectModal()">＋ פרויקט</button>
+<div class="fab-container" id="main-fab">
+  <button class="fab fab-quote" onclick="showPage('quote')">📄 הצעה</button>
+  <button class="fab fab-add" onclick="toggleModal(true)">＋ פרויקט</button>
 </div>
 
-<div class="overlay" id="projectOverlay" onclick="if(event.target==this)closeModal()">
-  <div class="modal">
-    <h3 style="margin-bottom:20px; text-align:center">הוספת פרויקט חדש</h3>
-    <input type="text" id="projName" placeholder="שם הפרויקט">
-    <select id="projStatus">
-      <option value="active">פעיל</option>
-      <option value="pending">ממתין</option>
-      <option value="done">הושלם</option>
+<div class="modal-overlay" id="p-modal" onclick="if(event.target==this)toggleModal(false)">
+  <div class="modal-content">
+    <h2 style="margin-bottom:20px; text-align:center">פרויקט חדש</h2>
+    <input type="text" id="new-p-name" placeholder="שם הפרויקט">
+    <select id="new-p-status">
+      <option value="בביצוע">בביצוע</option>
+      <option value="ממתין">ממתין</option>
+      <option value="הושלם">הושלם</option>
     </select>
-    <input type="number" id="projProgress" placeholder="% התקדמות (0-100)" value="0">
-    <button class="btn btn-primary" style="width:100%" onclick="addProject()">שמור במערכת</button>
-    <button class="btn btn-ghost" style="width:100%; margin-top:10px" onclick="closeModal()">ביטול</button>
+    <input type="number" id="new-p-prog" placeholder="% התקדמות" value="0" min="0" max="100">
+    <button class="btn btn-primary" onclick="saveProject()">שמור פרויקט</button>
+    <button class="btn btn-ghost" onclick="toggleModal(false)">ביטול</button>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast-msg"></div>
 
 <script>
-  let projects = JSON.parse(localStorage.getItem('nmr_projects') || '[]');
+  let projects = JSON.parse(localStorage.getItem('namer_db') || '[]');
 
-  function save() { localStorage.setItem('nmr_projects', JSON.stringify(projects)); }
+  function dbSave() { localStorage.setItem('namer_db', JSON.stringify(projects)); }
 
-  function switchTab(tab) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  function showPage(p) {
+    document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-' + tab).classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('fabRow').style.display = (tab === 'quote') ? 'none' : 'flex';
-    if(tab === 'dashboard') renderDashboard();
-    if(tab === 'projects') renderProjects();
+    document.getElementById('page-'+p).classList.add('active');
+    document.getElementById('tab-'+(p==='dash'?'dash':p==='projs'?'projs':'quote')).classList.add('active');
+    document.getElementById('main-fab').style.display = (p === 'quote') ? 'none' : 'flex';
+    if(p === 'dash') updateDash();
+    if(p === 'projs') updateProjs();
   }
 
-  function renderDashboard() {
+  function updateDash() {
     const total = projects.length;
-    const active = projects.filter(p => p.status === 'active').length;
-    const done = projects.filter(p => p.status === 'done').length;
-    const pending = projects.filter(p => p.status === 'pending').length;
+    const active = projects.filter(p => p.status === 'בביצוע').length;
+    const done = projects.filter(p => p.status === 'הושלם').length;
+    const pending = projects.filter(p => p.status === 'ממתין').length;
 
-    document.getElementById('dash-total').textContent = total;
-    document.getElementById('dash-active').textContent = active;
-    document.getElementById('dash-done').textContent = done;
+    document.getElementById('s-total').innerText = total;
+    document.getElementById('s-active').innerText = active;
+    document.getElementById('s-done').innerText = done;
 
-    const bars = [
-      {label: 'פעיל', count: active, color: 'var(--green)'},
-      {label: 'ממתין', count: pending, color: 'var(--yellow)'},
-      {label: 'הושלם', count: done, color: 'var(--blue)'}
+    const data = [
+      {l: 'בביצוע', c: active, color: 'var(--green)'},
+      {l: 'ממתין', c: pending, color: 'var(--yellow)'},
+      {l: 'הושלם', c: done, color: 'var(--blue)'}
     ];
 
-    document.getElementById('status-bars').innerHTML = bars.map(b => {
-      const pct = total ? (b.count / total) * 100 : 0;
-      return `
-        <div class="status-row">
-          <div class="status-row-label">${b.label}</div>
-          <div class="status-row-bar-wrap">
-            <div class="status-row-bar" style="width:${pct}%; background:${b.color}"></div>
-          </div>
-          <div class="status-count">${b.count}</div>
-        </div>
-      `;
+    document.getElementById('dash-bars').innerHTML = data.map(d => {
+      const w = total ? (d.c / total) * 100 : 0;
+      return `<div class="bar-row">
+        <div class="bar-label">${d.l}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${w}%; background:${d.color}"></div></div>
+        <div style="width:20px; font-weight:700">${d.c}</div>
+      </div>`;
     }).join('');
   }
 
-  function renderProjects() {
-    const list = document.getElementById('projectsList');
-    if (projects.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted)">אין פרויקטים להצגה</div>';
-      return;
-    }
-    list.innerHTML = projects.map((p, i) => `
+  function updateProjs() {
+    const container = document.getElementById('projects-container');
+    if(!projects.length) { container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:50px">אין פרויקטים רשומים</p>'; return; }
+    
+    container.innerHTML = projects.map((p, i) => `
       <div class="project-card">
-        <div style="display:flex; justify-content:space-between; align-items:center">
-          <strong style="font-size:16px">${p.name}</strong>
-          <span style="font-size:11px; padding:3px 8px; border-radius:10px; background:var(--surface2)">${p.status}</span>
+        <div class="project-header">
+          <strong>${p.name}</strong>
+          <span style="font-size:11px; font-weight:800; color:var(--accent)">${p.status}</span>
         </div>
-        <div class="progress-bar-bg"><div class="progress-bar" style="width:${p.progress}%"></div></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
-          <span style="font-size:12px; color:var(--text-muted)">${p.progress}% הושלם</span>
-          <button onclick="deleteProject(${i})" style="background:none; border:none; color:var(--red); font-weight:700; font-size:12px">מחיקה</button>
+        <div class="prog-container"><div class="prog-val" style="width:${p.prog}%"></div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <span style="font-size:12px; color:var(--text-muted)">${p.prog}% הושלם</span>
+          <button class="delete-btn" onclick="deleteProj(${i})">מחיקה</button>
         </div>
       </div>
     `).join('');
   }
 
-  function openProjectModal() { document.getElementById('projectOverlay').classList.add('open'); }
-  function closeModal() { document.getElementById('projectOverlay').classList.remove('open'); }
-
-  function addProject() {
-    const name = document.getElementById('projName').value;
-    if(!name) return;
-    projects.unshift({
-      name,
-      status: document.getElementById('projStatus').value,
-      progress: document.getElementById('projProgress').value || 0
-    });
-    save(); closeModal(); switchTab('projects'); showToast('✅ פרויקט נשמר בהצלחה');
-    document.getElementById('projName').value = '';
+  function toggleModal(show) { 
+    document.getElementById('p-modal').classList.toggle('active', show); 
+    if(!show) { document.getElementById('new-p-name').value = ''; document.getElementById('new-p-prog').value = '0'; }
   }
 
-  function deleteProject(i) {
-    if(confirm('למחוק את הפרויקט?')) { projects.splice(i,1); save(); renderProjects(); showToast('🗑️ פרויקט נמחק'); }
+  function saveProject() {
+    const name = document.getElementById('new-p-name').value;
+    if(!name) return;
+    projects.unshift({
+      name: name,
+      status: document.getElementById('new-p-status').value,
+      prog: document.getElementById('new-p-prog').value || 0
+    });
+    dbSave(); toggleModal(false); showPage('projs'); toast("✅ פרויקט נשמר!");
+  }
+
+  function deleteProj(i) {
+    if(confirm('למחוק את הפרויקט?')) { projects.splice(i,1); dbSave(); updateProjs(); toast("🗑️ נמחק"); }
   }
 
   function generateQuote() {
-    const client = document.getElementById('qClient').value;
-    const price = document.getElementById('qPrice').value;
-    const desc = document.getElementById('qDesc').value;
-    if(!client || !price) { alert('נא להזין שם לקוח ומחיר'); return; }
+    const client = document.getElementById('qt-client').value;
+    const price = document.getElementById('qt-price').value;
+    if(!client || !price) { alert("חובה למלא שם ומחיר"); return; }
     
     const vat = Math.round(price * 0.18);
     const total = Math.round(price * 1.18);
 
-    document.getElementById('quotePreview').innerHTML = `
-      <div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:15px">
-        <h2 style="color:#e8873a">נ.מ.ר ביצוע פרויקטים</h2>
-        <small style="color:#666">הצעת מחיר מסודרת</small>
+    document.getElementById('quote-ui').innerHTML = `
+      <div style="text-align:center; border-bottom:2px solid #f0f0f0; padding-bottom:15px; margin-bottom:15px">
+        <h2 style="color:#e8873a; margin:0">נ.מ.ר ביצוע פרויקטים</h2>
+        <div style="font-size:12px; color:#999">הצעת מחיר רשמית</div>
       </div>
-      <p>לכבוד: <strong>${client}</strong></p>
-      <div style="margin:15px 0; min-height:60px; color:#444">${desc.replace(/\n/g, '<br>')}</div>
-      <div style="background:#f9f9f9; padding:15px; border-radius:10px">
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px">
-          <span>מחיר בסיס:</span> <span>₪${Number(price).toLocaleString()}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px; color:#666">
-          <span>מע"מ (18%):</span> <span>₪${vat.toLocaleString()}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; border-top:1px solid #ddd; padding-top:10px; font-weight:900; font-size:18px">
-          <span>סה"כ לתשלום:</span> <span>₪${total.toLocaleString()}</span>
-        </div>
+      <p style="margin-bottom:10px">לכבוד: <strong>${client}</strong></p>
+      <div style="padding:10px 0; color:#444; line-height:1.6">${document.getElementById('qt-work').value.replace(/\n/g, '<br>')}</div>
+      <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:15px">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px"><span>סה"כ לפני מע"מ:</span> <span>₪${Number(price).toLocaleString()}</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px; color:#888"><span>מע"מ (18%):</span> <span>₪${vat.toLocaleString()}</span></div>
+        <div style="display:flex; justify-content:space-between; border-top:1px solid #ddd; padding-top:10px; font-weight:900; font-size:18px"><span>סה"כ לתשלום:</span> <span>₪${total.toLocaleString()}</span></div>
       </div>
     `;
-    document.getElementById('quoteForm').style.display = 'none';
-    document.getElementById('quotePreviewWrap').style.display = 'block';
+    document.getElementById('quote-editor').style.display = 'none';
+    document.getElementById('quote-result').style.display = 'block';
   }
 
-  function showQuoteForm() {
-    document.getElementById('quoteForm').style.display = 'block';
-    document.getElementById('quotePreviewWrap').style.display = 'none';
+  function editQuote() {
+    document.getElementById('quote-editor').style.display = 'block';
+    document.getElementById('quote-result').style.display = 'none';
   }
 
   function copyQuote() {
-    const text = document.getElementById('quotePreview').innerText;
-    navigator.clipboard.writeText(text).then(() => showToast('📋 הועתק לשיתוף'));
+    const text = document.getElementById('quote-ui').innerText;
+    navigator.clipboard.writeText(text).then(() => toast("📋 הועתק לשיתוף בוואטסאפ"));
   }
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+  function toast(m) {
+    const t = document.getElementById('toast-msg');
+    t.innerText = m; t.style.display = 'block';
+    setTimeout(() => t.classList.add('visible'), 10);
+    setTimeout(() => { 
+      t.classList.remove('visible'); 
+      setTimeout(() => t.style.display = 'none', 400);
+    }, 2500);
   }
 
-  renderDashboard();
+  // Init
+  updateDash();
 </script>
 </body>
 </html>
