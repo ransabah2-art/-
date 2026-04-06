@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>N.M.R - AI Control Center</title>
+    <title>N.M.R - Mobile Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -12,18 +12,18 @@
     <style>
         :root { --bg: #05070a; --card: #111827; --accent: #00f2ff; --purple: #7000ff; --danger: #ff4b5c; --text: #f3f4f6; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; }
-        body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
 
+        /* Auth Screen */
         #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-        .auth-card { background: var(--card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 380px; text-align: center; }
-
+        .auth-card { background: var(--card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
         header { padding: 15px 20px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .s-card { background: #1f2937; padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--border); }
-        .s-card h2 { color: var(--accent); font-size: 22px; }
-
-        nav { display: flex; background: #000; padding: 8px; gap: 5px; position: sticky; top: 0; z-index: 100; }
-        .tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; cursor: pointer; background: #1f2937; color: #9ca3af; font-size: 13px; font-weight: bold; }
+        
+        nav { display: flex; background: #000; padding: 8px; gap: 5px; position: sticky; top: 0; z-index: 100; overflow-x: auto; }
+        .tab { flex: 1; min-width: 70px; padding: 10px; text-align: center; border-radius: 10px; cursor: pointer; background: #1f2937; color: #9ca3af; font-size: 13px; font-weight: bold; }
         .tab.active { background: var(--accent); color: #000; }
 
         main { padding: 15px; max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
@@ -31,68 +31,63 @@
         .page.active { display: block; }
         .glass { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: #030712; color: white; font-size: 16px; }
-        .btn-main { width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.98); }
-
-        /* AI Chat Styles */
-        #chat-container { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding: 5px; }
-        .bubble { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 14px; line-height: 1.5; }
-        .bubble.u { background: var(--purple); color: white; align-self: flex-start; border-bottom-right-radius: 4px; }
-        .bubble.a { background: #374151; color: white; align-self: flex-end; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: #030712; color: white; font-size: 16px; outline: none; }
+        .btn-main { width: 100%; padding: 16px; background: var(--accent); border: none; border-radius: 12px; font-weight: 900; cursor: pointer; color: #000; }
 
         .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); }
-        #calc-btn { position: fixed; left: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--purple); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 1000; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
-        #calc-ui { display: none; position: fixed; left: 20px; bottom: 100px; width: 280px; background: #111827; border: 2px solid var(--purple); border-radius: 20px; padding: 15px; z-index: 1000; }
-        .c-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .c-btn { background: #1f2937; border: none; color: white; padding: 15px; font-size: 18px; border-radius: 10px; }
+        #chat-box { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding: 10px; background: #030712; border-radius: 12px; }
+        .msg { padding: 10px; border-radius: 12px; max-width: 85%; font-size: 14px; }
+        .msg.u { background: var(--purple); align-self: flex-start; }
+        .msg.a { background: #374151; align-self: flex-end; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h1 style="color:var(--accent); font-weight:900;">N.M.R LOGIN</h1>
-            <input type="email" id="l-email" placeholder="אימייל">
+            <h1 style="color:var(--accent); margin-bottom:10px;">N.M.R</h1>
+            <p style="margin-bottom:20px; font-size:14px; color:#9ca3af;">כניסת מנהלים ושותפים</p>
+            <input type="email" id="l-email" placeholder="אימייל" autocomplete="email">
             <input type="password" id="l-pass" placeholder="סיסמה">
-            <button class="btn-main" onclick="handleAuth()">כניסה למערכת</button>
+            <button class="btn-main" id="btn-login" onclick="handleAuth()">כניסה למערכת</button>
+            <p id="auth-err" style="color:var(--danger); font-size:13px; margin-top:10px; display:none;"></p>
         </div>
     </div>
 
     <div id="app-body" style="display:none;">
         <header>
-            <h2 style="font-weight:900; color:var(--accent);">N.M.R HUB</h2>
-            <button onclick="firebase.auth().signOut()" style="background:none; border:none; color:var(--danger); font-weight:bold;">יציאה</button>
+            <h2 style="color:var(--accent);">N.M.R</h2>
+            <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-weight:bold;">יציאה</button>
         </header>
 
         <div class="stats">
-            <div class="s-card"><p style="font-size:12px; color:#9ca3af;">פרויקטים</p><h2 id="st-count">0</h2></div>
-            <div class="s-card"><p style="font-size:12px; color:#9ca3af;">רווח מצטבר</p><h2 id="st-profit">0</h2></div>
+            <div class="s-card"><p>פרויקטים</p><h2 id="st-count">0</h2></div>
+            <div class="s-card"><p>רווח נקי</p><h2 id="st-profit">0</h2></div>
         </div>
 
         <nav>
             <div class="tab active" onclick="showP('dash', this)">🏠 ראשי</div>
             <div class="tab" onclick="showP('list', this)">🏗️ ניהול</div>
             <div class="tab" onclick="showP('pdf', this)">📄 הצעה</div>
-            <div class="tab" onclick="showP('ai', this)">🤖 ה-AI שלי</div>
+            <div class="tab" onclick="showP('ai', this)">🤖 AI</div>
         </nav>
 
         <main>
             <div id="pg-dash" class="page active">
                 <div class="glass">
-                    <h3 style="margin-bottom:10px;">פתיחת פרויקט</h3>
-                    <input type="text" id="in-t" placeholder="שם הפרויקט (למשל: שיפוץ אמבטיה)">
+                    <h3>פרויקט חדש</h3>
+                    <input type="text" id="in-t" placeholder="שם הפרויקט">
                     <input type="text" id="in-c" placeholder="שם הלקוח">
                     <div style="display:flex; gap:10px;">
-                        <input type="number" id="in-cost" placeholder="עלות חומרים/פועלים">
-                        <input type="number" id="in-sell" placeholder="מחיר ללקוח">
+                        <input type="number" id="in-cost" placeholder="עלות">
+                        <input type="number" id="in-sell" placeholder="מכירה">
                     </div>
                     <select id="in-s">
                         <option value="בביצוע">בביצוע</option>
-                        <option value="הצעה">רק הצעה</option>
+                        <option value="הצעה">הצעה</option>
                         <option value="הושלם">הושלם</option>
                     </select>
-                    <button class="btn-main" onclick="saveProject()">שמור במערכת</button>
+                    <button class="btn-main" onclick="saveProject()">שמור פרויקט</button>
                 </div>
             </div>
 
@@ -102,47 +97,25 @@
 
             <div id="pg-pdf" class="page">
                 <div class="glass">
-                    <h3>מחולל הצעות מחיר</h3>
-                    <input type="text" id="pdf-client" placeholder="שם הלקוח">
-                    <textarea id="pdf-desc" placeholder="מה כוללת העבודה?" rows="4"></textarea>
-                    <input type="number" id="pdf-price" placeholder="מחיר כולל (₪)">
-                    <button class="btn-main" style="background:#22c55e; margin-bottom:10px;" onclick="sendWhatsApp()">📱 שלח לווטסאפ</button>
-                    <button class="btn-main" style="background:white; color:black;" onclick="generatePDF()">📥 שמור כ-PDF</button>
+                    <h3>הצעת מחיר מהירה</h3>
+                    <input type="text" id="pdf-client" placeholder="לכבוד: שם הלקוח">
+                    <textarea id="pdf-desc" placeholder="תיאור העבודה..." rows="4"></textarea>
+                    <input type="number" id="pdf-price" placeholder="מחיר (₪)">
+                    <button class="btn-main" style="background:#22c55e; margin-bottom:10px;" onclick="sendWhatsApp()">📱 שלח ב-WhatsApp</button>
+                    <button class="btn-main" style="background:white; color:black;" onclick="generatePDF()">📥 הורד PDF</button>
                 </div>
             </div>
 
             <div id="pg-ai" class="page">
                 <div class="glass">
-                    <div id="chat-container">
-                        <div class="bubble a">שלום רן, אני העוזר החכם שלך. איך אני יכול לעזור בעסק היום?</div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="ai-msg" placeholder="כתוב כאן שאלה..." style="margin:0;">
-                        <button onclick="askAI()" style="background:var(--accent); border:none; width:60px; border-radius:12px; font-size:20px;">🚀</button>
+                    <div id="chat-box"></div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="ai-msg" placeholder="שאל משהו..." style="margin:0;">
+                        <button onclick="askAI()" style="background:var(--accent); border:none; width:55px; border-radius:12px;">🚀</button>
                     </div>
                 </div>
             </div>
         </main>
-    </div>
-
-    <div id="calc-btn" onclick="toggleCalc()">🧮</div>
-    <div id="calc-ui">
-        <div id="c-res" style="background:#000; padding:10px; border-radius:8px; margin-bottom:10px; text-align:left; font-size:22px; color:var(--accent);">0</div>
-        <div class="c-grid">
-            <button class="c-btn" onclick="cClear()">C</button>
-            <button class="c-btn" onclick="cPress('/')">/</button>
-            <button class="c-btn" onclick="cPress('*')">×</button>
-            <button class="c-btn" onclick="cPress('-')">-</button>
-            <button class="c-btn" onclick="cPress('7')">7</button>
-            <button class="c-btn" onclick="cPress('8')">8</button>
-            <button class="c-btn" onclick="cPress('9')">9</button>
-            <button class="c-btn" onclick="cPress('+')">+</button>
-            <button class="c-btn" onclick="cSolve()" style="background:var(--accent); color:#000;">=</button>
-            <button class="c-btn" onclick="cPress('4')">4</button>
-            <button class="c-btn" onclick="cPress('5')">5</button>
-            <button class="c-btn" onclick="cPress('6')">6</button>
-            <button class="c-btn" onclick="cPress('0')">0</button>
-        </div>
     </div>
 
 <script>
@@ -150,18 +123,47 @@
     const GEMINI_KEY = "AIzaSyAUK-zi5ASJ0KfjbWm9ZAMaaoFhqX_OP58";
 
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(), db = firebase.firestore();
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // תיקון כניסה לטלפון - זיכרון מקומי
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     auth.onAuthStateChanged(user => {
-        document.getElementById('auth-screen').style.display = user ? 'none' : 'flex';
-        document.getElementById('app-body').style.display = user ? 'block' : 'none';
-        if(user) loadData();
+        if(user) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-body').style.display = 'block';
+            loadData();
+        } else {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('app-body').style.display = 'none';
+        }
     });
 
     async function handleAuth() {
-        const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
-        try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("פרטי כניסה שגויים"); }
+        const btn = document.getElementById('btn-login');
+        const errDiv = document.getElementById('auth-err');
+        const e = document.getElementById('l-email').value.trim().toLowerCase();
+        const p = document.getElementById('l-pass').value;
+
+        if(!e || !p) {
+            errDiv.innerText = "נא להזין אימייל וסיסמה";
+            errDiv.style.display = 'block';
+            return;
+        }
+
+        btn.innerText = "מתחבר...";
+        try {
+            await auth.signInWithEmailAndPassword(e, p);
+        } catch(err) {
+            btn.innerText = "כניסה למערכת";
+            errDiv.innerText = "שגיאה: וודא שהפרטים נכונים";
+            errDiv.style.display = 'block';
+            console.error(err);
+        }
     }
+
+    function logout() { auth.signOut(); }
 
     function showP(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -171,10 +173,17 @@
     }
 
     async function saveProject() {
-        const t = document.getElementById('in-t').value, cost = Number(document.getElementById('in-cost').value), sell = Number(document.getElementById('in-sell').value);
-        if(!t) return alert("חובה לתת שם לפרויקט");
-        await db.collection('projs').add({ title: t, client: document.getElementById('in-c').value, cost, sell, profit: sell-cost, status: document.getElementById('in-s').value, time: Date.now() });
-        alert("הפרויקט נוסף בהצלחה!");
+        const title = document.getElementById('in-t').value;
+        const cost = Number(document.getElementById('in-cost').value) || 0;
+        const sell = Number(document.getElementById('in-sell').value) || 0;
+        if(!title) return alert("שם פרויקט חובה");
+
+        await db.collection('projs').add({
+            title, client: document.getElementById('in-c').value,
+            cost, sell, profit: sell - cost, status: document.getElementById('in-s').value,
+            time: Date.now()
+        });
+        alert("נשמר!");
         document.getElementById('in-t').value = '';
     }
 
@@ -186,60 +195,54 @@
             snap.forEach(doc => {
                 const p = doc.data();
                 count++; profit += p.profit;
-                container.innerHTML += `<div class="p-card"><div style="float:left; color:var(--accent); font-weight:bold;">₪${p.profit}</div><strong>${p.title}</strong><br><small>${p.client} | ${p.status}</small><br><button onclick="deleteP('${doc.id}')" style="background:none; border:none; color:var(--danger); font-size:12px; margin-top:5px; cursor:pointer;">🗑️ מחק פרויקט</button></div>`;
+                container.innerHTML += `
+                    <div class="p-card">
+                        <span style="float:left; color:var(--accent);">₪${p.profit}</span>
+                        <strong>${p.title}</strong><br>
+                        <small>${p.client} | ${p.status}</small><br>
+                        <button onclick="deleteP('${doc.id}')" style="background:none; border:none; color:var(--danger); font-size:12px; margin-top:5px;">🗑️ מחק</button>
+                    </div>`;
             });
             document.getElementById('st-count').innerText = count;
             document.getElementById('st-profit').innerText = profit.toLocaleString() + " ₪";
         });
     }
 
-    async function deleteP(id) { if(confirm("למחוק פרויקט זה?")) await db.collection('projs').doc(id).delete(); }
+    async function deleteP(id) { if(confirm("למחוק?")) await db.collection('projs').doc(id).delete(); }
 
-    // פונקציית AI משופרת
     async function askAI() {
-        const inpt = document.getElementById('ai-msg'), cont = document.getElementById('chat-container');
+        const inpt = document.getElementById('ai-msg'), box = document.getElementById('chat-box');
         if(!inpt.value) return;
         const msg = inpt.value; inpt.value = '';
-        cont.innerHTML += `<div class="bubble u">${msg}</div>`;
-        cont.scrollTop = cont.scrollHeight;
-
+        box.innerHTML += `<div class="msg u">${msg}</div>`;
+        box.scrollTop = box.scrollHeight;
+        
         try {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: "אתה עוזר אישי מקצועי של רן, בעל עסק לניהול פרויקטים ובנייה בשם NMR. ענה בעברית ברורה ועניינית: " + msg }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: "ענה בקצרה בעברית: " + msg }] }] })
             });
             const data = await res.json();
-            const reply = data.candidates[0].content.parts[0].text;
-            cont.innerHTML += `<div class="bubble a">${reply}</div>`;
-        } catch(e) {
-            cont.innerHTML += `<div class="bubble a" style="color:red;">סליחה רן, יש תקלה בחיבור ל-AI. נסה שוב בעוד רגע.</div>`;
-        }
-        cont.scrollTop = cont.scrollHeight;
+            box.innerHTML += `<div class="msg a">${data.candidates[0].content.parts[0].text}</div>`;
+        } catch(e) { box.innerHTML += `<div class="msg a" style="color:red;">תקלה ב-AI</div>`; }
+        box.scrollTop = box.scrollHeight;
     }
 
     function sendWhatsApp() {
-        const client = document.getElementById('pdf-client').value, desc = document.getElementById('pdf-desc').value, price = document.getElementById('pdf-price').value;
-        const text = `שלום ${client},%0Aלהלן הצעת מחיר מ-N.M.R:%0A%0A*תיאור:*%0A${desc}%0A%0A*סה"כ לתשלום:* ₪${price}%0A%0Aנשמח לעמוד לשירותך!`;
+        const c = document.getElementById('pdf-client').value, d = document.getElementById('pdf-desc').value, p = document.getElementById('pdf-price').value;
+        const text = `שלום ${c},%0Aלהלן הצעת מחיר מ-N.M.R:%0A%0A${d}%0A%0A*סה"כ:* ₪${p}`;
         window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const client = document.getElementById('pdf-client').value, desc = document.getElementById('pdf-desc').value, price = document.getElementById('pdf-price').value;
-        doc.text("N.M.R PROJECTS - QUOTATION", 10, 10);
-        doc.text(`Client: ${client}`, 10, 25);
-        doc.text(`Description: ${desc}`, 10, 40);
-        doc.text(`Total Price: ${price} NIS`, 10, 100);
-        doc.save(`NMR_Quote_${client}.pdf`);
+        doc.text("N.M.R PROJECTS", 10, 10);
+        doc.text("Client: " + document.getElementById('pdf-client').value, 10, 25);
+        doc.text("Price: " + document.getElementById('pdf-price').value + " NIS", 10, 40);
+        doc.save("NMR_Quote.pdf");
     }
-
-    let cur = "0";
-    function toggleCalc() { const u = document.getElementById('calc-ui'); u.style.display = u.style.display==='block'?'none':'block'; }
-    function cPress(v) { if(cur==="0") cur=v; else cur+=v; document.getElementById('c-res').innerText=cur; }
-    function cClear() { cur="0"; document.getElementById('c-res').innerText="0"; }
-    function cSolve() { try { cur=eval(cur).toString(); document.getElementById('c-res').innerText=cur; } catch(e){ cur="Error"; } }
 </script>
 </body>
 </html>
