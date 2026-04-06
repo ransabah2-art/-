@@ -3,159 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>נ.מ.ר - ניהול פרויקטים</title>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>נ.מ.ר - NEXT GEN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root {
-            --bg: #0b0e14; --surface: #161a23; --surface-light: #1f2430;
-            --accent: #f5a623; --text: #ffffff; --text-muted: #94a3b8;
-            --green: #10b981; --red: #ef4444; --border: #2d3748; --radius: 18px;
+            --bg: #05070a;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #00f2ff; /* Cyan Electric */
+            --secondary: #7000ff; /* Purple Glow */
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --green: #00ff9d;
+            --red: #ff4b5c;
+            --radius-lg: 24px;
+            --radius-md: 16px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; }
-        body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; overflow-x: hidden; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* Auth Screen */
-        #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { background: var(--surface); padding: 30px; border-radius: 25px; border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; }
+        body { 
+            background: radial-gradient(circle at top right, #0a0f1d, #05070a);
+            color: var(--text);
+            direction: rtl;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* Auth Screen Modern */
+        #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 25px; }
+        .auth-card { width: 100%; max-width: 400px; text-align: center; }
+        .logo-glow { font-size: 42px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(to bottom right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+
+        /* Navigation */
+        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-tabs { 
+            display: flex; 
+            margin: 0 15px 20px; 
+            background: rgba(255,255,255,0.02); 
+            padding: 6px; 
+            border-radius: 20px; 
+            border: 1px solid var(--glass-border);
+        }
+        .tab { 
+            flex: 1; padding: 10px; text-align: center; border-radius: 15px; 
+            font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.3s;
+        }
+        .tab.active { background: var(--accent); color: #000; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+
+        /* Dashboard Stats */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: var(--radius-md); text-align: center; }
+        .stat-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
+        .stat-val { font-size: 20px; font-weight: 900; margin-top: 5px; }
+
+        /* Projects */
+        .proj-card { transition: transform 0.2s; }
+        .proj-card:active { transform: scale(0.98); }
+        .progress-container { height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--secondary), var(--accent)); transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Inputs & Buttons */
+        input, select, textarea { 
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); 
+            border-radius: 16px; padding: 16px; color: white; margin-bottom: 12px; font-size: 16px;
+        }
+        input:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.08); }
         
-        /* App Layout */
-        #app-content { display: none; }
-        header { background: var(--surface); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .nav-tabs { display: flex; background: var(--surface); padding: 5px; gap: 5px; border-bottom: 1px solid var(--border); }
-        .tab { flex: 1; padding: 12px; text-align: center; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; font-size: 14px; }
-        .tab.active { background: var(--surface-light); color: var(--accent); }
+        .btn-main { 
+            background: var(--accent); color: #000; padding: 18px; border-radius: 16px; 
+            border: none; font-weight: 900; width: 100%; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
+        }
 
-        main { padding: 20px 15px 100px; max-width: 600px; margin: 0 auto; }
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Image Strip */
+        .image-strip { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .image-strip img { width: 110px; height: 110px; border-radius: 18px; object-fit: cover; border: 2px solid var(--glass-border); }
 
-        .card { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
-        .card-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-        .card-val { font-size: 24px; font-weight: 900; }
-        
-        .status-tag { position: absolute; left: 20px; top: 20px; font-size: 10px; padding: 4px 10px; border-radius: 20px; background: var(--surface-light); color: var(--accent); font-weight: 800; }
-        .prog-bg { height: 6px; background: var(--surface-light); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #d48411); transition: 0.5s; }
+        /* Floating Actions */
+        .fab { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            background: #fff; color: #000; padding: 16px 35px; border-radius: 40px; 
+            font-weight: 900; z-index: 90; box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        }
 
-        input, select, textarea { width: 100%; background: var(--surface-light); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: white; margin-bottom: 12px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-p { background: var(--accent); color: #000; }
-        .btn-s { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; }
+        /* Calculator Neon */
+        #calc-bubble { 
+            position: fixed; right: 20px; bottom: 30px; width: 60px; height: 60px; 
+            background: var(--secondary); border-radius: 20px; display: flex; 
+            align-items: center; justify-content: center; font-size: 24px; z-index: 100;
+            box-shadow: 0 0 20px rgba(112, 0, 255, 0.4);
+        }
+        #calculator { 
+            display: none; position: fixed; right: 20px; bottom: 100px; width: 280px; 
+            background: #0d1117; border: 1px solid var(--secondary); border-radius: 24px; 
+            padding: 20px; z-index: 100;
+        }
+        .calc-btn { background: #1a1f2e; border: none; border-radius: 12px; color: #fff; font-size: 18px; padding: 15px; font-weight: 700; }
+        .calc-btn.op { color: var(--accent); }
 
-        /* Gallery */
-        .image-strip { display: flex; gap: 10px; overflow-x: auto; margin-top: 15px; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-        .image-strip img { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); scroll-snap-align: start; flex-shrink: 0; }
-        .upload-btn { background: var(--surface-light); border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 10px; display: inline-block; width: 100%; text-align: center; }
+        .page { display: none; padding: 0 15px 120px; animation: slideUp 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 15px 30px; border-radius: 50px; font-weight: 900; border: none; box-shadow: 0 5px 20px rgba(245,166,35,0.4); z-index: 99; }
-        .admin-only { display: none; } 
-
-        /* Floating Calculator */
-        #calc-bubble { position: fixed; left: 20px; bottom: 30px; width: 55px; height: 55px; background: var(--surface-light); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        #calculator { display: none; position: fixed; left: 20px; bottom: 95px; width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 15px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .calc-screen { width: 100%; height: 50px; background: #000; border-radius: 10px; margin-bottom: 10px; text-align: left; padding: 10px; font-size: 20px; font-family: monospace; color: var(--green); overflow: hidden; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn { height: 45px; background: var(--surface-light); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .calc-btn.op { background: var(--accent); color: black; }
-        .calc-btn.eq { background: var(--green); color: black; grid-column: span 2; }
-
-        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 10px 25px; border-radius: 50px; font-weight: 800; opacity: 0; transition: 0.3s; z-index: 1000; pointer-events: none; }
-        #toast.show { opacity: 1; }
+        #app-content { display:none; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
-    <div class="auth-card">
-        <h1 style="margin-bottom:5px; color:var(--accent)">נ.מ.ר</h1>
-        <p style="color:var(--text-muted); margin-bottom:25px; font-size:14px">ניהול פרויקטים וביצוע</p>
+    <div class="glass-card auth-card">
+        <div class="logo-glow">N.M.R</div>
+        <p style="color:var(--text-muted); margin-bottom:30px">מערכת ניהול פרויקטים חכמה</p>
         <input type="email" id="login-email" placeholder="אימייל">
         <input type="password" id="login-pass" placeholder="סיסמה">
-        <button class="btn btn-p" onclick="handleAuth('login')">התחבר</button>
-        <button class="btn btn-s" onclick="handleAuth('signup')">הרשמה ראשונית</button>
+        <button class="btn-main" onclick="handleAuth('login')">כניסה למערכת</button>
+        <button style="background:none; border:none; color:var(--text-muted); margin-top:15px; font-size:13px" onclick="handleAuth('signup')">הרשמה ראשונית</button>
     </div>
 </div>
 
 <div id="app-content">
     <header>
-        <div style="font-weight:900; font-size:18px">🏗️ נ.מ.ר <span style="color:var(--accent)">פרויקטים</span></div>
-        <button onclick="logout()" style="background:none; border:none; color:var(--red); font-size:12px; font-weight:700">התנתק</button>
+        <div class="logo-glow" style="font-size:24px">N.M.R</div>
+        <button onclick="logout()" style="background:rgba(255,0,0,0.1); border:none; color:var(--red); padding:8px 15px; border-radius:12px; font-weight:700; font-size:12px">יציאה</button>
     </header>
 
     <div class="nav-tabs">
-        <div class="tab active" id="t-dash" onclick="showPage('dash')">📊 דשבורד</div>
-        <div class="tab" id="t-projs" onclick="showPage('projs')">📋 פרויקטים</div>
-        <div class="tab" id="t-quote" onclick="showPage('quote')">📄 הצעה</div>
+        <div class="tab active" id="t-dash" onclick="showPage('dash')">סקירה</div>
+        <div class="tab" id="t-projs" onclick="showPage('projs')">פרויקטים</div>
+        <div class="tab" id="t-quote" onclick="showPage('quote')">הצעה</div>
     </div>
 
     <main>
         <div class="page active" id="p-dash">
             <div class="admin-only">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px">
-                    <div class="card"><div class="card-label">רווח מצטבר</div><div class="card-val" id="total-profit" style="color:var(--green)">₪0</div></div>
-                    <div class="card"><div class="card-label">הוצאות</div><div class="card-val" id="total-costs" style="color:var(--red)">₪0</div></div>
+                <div class="stat-grid">
+                    <div class="glass-card stat-box" style="border-right: 4px solid var(--green)">
+                        <div class="stat-label">רווח נקי</div>
+                        <div class="stat-val" id="total-profit" style="color:var(--green)">₪0</div>
+                    </div>
+                    <div class="glass-card stat-box" style="border-right: 4px solid var(--red)">
+                        <div class="stat-label">הוצאות</div>
+                        <div class="stat-val" id="total-costs" style="color:var(--red)">₪0</div>
+                    </div>
                 </div>
             </div>
-            <div class="card"><div class="card-label">פרויקטים פעילים</div><div class="card-val" id="count-active">0</div></div>
+            <div class="glass-card stat-box" style="background: linear-gradient(135deg, rgba(112,0,255,0.1), rgba(0,242,255,0.1))">
+                <div class="stat-label">פרויקטים פעילים בשטח</div>
+                <div class="stat-val" id="count-active">0</div>
+            </div>
         </div>
 
-        <div class="page" id="p-projs">
-            <div id="project-list"></div>
-        </div>
+        <div class="page" id="p-projs"><div id="project-list"></div></div>
 
         <div class="page" id="p-quote">
-            <input type="text" id="q-client" placeholder="שם הלקוח">
-            <textarea id="q-work" rows="4" placeholder="תיאור העבודה..."></textarea>
-            <input type="number" id="q-price" placeholder="מחיר לפני מע״מ">
-            <button class="btn btn-p" onclick="generateQuote()">הפק הצעה</button>
-            <div id="quote-result" style="display:none; background:white; color:#111; padding:20px; border-radius:15px; margin-top:20px; font-size:14px"></div>
+            <div class="glass-card">
+                <input type="text" id="q-client" placeholder="שם הלקוח">
+                <textarea id="q-work" rows="4" placeholder="תיאור העבודה והמפרט..."></textarea>
+                <input type="number" id="q-price" placeholder="מחיר בסיס (₪)">
+                <button class="btn-main" onclick="generateQuote()">צור הצעה מעוצבת</button>
+            </div>
+            <div id="quote-result" style="display:none; background:#fff; color:#000; padding:25px; border-radius:24px; margin-top:20px"></div>
         </div>
     </main>
 
     <div id="calc-bubble" onclick="toggleCalc()">🧮</div>
     <div id="calculator">
-        <div class="calc-screen" id="calc-display">0</div>
-        <div class="calc-grid">
+        <div style="background:#000; padding:15px; border-radius:12px; margin-bottom:15px; text-align:left; font-size:24px; color:var(--accent)" id="calc-display">0</div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px">
             <button class="calc-btn" onclick="clearCalc()">C</button>
             <button class="calc-btn op" onclick="pressCalc('/')">/</button>
             <button class="calc-btn op" onclick="pressCalc('*')">×</button>
             <button class="calc-btn op" onclick="pressCalc('-')">-</button>
-            <button class="calc-btn" onclick="pressCalc('7')">7</button>
-            <button class="calc-btn" onclick="pressCalc('8')">8</button>
-            <button class="calc-btn" onclick="pressCalc('9')">9</button>
+            <button class="calc-btn" onclick="pressCalc('7')">7</button><button class="calc-btn" onclick="pressCalc('8')">8</button><button class="calc-btn" onclick="pressCalc('9')">9</button>
             <button class="calc-btn op" onclick="pressCalc('+')">+</button>
-            <button class="calc-btn" onclick="pressCalc('4')">4</button>
-            <button class="calc-btn" onclick="pressCalc('5')">5</button>
-            <button class="calc-btn" onclick="pressCalc('6')">6</button>
+            <button class="calc-btn" onclick="pressCalc('4')">4</button><button class="calc-btn" onclick="pressCalc('5')">5</button><button class="calc-btn" onclick="pressCalc('6')">6</button>
             <button class="calc-btn" onclick="pressCalc('.')">.</button>
-            <button class="calc-btn" onclick="pressCalc('1')">1</button>
-            <button class="calc-btn" onclick="pressCalc('2')">2</button>
-            <button class="calc-btn" onclick="pressCalc('3')">3</button>
+            <button class="calc-btn" onclick="pressCalc('1')">1</button><button class="calc-btn" onclick="pressCalc('2')">2</button><button class="calc-btn" onclick="pressCalc('3')">3</button>
+            <button class="calc-btn" style="background:var(--accent); color:#000; grid-column: span 2" onclick="solveCalc()">=</button>
             <button class="calc-btn" onclick="pressCalc('0')">0</button>
-            <button class="calc-btn eq" onclick="solveCalc()">=</button>
         </div>
     </div>
 
     <button class="fab" id="fab" onclick="openModal()">＋ פרויקט חדש</button>
 </div>
 
-<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; padding:20px">
-    <div class="card" style="width:100%; max-width:400px">
-        <h2 style="margin-bottom:15px">פרויקט חדש</h2>
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(10px)">
+    <div class="glass-card" style="width:100%; max-width:400px; background:#0d1117">
+        <h2 style="margin-bottom:20px">פרויקט חדש</h2>
         <input type="text" id="new-name" placeholder="שם הפרויקט">
         <select id="new-status"><option value="ביצוע">בביצוע</option><option value="הושלם">הושלם</option></select>
-        <input type="number" id="new-prog" placeholder="% התקדמות (0-100)">
-        <div class="admin-only"><input type="number" id="new-income" placeholder="הכנסה צפויה (₪)"><input type="number" id="new-costs" placeholder="הוצאות (₪)"></div>
-        <button class="btn btn-p" onclick="saveProject()">שמור במערכת</button>
-        <button class="btn btn-s" onclick="closeModal()">ביטול</button>
+        <input type="number" id="new-prog" placeholder="% התקדמות">
+        <div class="admin-only">
+            <input type="number" id="new-income" placeholder="הכנסה צפויה">
+            <input type="number" id="new-costs" placeholder="הוצאות חומרים/פועלים">
+        </div>
+        <button class="btn-main" onclick="saveProject()">שמור פרויקט</button>
+        <button style="background:none; border:none; color:var(--text-muted); width:100%; margin-top:15px" onclick="closeModal()">ביטול</button>
     </div>
 </div>
-
-<div id="toast"></div>
 
 <script>
     const firebaseConfig = {
@@ -178,9 +238,7 @@
         if (user) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-            if (user.email === ADMIN_EMAIL) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-            }
+            if (user.email === ADMIN_EMAIL) document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
             loadProjects();
         } else {
             document.getElementById('auth-screen').style.display = 'flex';
@@ -191,15 +249,14 @@
     async function handleAuth(type) {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
-        if(!email || !pass) return alert("נא להזין אימייל וסיסמה");
+        if(!email || !pass) return alert("הכנס פרטים");
         try {
             if (type === 'login') await auth.signInWithEmailAndPassword(email, pass);
             else await auth.createUserWithEmailAndPassword(email, pass);
-        } catch (e) { alert("שגיאה: " + e.message); }
+        } catch (e) { alert(e.message); }
     }
 
     function logout() { auth.signOut(); }
-
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -213,7 +270,7 @@
 
     async function saveProject() {
         const name = document.getElementById('new-name').value;
-        if(!name) return alert("חובה לתת שם לפרויקט");
+        if(!name) return;
         await db.collection('projects').add({
             name: name,
             status: document.getElementById('new-status').value,
@@ -224,20 +281,15 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         closeModal();
-        toast("✅ פרויקט נשמר");
     }
 
     async function uploadToImgBB(projectId, file) {
         if(!file) return;
-        toast("📸 מעלה תמונה...");
         let formData = new FormData();
         formData.append("image", file);
-        try {
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
-            const result = await response.json();
-            await db.collection('projects').doc(projectId).update({ images: firebase.firestore.FieldValue.arrayUnion(result.data.url) });
-            toast("✅ התמונה נוספה");
-        } catch (e) { toast("❌ תקלה בהעלאה"); }
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
+        const result = await response.json();
+        await db.collection('projects').doc(projectId).update({ images: firebase.firestore.FieldValue.arrayUnion(result.data.url) });
     }
 
     function loadProjects() {
@@ -248,7 +300,23 @@
                 if (p.status === 'ביצוע') activeCount++;
                 totalProfit += (p.income - p.costs); totalCosts += p.costs;
                 let imagesHtml = (p.images || []).map(img => `<img src="${img}" onclick="window.open('${img}')">`).join('');
-                html += `<div class="card proj-card"><span class="status-tag">${p.status}</span><h3>${p.name}</h3><div class="prog-bg"><div class="prog-fill" style="width:${p.prog}%"></div></div><div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted)"><span>${p.prog}% הושלם</span>${auth.currentUser.email === ADMIN_EMAIL ? `<span style="color:var(--green)">₪${(p.income-p.costs).toLocaleString()}</span>` : ''}</div><div class="image-strip">${imagesHtml || '<p style="font-size:11px; color:#444">אין תמונות</p>'}</div><label class="upload-btn">📷 הוסף תמונה<input type="file" accept="image/*" style="display:none" onchange="uploadToImgBB('${id}', this.files[0])"></label></div>`;
+                html += `
+                    <div class="glass-card proj-card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                            <h3 style="font-weight:900; font-size:20px">${p.name}</h3>
+                            <span style="font-size:10px; color:var(--accent); background:rgba(0,242,255,0.1); padding:4px 10px; border-radius:10px">${p.status}</span>
+                        </div>
+                        <div class="progress-container"><div class="progress-bar" style="width:${p.prog}%"></div></div>
+                        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted)">
+                            <span>${p.prog}% ביצוע</span>
+                            ${auth.currentUser.email === ADMIN_EMAIL ? `<span style="color:var(--green); font-weight:700">₪${(p.income-p.costs).toLocaleString()}</span>` : ''}
+                        </div>
+                        <div class="image-strip">${imagesHtml}</div>
+                        <label style="display:block; margin-top:10px; text-align:center; color:var(--accent); font-size:13px; font-weight:700; cursor:pointer">
+                            📸 הוסף תמונה ליומן
+                            <input type="file" accept="image/*" style="display:none" onchange="uploadToImgBB('${id}', this.files[0])">
+                        </label>
+                    </div>`;
             });
             document.getElementById('project-list').innerHTML = html;
             document.getElementById('count-active').innerText = activeCount;
@@ -259,7 +327,7 @@
         });
     }
 
-    // Calculator Logic
+    // Calc Logic
     let calcVal = "0";
     function toggleCalc() {
         const c = document.getElementById('calculator');
@@ -272,21 +340,27 @@
     function clearCalc() { calcVal = "0"; document.getElementById('calc-display').innerText = "0"; }
     function solveCalc() {
         try { calcVal = eval(calcVal).toString(); document.getElementById('calc-display').innerText = calcVal; }
-        catch(e) { calcVal = "Error"; document.getElementById('calc-display').innerText = "Error"; }
+        catch(e) { document.getElementById('calc-display').innerText = "Error"; }
     }
 
     function generateQuote() {
-        const client = document.getElementById('q-client').value; const price = Number(document.getElementById('q-price').value);
-        if(!client || !price) return alert("מלא שם ומחיר");
-        const vat = Math.round(price * 0.18); const total = price + vat;
+        const client = document.getElementById('q-client').value;
+        const price = Number(document.getElementById('q-price').value);
+        const vat = Math.round(price * 0.18);
+        const total = price + vat;
         document.getElementById('quote-result').style.display = 'block';
-        document.getElementById('quote-result').innerHTML = `<div style="text-align:center; border-bottom:2px solid #f5a623; padding-bottom:10px; margin-bottom:15px"><h2 style="color:#f5a623">נ.מ.ר - הצעת מחיר</h2></div><p><strong>לכבוד:</strong> ${client}</p><p style="margin:15px 0"><strong>תיאור:</strong> ${document.getElementById('q-work').value}</p><div style="background:#f9f9f9; padding:15px; border-radius:10px; border-right:4px solid #f5a623"><div style="display:flex; justify-content:space-between"><span>סה"כ:</span> <span>₪${price.toLocaleString()}</span></div><div style="display:flex; justify-content:space-between; font-size:12px; color:#666"><span>מע"מ (18%):</span> <span>₪${vat.toLocaleString()}</span></div><div style="display:flex; justify-content:space-between; font-weight:900; font-size:18px; margin-top:10px; color:#000"><span>לתשלום:</span> <span>₪${total.toLocaleString()}</span></div></div>`;
-    }
-
-    function toast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+        document.getElementById('quote-result').innerHTML = `
+            <h2 style="color:var(--secondary); text-align:center; border-bottom:2px solid #eee; padding-bottom:10px">נ.מ.ר - הצעת מחיר</h2>
+            <div style="margin:20px 0">
+                <p><strong>לכבוד:</strong> ${client}</p>
+                <p style="margin-top:10px"><strong>פירוט העבודה:</strong><br>${document.getElementById('q-work').value}</p>
+            </div>
+            <div style="background:#f8f9fa; padding:15px; border-radius:15px">
+                <div style="display:flex; justify-content:space-between"><span>סה"כ לפני מע"מ:</span> <span>₪${price.toLocaleString()}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; color:#666"><span>מע"מ (18%):</span> <span>₪${vat.toLocaleString()}</span></div>
+                <hr style="margin:10px 0; border:0; border-top:1px solid #ddd">
+                <div style="display:flex; justify-content:space-between; font-weight:900; font-size:20px"><span>לתשלום:</span> <span>₪${total.toLocaleString()}</span></div>
+            </div>`;
     }
 </script>
 </body>
