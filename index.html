@@ -3,20 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>נ.מ.ר - מערכת ניהול</title>
+    <title>נ.מ.ר - ניהול פרויקטים</title>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root {
-            --bg: #0a0e14;
-            --accent: #00f2ff;
-            --secondary: #7000ff;
-            --text: #e2e8f0;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.1);
-        }
+        :root { --bg: #0a0e14; --accent: #00f2ff; --secondary: #7000ff; --text: #e2e8f0; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; overflow-x: hidden; }
         #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -31,56 +24,44 @@
         .page.active { display: block; }
         input, textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 15px; color: white; margin-bottom: 12px; font-size: 16px; outline: none; }
         .btn-main { background: var(--accent); color: #000; padding: 16px; border-radius: 14px; border: none; font-weight: 900; width: 100%; cursor: pointer; }
-        #ai-chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
-        .msg { padding: 14px; border-radius: 18px; max-width: 85%; font-size: 15px; }
-        .msg.user { background: var(--secondary); align-self: flex-start; }
-        .msg.ai { background: var(--glass); border: 1px solid var(--border); align-self: flex-end; }
+        #ai-chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; padding: 10px; }
+        .msg { padding: 14px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.4; }
+        .msg.user { background: var(--secondary); align-self: flex-start; color: white; }
+        .msg.ai { background: var(--glass); border: 1px solid var(--border); align-self: flex-end; color: #fff; }
         #calc-bubble { position: fixed; right: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--secondary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 9999; cursor: pointer; }
-        #calculator { display: none; position: fixed; right: 20px; bottom: 100px; width: 300px; background: #12161d; border: 2px solid var(--secondary); border-radius: 24px; padding: 20px; z-index: 9999; }
+        #calculator { display: none; position: fixed; right: 20px; bottom: 100px; width: 300px; background: #12161d; border: 2px solid var(--secondary); border-radius: 24px; padding: 20px; z-index: 9999; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .calc-btn { background: #1f2631; border: none; color: white; padding: 15px; font-size: 20px; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div id="auth-screen">
-    <div class="auth-card">
-        <h1 style="color:var(--accent);">N.M.R</h1>
-        <input type="email" id="login-email" placeholder="אימייל">
-        <input type="password" id="login-pass" placeholder="סיסמה">
-        <button class="btn-main" onclick="handleAuth('login')">כניסה</button>
-    </div>
-</div>
-
+<div id="auth-screen"><div class="auth-card"><h1>N.M.R</h1><input type="email" id="login-email" placeholder="אימייל"><input type="password" id="login-pass" placeholder="סיסמה"><button class="btn-main" onclick="handleAuth()">כניסה</button></div></div>
 <div id="app-content">
-    <header><div style="font-weight:900; color:var(--accent);">N.M.R</div><button onclick="logout()" style="background:none; border:none; color:#ff4b5c;">התנתק</button></header>
+    <header><div style="font-weight:900; color:var(--accent);">N.M.R PROJECTS</div><button onclick="auth.signOut()" style="background:none; border:none; color:#ff4b5c;">יציאה</button></header>
     <div class="nav-tabs">
-        <div class="tab active" id="t-dash" onclick="showPage('dash')">📊 דשבורד</div>
-        <div class="tab" id="t-projs" onclick="showPage('projs')">🏗️ פרויקטים</div>
+        <div class="tab active" id="t-dash" onclick="showPage('dash')">📊 ראשי</div>
         <div class="tab" id="t-quote" onclick="showPage('quote')">📄 הצעות</div>
-        <div class="tab" id="t-ai" onclick="showPage('ai')">✨ היועץ AI</div>
+        <div class="tab" id="t-ai" onclick="showPage('ai')">✨ יועץ AI</div>
     </div>
     <main>
-        <div class="page active" id="p-dash"><div class="auth-card" style="max-width:100%;"><h3>פרויקטים</h3><h1 id="count-active">0</h1></div></div>
-        <div class="page" id="p-projs"><div id="project-list"></div></div>
+        <div class="page active" id="p-dash"><div class="auth-card" style="max-width:100%;"><h3>שלום רן</h3><p>המערכת מחוברת ומוכנה.</p></div></div>
         <div class="page" id="p-quote">
             <input type="text" id="q-client" placeholder="שם הלקוח">
-            <textarea id="q-work" placeholder="תיאור העבודה"></textarea>
-            <input type="number" id="q-price" placeholder="מחיר">
-            <button class="btn-main" onclick="generateQuote()">הפק הצעה</button>
+            <input type="number" id="q-price" placeholder="מחיר בסיס">
+            <button class="btn-main" onclick="generateQuote()">חשב הצעה</button>
             <div id="quote-result" style="display:none; background:white; color:black; padding:20px; border-radius:15px; margin-top:15px;"></div>
         </div>
         <div class="page" id="p-ai">
             <div id="ai-chat-box"></div>
             <div style="display:flex; gap:10px;">
-                <input type="text" id="ai-input" placeholder="שאל משהו..." style="margin-bottom:0;">
-                <button onclick="askAI()" style="background:var(--accent); border:none; padding:15px; border-radius:14px;">🚀</button>
+                <input type="text" id="ai-input" placeholder="שאל אותי משהו...">
+                <button onclick="askAI()" style="background:var(--accent); border:none; padding:15px; border-radius:14px; font-weight:bold;">שלח</button>
             </div>
         </div>
     </main>
     <div id="calc-bubble" onclick="toggleCalc()">🧮</div>
     <div id="calculator">
-        <div id="calc-display" style="color:var(--accent); font-size:24px; margin-bottom:10px;">0</div>
+        <div id="calc-display" style="color:var(--accent); font-size:24px; margin-bottom:10px; text-align:left;">0</div>
         <div class="calc-grid">
             <button class="calc-btn" onclick="clearCalc()">C</button>
             <button class="calc-btn" onclick="pressCalc('/')">/</button>
@@ -101,65 +82,54 @@
         </div>
     </div>
 </div>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
-        authDomain: "nmr-projects.firebaseapp.com",
-        projectId: "nmr-projects",
-        storageBucket: "nmr-projects.appspot.com",
-        messagingSenderId: "780228662939",
-        appId: "1:780228662939:web:48931d5bccaa568b66583e"
-    };
-
-    // המפתח החדש ששלחת
-    const GEMINI_KEY = "AIzaSyC9Nd9LKoh0mFCLMRxJXdIEYo_OyWhaB-k";
+    const firebaseConfig = { apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", authDomain: "nmr-projects.firebaseapp.com", projectId: "nmr-projects", storageBucket: "nmr-projects.appspot.com", messagingSenderId: "780228662939", appId: "1:780228662939:web:48931d5bccaa568b66583e" };
+    
+    // המפתח החדש שלך
+    const GEMINI_KEY = "AIzaSyAUK-zi5ASJ0KfjbWm9ZAMaaoFhqX_OP58";
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
     auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            db.collection('projects').onSnapshot(s => document.getElementById('count-active').innerText = s.size);
-        }
+        document.getElementById('auth-screen').style.display = user ? 'none' : 'flex';
+        document.getElementById('app-content').style.display = user ? 'block' : 'none';
     });
 
-    async function handleAuth(t) {
+    async function handleAuth() {
         const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
         try { await auth.signInWithEmailAndPassword(e,p); } catch(err) { alert(err.message); }
     }
 
-    function logout() { auth.signOut(); location.reload(); }
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(tb => tb.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('p-'+p).classList.add('active');
-        document.getElementById('t-'+p).classList.add('active');
+        if(document.getElementById('t-'+p)) document.getElementById('t-'+p).classList.add('active');
     }
 
-    // פונקציית AI משופרת עם דיווח שגיאות
     async function askAI() {
         const input = document.getElementById('ai-input'), box = document.getElementById('ai-chat-box');
         if(!input.value) return;
-        const val = input.value; input.value = '';
-        box.innerHTML += `<div class="msg user">${val}</div>`;
-        
+        const msg = input.value; input.value = '';
+        box.innerHTML += `<div class="msg user">${msg}</div>`;
+        box.scrollTop = box.scrollHeight;
+
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+            // כתובת V1 יציבה
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+            const response = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: val }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: "ענה בעברית קצרה מאוד: " + msg }] }] })
             });
-            const data = await res.json();
+            const data = await response.json();
             if(data.error) {
-                box.innerHTML += `<div class="msg ai">שגיאת גוגל: ${data.error.message}</div>`;
+                box.innerHTML += `<div class="msg ai" style="color:#ff4b5c;">שגיאת גוגל: ${data.error.message}</div>`;
             } else {
                 box.innerHTML += `<div class="msg ai">${data.candidates[0].content.parts[0].text}</div>`;
             }
-        } catch(e) { box.innerHTML += `<div class="msg ai">תקלת רשת.</div>`; }
+        } catch(e) { box.innerHTML += `<div class="msg ai">שגיאת חיבור.</div>`; }
         box.scrollTop = box.scrollHeight;
     }
 
@@ -170,8 +140,9 @@
     function solveCalc() { try { cv=eval(cv).toString(); document.getElementById('calc-display').innerText=cv; } catch(e){ cv="Error"; } }
     function generateQuote() {
         const p = Number(document.getElementById('q-price').value);
-        document.getElementById('quote-result').style.display='block';
-        document.getElementById('quote-result').innerHTML=`<h3>הצעה נ.מ.ר</h3><p>סה"כ כולל מע"מ: ₪${Math.round(p*1.18)}</p>`;
+        const res = document.getElementById('quote-result');
+        res.style.display='block';
+        res.innerHTML=`<h3>הצעה נ.מ.ר</h3><p>לקוח: ${document.getElementById('q-client').value}</p><h4>סה"כ כולל מע"מ: ₪${Math.round(p*1.18).toLocaleString()}</h4>`;
     }
 </script>
 </body>
