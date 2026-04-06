@@ -51,9 +51,8 @@
         .btn-s { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; }
 
         .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 15px 30px; border-radius: 50px; font-weight: 900; border: none; box-shadow: 0 5px 20px rgba(245,166,35,0.4); z-index: 99; }
-        .admin-only { display: none; } /* מוסתר כברירת מחדל */
+        .admin-only { display: none; } 
 
-        /* Toast */
         #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 10px 25px; border-radius: 50px; font-weight: 800; opacity: 0; transition: 0.3s; z-index: 1000; }
         #toast.show { opacity: 1; }
     </style>
@@ -63,11 +62,11 @@
 <div id="auth-screen">
     <div class="auth-card">
         <h1 style="margin-bottom:10px; color:var(--accent)">נ.מ.ר</h1>
-        <p style="color:var(--text-muted); margin-bottom:25px">ניהול ביצוע ופרויקטים</p>
+        <p style="color:var(--text-muted); margin-bottom:25px">מערכת ניהול - שלום רן</p>
         <input type="email" id="login-email" placeholder="אימייל">
         <input type="password" id="login-pass" placeholder="סיסמה">
         <button class="btn btn-p" onclick="handleAuth('login')">התחבר</button>
-        <button class="btn btn-s" onclick="handleAuth('signup')">הרשמה (פעם ראשונה)</button>
+        <button class="btn btn-s" onclick="handleAuth('signup')">הרשמה ראשונית</button>
     </div>
 </div>
 
@@ -116,7 +115,7 @@
         <input type="text" id="new-name" placeholder="שם הפרויקט">
         <select id="new-status"><option value="ביצוע">ביצוע</option><option value="הושלם">הושלם</option></select>
         <input type="number" id="new-prog" placeholder="% התקדמות">
-        <div class="admin-only" style="display:block">
+        <div class="admin-only">
             <input type="number" id="new-income" placeholder="הכנסה (₪)">
             <input type="number" id="new-costs" placeholder="הוצאות (₪)">
         </div>
@@ -128,7 +127,6 @@
 <div id="toast"></div>
 
 <script>
-    // הגדרות Firebase - ה-Config שלך
     const firebaseConfig = {
         apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
         authDomain: "nmr-projects.firebaseapp.com",
@@ -143,16 +141,19 @@
     const db = firebase.firestore();
 
     let currentUser = null;
-    const ADMIN_EMAIL = "neorai06@icloud.com"; // המייל שלך
+    const ADMIN_EMAIL = "ransabah2@gmail.com"; // המייל שלך כרגע הוא ה-Admin היחיד
 
-    // בדיקת התחברות
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
+            
+            // בדיקת הרשאות מנהל
             if (user.email === ADMIN_EMAIL) {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             }
             loadProjects();
         } else {
@@ -166,7 +167,10 @@
         const pass = document.getElementById('login-pass').value;
         try {
             if (type === 'login') await auth.signInWithEmailAndPassword(email, pass);
-            else await auth.createUserWithEmailAndPassword(email, pass);
+            else {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                toast("חשבון נוצר בהצלחה!");
+            }
         } catch (e) { alert("שגיאה: " + e.message); }
     }
 
@@ -194,7 +198,11 @@
         };
         await db.collection('projects').add(data);
         closeModal();
-        toast("✅ פרויקט נשמר בענן");
+        toast("✅ נשמר בענן");
+        // איפוס שדות
+        document.getElementById('new-name').value = '';
+        document.getElementById('new-income').value = '';
+        document.getElementById('new-costs').value = '';
     }
 
     function loadProjects() {
