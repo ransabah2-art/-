@@ -34,10 +34,8 @@
         input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: #030712; color: white; font-size: 16px; }
         .btn-main { width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
-        .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); position: relative; }
-        .p-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-edit { background: var(--purple); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; }
-        .btn-delete { background: var(--danger); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; }
+        .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); }
+        .p-actions { margin-top: 10px; display: flex; gap: 10px; }
 
         #calc-btn { position: fixed; left: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--purple); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 1000; cursor: pointer; }
         #calc-ui { display: none; position: fixed; left: 20px; bottom: 100px; width: 280px; background: #111827; border: 2px solid var(--purple); border-radius: 20px; padding: 15px; z-index: 1000; }
@@ -71,7 +69,6 @@
             <div class="tab active" onclick="showP('dash', this)">🏠 פתיחה</div>
             <div class="tab" onclick="showP('list', this)">🏗️ ניהול</div>
             <div class="tab" onclick="showP('pdf', this)">📄 הצעה</div>
-            <div class="tab" onclick="showP('ai', this)">🤖 AI</div>
         </nav>
 
         <main>
@@ -81,15 +78,15 @@
                     <input type="text" id="in-t" placeholder="שם הפרויקט">
                     <input type="text" id="in-c" placeholder="לקוח">
                     <div style="display:flex; gap:10px;">
-                        <input type="number" id="in-cost" placeholder="מחיר עלות">
-                        <input type="number" id="in-sell" placeholder="מחיר מכירה">
+                        <input type="number" id="in-cost" placeholder="עלות">
+                        <input type="number" id="in-sell" placeholder="מכירה">
                     </div>
                     <select id="in-s">
                         <option value="בביצוע">בביצוע</option>
                         <option value="הצעה">הצעה</option>
                         <option value="הושלם">הושלם</option>
                     </select>
-                    <button class="btn-main" onclick="saveProject()">צור פרויקט</button>
+                    <button class="btn-main" onclick="saveProject()">שמור</button>
                 </div>
             </div>
 
@@ -99,18 +96,13 @@
 
             <div id="pg-pdf" class="page">
                 <div class="glass">
-                    <h3>יצירת הצעת מחיר</h3>
-                    <input type="text" id="pdf-client" placeholder="לכבוד: שם הלקוח">
-                    <textarea id="pdf-desc" placeholder="תיאור העבודה..." rows="4"></textarea>
-                    <input type="number" id="pdf-price" placeholder="מחיר כולל מע''מ">
-                    <button class="btn-main" style="background:#22c55e;" onclick="generatePDF()">הורד PDF ושתף</button>
+                    <h3>יצירת הצעת מחיר מקצועית</h3>
+                    <input type="text" id="pdf-client" placeholder="שם הלקוח">
+                    <textarea id="pdf-desc" placeholder="פירוט העבודה..." rows="5"></textarea>
+                    <input type="number" id="pdf-price" placeholder="מחיר סופי (₪)">
+                    <button class="btn-main" style="background:#22c55e; margin-bottom:10px;" onclick="sendWhatsApp()">📱 שלח ב-WhatsApp</button>
+                    <button class="btn-main" style="background:white; color:black;" onclick="generatePDF()">📥 הורד PDF משופר</button>
                 </div>
-            </div>
-
-            <div id="pg-ai" class="page">
-                <div id="chat-box" style="height:250px; background:#000; padding:10px; border-radius:10px; overflow-y:auto; margin-bottom:10px;"></div>
-                <input type="text" id="ai-msg" placeholder="שאל את המומחה...">
-                <button class="btn-main" onclick="askAI()">שלח</button>
             </div>
         </main>
     </div>
@@ -148,7 +140,7 @@
 
     async function handleAuth() {
         const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
-        try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert(err.message); }
+        try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאה!"); }
     }
 
     function showP(id, el) {
@@ -162,80 +154,60 @@
         const title = document.getElementById('in-t').value;
         const cost = Number(document.getElementById('in-cost').value) || 0;
         const sell = Number(document.getElementById('in-sell').value) || 0;
-        if(!title) return alert("שם פרויקט חובה");
-
-        await db.collection('projs').add({
-            title, client: document.getElementById('in-c').value,
-            cost, sell, profit: sell - cost, status: document.getElementById('in-s').value,
-            notes: '', time: Date.now()
-        });
+        if(!title) return;
+        await db.collection('projs').add({ title, client: document.getElementById('in-c').value, cost, sell, profit: sell-cost, status: document.getElementById('in-s').value, time: Date.now() });
         alert("נשמר!");
-        showP('list', document.querySelectorAll('.tab')[1]);
-    }
-
-    // פונקציית מחיקה
-    async function deleteProject(id) {
-        if(confirm("האם אתה בטוח שברצונך למחוק את הפרויקט לצמיתות?")) {
-            try {
-                await db.collection('projs').doc(id).delete();
-                alert("הפרויקט נמחק");
-            } catch(e) { alert("שגיאה במחיקה: " + e.message); }
-        }
     }
 
     function loadData() {
         db.collection('projs').orderBy('time', 'desc').onSnapshot(snap => {
             const container = document.getElementById('list-container');
-            let count = 0, totalProfit = 0;
+            let count = 0, profit = 0;
             container.innerHTML = '';
             snap.forEach(doc => {
                 const p = doc.data();
-                count++; totalProfit += p.profit;
-                container.innerHTML += `
-                    <div class="p-card">
-                        <div style="float:left; text-align:left;">
-                            <span style="color:var(--accent); font-weight:bold;">₪${p.profit} רווח</span>
-                        </div>
-                        <strong>${p.title}</strong><br>
-                        <small>${p.client} | ${p.status}</small>
-                        <div class="p-actions">
-                            <button class="btn-edit" onclick="toggleEdit('${doc.id}')">📝 הערות</button>
-                            <button class="btn-delete" onclick="deleteProject('${doc.id}')">🗑️ מחיקה</button>
-                        </div>
-                        <div id="notes-${doc.id}" style="display:none; margin-top:10px;">
-                            <textarea id="txt-${doc.id}" placeholder="הוסף הערות...">${p.notes}</textarea>
-                            <button onclick="updateNotes('${doc.id}')" style="width:100%; padding:8px; background:var(--accent); border:none; border-radius:8px; color:black; font-weight:bold;">עדכן הערות</button>
-                        </div>
-                    </div>`;
+                count++; profit += p.profit;
+                container.innerHTML += `<div class="p-card"><strong>${p.title}</strong><br><small>לקוח: ${p.client} | רווח: ₪${p.profit}</small><br><button onclick="deleteP('${doc.id}')" style="background:red; border:none; color:white; padding:5px; border-radius:5px; margin-top:5px; cursor:pointer;">מחק</button></div>`;
             });
             document.getElementById('st-count').innerText = count;
-            document.getElementById('st-profit').innerText = totalProfit.toLocaleString();
+            document.getElementById('st-profit').innerText = profit.toLocaleString();
         });
     }
 
-    function toggleEdit(id) {
-        const div = document.getElementById('notes-'+id);
-        div.style.display = div.style.display === 'none' ? 'block' : 'none';
-    }
+    async function deleteP(id) { if(confirm("למחוק?")) await db.collection('projs').doc(id).delete(); }
 
-    async function updateNotes(id) {
-        const val = document.getElementById('txt-'+id).value;
-        await db.collection('projs').doc(id).update({ notes: val });
-        alert("עודכן");
+    function sendWhatsApp() {
+        const client = document.getElementById('pdf-client').value;
+        const desc = document.getElementById('pdf-desc').value;
+        const price = document.getElementById('pdf-price').value;
+        const text = `שלום ${client},%0Aלהלן הצעת מחיר מ-N.M.R PROJECTS:%0A%0A*פירוט העבודה:*%0A${desc}%0A%0A*סה"כ לתשלום:* ₪${price}%0A%0Aנשמח לעמוד לשירותך!`;
+        window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ format: 'a4' });
+        const doc = new jsPDF();
         const client = document.getElementById('pdf-client').value;
         const desc = document.getElementById('pdf-desc').value;
         const price = document.getElementById('pdf-price').value;
 
-        doc.text("N.M.R PROJECTS", 10, 10);
-        doc.text("Client: " + client, 10, 20);
-        doc.text("Description: " + desc, 10, 30);
-        doc.text("Total: " + price + " NIS", 10, 60);
-        doc.save(`NMR_${client}.pdf`);
+        // עיצוב ה-PDF (בגלל עברית נשתמש באנגלית בסיסית כדי למנוע קודים שבורים)
+        doc.setFontSize(22);
+        doc.text("N.M.R PROJECTS", 105, 20, { align: 'center' });
+        doc.setLineWidth(0.5);
+        doc.line(20, 25, 190, 25);
+        
+        doc.setFontSize(14);
+        doc.text("Price Quotation", 20, 40);
+        doc.text(`To: ${client}`, 20, 50);
+        doc.text("Description:", 20, 70);
+        doc.setFontSize(12);
+        doc.text(desc, 20, 80);
+        
+        doc.setFontSize(16);
+        doc.text(`Total Price: ${price} NIS`, 20, 150);
+        
+        doc.save(`NMR_Quote_${client}.pdf`);
     }
 
     // מחשבון
