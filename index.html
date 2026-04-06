@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --bg: #05070a; --card: #111827; --accent: #00f2ff; --purple: #7000ff; --text: #f3f4f6; --border: rgba(255,255,255,0.1); }
+        :root { --bg: #05070a; --card: #111827; --accent: #00f2ff; --purple: #7000ff; --danger: #ff4b5c; --text: #f3f4f6; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; }
         body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; }
 
@@ -34,9 +34,10 @@
         input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: #030712; color: white; font-size: 16px; }
         .btn-main { width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
-        .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); }
-        .p-actions { margin-top: 10px; display: flex; gap: 10px; }
-        .btn-edit { background: var(--purple); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; cursor: pointer; }
+        .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); position: relative; }
+        .p-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-edit { background: var(--purple); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; }
+        .btn-delete { background: var(--danger); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; }
 
         #calc-btn { position: fixed; left: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--purple); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 1000; cursor: pointer; }
         #calc-ui { display: none; position: fixed; left: 20px; bottom: 100px; width: 280px; background: #111827; border: 2px solid var(--purple); border-radius: 20px; padding: 15px; z-index: 1000; }
@@ -161,15 +162,25 @@
         const title = document.getElementById('in-t').value;
         const cost = Number(document.getElementById('in-cost').value) || 0;
         const sell = Number(document.getElementById('in-sell').value) || 0;
-        const profit = sell - cost;
-        
+        if(!title) return alert("שם פרויקט חובה");
+
         await db.collection('projs').add({
             title, client: document.getElementById('in-c').value,
-            cost, sell, profit, status: document.getElementById('in-s').value,
+            cost, sell, profit: sell - cost, status: document.getElementById('in-s').value,
             notes: '', time: Date.now()
         });
-        alert("נשמר בהצלחה!");
+        alert("נשמר!");
         showP('list', document.querySelectorAll('.tab')[1]);
+    }
+
+    // פונקציית מחיקה
+    async function deleteProject(id) {
+        if(confirm("האם אתה בטוח שברצונך למחוק את הפרויקט לצמיתות?")) {
+            try {
+                await db.collection('projs').doc(id).delete();
+                alert("הפרויקט נמחק");
+            } catch(e) { alert("שגיאה במחיקה: " + e.message); }
+        }
     }
 
     function loadData() {
@@ -183,17 +194,17 @@
                 container.innerHTML += `
                     <div class="p-card">
                         <div style="float:left; text-align:left;">
-                            <span style="color:var(--accent); font-weight:bold;">₪${p.profit} רווח</span><br>
-                            <small>עלות: ${p.cost} | מכירה: ${p.sell}</small>
+                            <span style="color:var(--accent); font-weight:bold;">₪${p.profit} רווח</span>
                         </div>
                         <strong>${p.title}</strong><br>
                         <small>${p.client} | ${p.status}</small>
                         <div class="p-actions">
-                            <button class="btn-edit" onclick="editNotes('${doc.id}', '${p.notes}')">📝 הערות/תמונות</button>
+                            <button class="btn-edit" onclick="toggleEdit('${doc.id}')">📝 הערות</button>
+                            <button class="btn-delete" onclick="deleteProject('${doc.id}')">🗑️ מחיקה</button>
                         </div>
                         <div id="notes-${doc.id}" style="display:none; margin-top:10px;">
                             <textarea id="txt-${doc.id}" placeholder="הוסף הערות...">${p.notes}</textarea>
-                            <button onclick="updateNotes('${doc.id}')" style="width:100%; padding:5px; background:var(--accent); border:none; border-radius:5px; color:black;">עדכן</button>
+                            <button onclick="updateNotes('${doc.id}')" style="width:100%; padding:8px; background:var(--accent); border:none; border-radius:8px; color:black; font-weight:bold;">עדכן הערות</button>
                         </div>
                     </div>`;
             });
@@ -202,7 +213,7 @@
         });
     }
 
-    function editNotes(id) {
+    function toggleEdit(id) {
         const div = document.getElementById('notes-'+id);
         div.style.display = div.style.display === 'none' ? 'block' : 'none';
     }
@@ -210,30 +221,24 @@
     async function updateNotes(id) {
         const val = document.getElementById('txt-'+id).value;
         await db.collection('projs').doc(id).update({ notes: val });
-        alert("הערה עודכנה");
+        alert("עודכן");
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ format: 'a4', orientation: 'p' });
+        const doc = new jsPDF({ format: 'a4' });
         const client = document.getElementById('pdf-client').value;
         const desc = document.getElementById('pdf-desc').value;
         const price = document.getElementById('pdf-price').value;
 
-        doc.setFontSize(22);
-        doc.text("N.M.R - Projects & Management", 105, 20, { align: 'center' });
-        doc.setFontSize(16);
-        doc.text("Price Quotation / הצעת מחיר", 105, 35, { align: 'center' });
-        doc.text("To / לכבוד: " + client, 190, 50, { align: 'right' });
-        doc.text("Description / תיאור עבודה:", 190, 70, { align: 'right' });
-        doc.text(desc, 190, 85, { align: 'right' });
-        doc.setFontSize(20);
-        doc.text("Total Price / סה''כ לתשלום: " + price + " NIS", 105, 150, { align: 'center' });
-        
-        doc.save(`NMR_Quotation_${client}.pdf`);
+        doc.text("N.M.R PROJECTS", 10, 10);
+        doc.text("Client: " + client, 10, 20);
+        doc.text("Description: " + desc, 10, 30);
+        doc.text("Total: " + price + " NIS", 10, 60);
+        doc.save(`NMR_${client}.pdf`);
     }
 
-    // מחשבון ו-AI
+    // מחשבון
     let cur = "0";
     function toggleCalc() { const u = document.getElementById('calc-ui'); u.style.display = u.style.display==='block'?'none':'block'; }
     function cPress(v) { if(cur==="0") cur=v; else cur+=v; document.getElementById('c-res').innerText=cur; }
