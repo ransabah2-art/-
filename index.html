@@ -3,291 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>נ.מ.ר - ניהול פרויקטים</title>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>N.M.R - Executive Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root {
-            --bg: #0b0e14; --surface: #161a23; --surface-light: #1f2430;
-            --accent: #f5a623; --text: #ffffff; --text-muted: #94a3b8;
-            --green: #10b981; --red: #ef4444; --border: #2d3748; --radius: 18px;
-        }
+        :root { --bg: #05070a; --card: #111827; --accent: #00f2ff; --purple: #7000ff; --text: #f3f4f6; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; }
-        body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; overflow-x: hidden; }
-        
-        /* Auth Screen */
-        #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { background: var(--surface); padding: 30px; border-radius: 25px; border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; }
-        
-        /* App Layout */
-        #app-content { display: none; }
-        header { background: var(--surface); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .nav-tabs { display: flex; background: var(--surface); padding: 5px; gap: 5px; border-bottom: 1px solid var(--border); }
-        .tab { flex: 1; padding: 12px; text-align: center; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; font-size: 14px; }
-        .tab.active { background: var(--surface-light); color: var(--accent); }
+        body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; }
 
-        main { padding: 20px 15px 100px; max-width: 600px; margin: 0 auto; }
+        /* מסך כניסה */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .auth-card { background: var(--card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 380px; text-align: center; }
+
+        /* דשבורד עליון */
+        header { padding: 20px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .s-card { background: linear-gradient(145deg, #1f2937, #111827); padding: 15px; border-radius: 18px; border: 1px solid var(--border); text-align: center; }
+        .s-card h2 { color: var(--accent); font-size: 24px; }
+
+        /* ניווט */
+        nav { display: flex; background: #000; padding: 10px; gap: 8px; position: sticky; top: 0; z-index: 100; }
+        .tab { flex: 1; padding: 12px; text-align: center; border-radius: 12px; cursor: pointer; background: #1f2937; color: #9ca3af; font-size: 14px; font-weight: bold; }
+        .tab.active { background: var(--accent); color: #000; }
+
+        /* תוכן עמודים */
+        main { padding: 15px; max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .card { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
-        .card-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-        .card-val { font-size: 24px; font-weight: 900; }
+        .page.active { display: block; }
+        .glass { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
         
-        .status-tag { position: absolute; left: 20px; top: 20px; font-size: 10px; padding: 4px 10px; border-radius: 20px; background: var(--surface-light); color: var(--accent); font-weight: 800; }
-        .prog-bg { height: 6px; background: var(--surface-light); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #d48411); transition: 0.5s; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: #030712; color: white; font-size: 16px; }
+        .btn-main { width: 100%; padding: 16px; background: var(--accent); border: none; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; }
 
-        input, select, textarea { width: 100%; background: var(--surface-light); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: white; margin-bottom: 12px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-p { background: var(--accent); color: #000; }
-        .btn-s { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; }
+        /* פרויקטים */
+        .p-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); position: relative; }
+        .p-img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; }
 
-        /* Gallery */
-        .image-strip { display: flex; gap: 10px; overflow-x: auto; margin-top: 15px; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-        .image-strip img { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); scroll-snap-align: start; flex-shrink: 0; }
-        .upload-btn { background: var(--surface-light); border: 1px dashed var(--accent); color: var(--accent); padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 10px; display: inline-block; width: 100%; text-align: center; }
+        /* AI Chat */
+        #chat-box { height: 300px; overflow-y: auto; background: #030712; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); }
+        .msg { padding: 10px 14px; border-radius: 15px; max-width: 85%; font-size: 14px; }
+        .msg.u { background: var(--purple); align-self: flex-start; }
+        .msg.a { background: #374151; align-self: flex-end; }
 
-        .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 15px 30px; border-radius: 50px; font-weight: 900; border: none; box-shadow: 0 5px 20px rgba(245,166,35,0.4); z-index: 99; }
-        .admin-only { display: none; } 
-
-        /* Floating Calculator */
-        #calc-bubble { position: fixed; left: 20px; bottom: 30px; width: 55px; height: 55px; background: var(--surface-light); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        #calculator { display: none; position: fixed; left: 20px; bottom: 95px; width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 15px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .calc-screen { width: 100%; height: 50px; background: #000; border-radius: 10px; margin-bottom: 10px; text-align: left; padding: 10px; font-size: 20px; font-family: monospace; color: var(--green); overflow: hidden; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn { height: 45px; background: var(--surface-light); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .calc-btn.op { background: var(--accent); color: black; }
-        .calc-btn.eq { background: var(--green); color: black; grid-column: span 2; }
-
-        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 10px 25px; border-radius: 50px; font-weight: 800; opacity: 0; transition: 0.3s; z-index: 1000; pointer-events: none; }
-        #toast.show { opacity: 1; }
+        /* מחשבון צף */
+        #calc-btn { position: fixed; left: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--purple); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 1000; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #calc-ui { display: none; position: fixed; left: 20px; bottom: 100px; width: 280px; background: #111827; border: 2px solid var(--purple); border-radius: 20px; padding: 15px; z-index: 1000; }
+        .c-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .c-btn { background: #1f2937; border: none; color: white; padding: 15px; font-size: 18px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <div class="auth-card">
-        <h1 style="margin-bottom:5px; color:var(--accent)">נ.מ.ר</h1>
-        <p style="color:var(--text-muted); margin-bottom:25px; font-size:14px">ניהול פרויקטים וביצוע</p>
-        <input type="email" id="login-email" placeholder="אימייל">
-        <input type="password" id="login-pass" placeholder="סיסמה">
-        <button class="btn btn-p" onclick="handleAuth('login')">התחבר</button>
-        <button class="btn btn-s" onclick="handleAuth('signup')">הרשמה ראשונית</button>
-    </div>
-</div>
-
-<div id="app-content">
-    <header>
-        <div style="font-weight:900; font-size:18px">🏗️ נ.מ.ר <span style="color:var(--accent)">פרויקטים</span></div>
-        <button onclick="logout()" style="background:none; border:none; color:var(--red); font-size:12px; font-weight:700">התנתק</button>
-    </header>
-
-    <div class="nav-tabs">
-        <div class="tab active" id="t-dash" onclick="showPage('dash')">📊 דשבורד</div>
-        <div class="tab" id="t-projs" onclick="showPage('projs')">📋 פרויקטים</div>
-        <div class="tab" id="t-quote" onclick="showPage('quote')">📄 הצעה</div>
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1 style="color:var(--accent); margin-bottom:20px;">N.M.R LOGIN</h1>
+            <input type="email" id="login-email" placeholder="אימייל">
+            <input type="password" id="login-pass" placeholder="סיסמה">
+            <button class="btn-main" onclick="handleAuth()">כניסה למערכת</button>
+        </div>
     </div>
 
-    <main>
-        <div class="page active" id="p-dash">
-            <div class="admin-only">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px">
-                    <div class="card"><div class="card-label">רווח מצטבר</div><div class="card-val" id="total-profit" style="color:var(--green)">₪0</div></div>
-                    <div class="card"><div class="card-label">הוצאות</div><div class="card-val" id="total-costs" style="color:var(--red)">₪0</div></div>
+    <div id="app-body" style="display:none;">
+        <header>
+            <h2 style="font-weight:900; color:var(--accent);">N.M.R</h2>
+            <button onclick="firebase.auth().signOut()" style="background:none; border:none; color:#ff4b5c;">יציאה</button>
+        </header>
+
+        <div class="stats">
+            <div class="s-card"><p>פרויקטים</p><h2 id="stat-count">0</h2></div>
+            <div class="s-card"><p>רווח (₪)</p><h2 id="stat-profit">0</h2></div>
+        </div>
+
+        <nav>
+            <div class="tab active" onclick="showP('dash', this)">🏠 ראשי</div>
+            <div class="tab" onclick="showP('list', this)">🏗️ ניהול</div>
+            <div class="tab" onclick="showP('ai', this)">🤖 יועץ</div>
+        </nav>
+
+        <main>
+            <div id="pg-dash" class="page active">
+                <div class="glass">
+                    <h3>פרויקט חדש</h3>
+                    <input type="text" id="in-t" placeholder="שם הפרויקט">
+                    <input type="text" id="in-c" placeholder="לקוח">
+                    <input type="number" id="in-p" placeholder="רווח משוער (₪)">
+                    <label style="font-size:12px; color:#9ca3af;">צילום/תמונה:</label>
+                    <input type="file" id="in-img" accept="image/*">
+                    <select id="in-s">
+                        <option value="בביצוע">בביצוע</option>
+                        <option value="הצעה">הצעת מחיר</option>
+                        <option value="הושלם">הושלם</option>
+                    </select>
+                    <button class="btn-main" onclick="saveProject()">שמור פרויקט</button>
                 </div>
             </div>
-            <div class="card"><div class="card-label">פרויקטים פעילים</div><div class="card-val" id="count-active">0</div></div>
-        </div>
 
-        <div class="page" id="p-projs">
-            <div id="project-list"></div>
-        </div>
+            <div id="pg-list" class="page">
+                <div id="list-container"></div>
+            </div>
 
-        <div class="page" id="p-quote">
-            <input type="text" id="q-client" placeholder="שם הלקוח">
-            <textarea id="q-work" rows="4" placeholder="תיאור העבודה..."></textarea>
-            <input type="number" id="q-price" placeholder="מחיר לפני מע״מ">
-            <button class="btn btn-p" onclick="generateQuote()">הפק הצעה</button>
-            <div id="quote-result" style="display:none; background:white; color:#111; padding:20px; border-radius:15px; margin-top:20px; font-size:14px"></div>
-        </div>
-    </main>
-
-    <div id="calc-bubble" onclick="toggleCalc()">🧮</div>
-    <div id="calculator">
-        <div class="calc-screen" id="calc-display">0</div>
-        <div class="calc-grid">
-            <button class="calc-btn" onclick="clearCalc()">C</button>
-            <button class="calc-btn op" onclick="pressCalc('/')">/</button>
-            <button class="calc-btn op" onclick="pressCalc('*')">×</button>
-            <button class="calc-btn op" onclick="pressCalc('-')">-</button>
-            <button class="calc-btn" onclick="pressCalc('7')">7</button>
-            <button class="calc-btn" onclick="pressCalc('8')">8</button>
-            <button class="calc-btn" onclick="pressCalc('9')">9</button>
-            <button class="calc-btn op" onclick="pressCalc('+')">+</button>
-            <button class="calc-btn" onclick="pressCalc('4')">4</button>
-            <button class="calc-btn" onclick="pressCalc('5')">5</button>
-            <button class="calc-btn" onclick="pressCalc('6')">6</button>
-            <button class="calc-btn" onclick="pressCalc('.')">.</button>
-            <button class="calc-btn" onclick="pressCalc('1')">1</button>
-            <button class="calc-btn" onclick="pressCalc('2')">2</button>
-            <button class="calc-btn" onclick="pressCalc('3')">3</button>
-            <button class="calc-btn" onclick="pressCalc('0')">0</button>
-            <button class="calc-btn eq" onclick="solveCalc()">=</button>
-        </div>
+            <div id="pg-ai" class="page">
+                <div id="chat-box"></div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="ai-msg" placeholder="שאל אותי..." style="margin:0;">
+                    <button onclick="askAI()" style="background:var(--accent); border:none; width:55px; border-radius:12px;">🚀</button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <button class="fab" id="fab" onclick="openModal()">＋ פרויקט חדש</button>
-</div>
-
-<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; padding:20px">
-    <div class="card" style="width:100%; max-width:400px">
-        <h2 style="margin-bottom:15px">פרויקט חדש</h2>
-        <input type="text" id="new-name" placeholder="שם הפרויקט">
-        <select id="new-status"><option value="ביצוע">בביצוע</option><option value="הושלם">הושלם</option></select>
-        <input type="number" id="new-prog" placeholder="% התקדמות (0-100)">
-        <div class="admin-only"><input type="number" id="new-income" placeholder="הכנסה צפויה (₪)"><input type="number" id="new-costs" placeholder="הוצאות (₪)"></div>
-        <button class="btn btn-p" onclick="saveProject()">שמור במערכת</button>
-        <button class="btn btn-s" onclick="closeModal()">ביטול</button>
+    <div id="calc-btn" onclick="toggleCalc()">🧮</div>
+    <div id="calc-ui">
+        <div id="c-res" style="background:#000; padding:10px; border-radius:8px; margin-bottom:10px; text-align:left; font-size:22px; color:var(--accent);">0</div>
+        <div class="c-grid">
+            <button class="c-btn" onclick="cClear()">C</button>
+            <button class="c-btn" onclick="cPress('/')">/</button>
+            <button class="c-btn" onclick="cPress('*')">×</button>
+            <button class="c-btn" onclick="cPress('-')">-</button>
+            <button class="c-btn" onclick="cPress('7')">7</button>
+            <button class="c-btn" onclick="cPress('8')">8</button>
+            <button class="c-btn" onclick="cPress('9')">9</button>
+            <button class="c-btn" onclick="cPress('+')">+</button>
+            <button class="c-btn" onclick="cSolve()" style="background:var(--accent); color:#000; grid-row: span 2;">=</button>
+            <button class="c-btn" onclick="cPress('4')">4</button>
+            <button class="c-btn" onclick="cPress('5')">5</button>
+            <button class="c-btn" onclick="cPress('6')">6</button>
+            <button class="c-btn" onclick="cPress('1')">1</button>
+            <button class="c-btn" onclick="cPress('2')">2</button>
+            <button class="c-btn" onclick="cPress('3')">3</button>
+            <button class="c-btn" onclick="cPress('0')">0</button>
+        </div>
     </div>
-</div>
-
-<div id="toast"></div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
-        authDomain: "nmr-projects.firebaseapp.com",
-        projectId: "nmr-projects",
-        storageBucket: "nmr-projects.firebasestorage.app",
-        messagingSenderId: "780228662939",
-        appId: "1:780228662939:web:48931d5bccaa568b66583e"
-    };
-
-    const IMGBB_KEY = "7b48854ed8b84c2bfe8932316528448c";
-    const ADMIN_EMAIL = "ransabah2@gmail.com";
+    const firebaseConfig = { apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", authDomain: "nmr-projects.firebaseapp.com", projectId: "nmr-projects", storageBucket: "nmr-projects.appspot.com", messagingSenderId: "780228662939", appId: "1:780228662939:web:48931d5bccaa568b66583e" };
+    const GEMINI_KEY = "AIzaSyAUK-zi5ASJ0KfjbWm9ZAMaaoFhqX_OP58";
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // ניהול כניסה
     auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            if (user.email === ADMIN_EMAIL) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-            }
-            loadProjects();
-        } else {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('app-content').style.display = 'none';
-        }
+        document.getElementById('auth-screen').style.display = user ? 'none' : 'flex';
+        document.getElementById('app-body').style.display = user ? 'block' : 'none';
+        if(user) loadData();
     });
 
-    async function handleAuth(type) {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-pass').value;
-        if(!email || !pass) return alert("נא להזין אימייל וסיסמה");
-        try {
-            if (type === 'login') await auth.signInWithEmailAndPassword(email, pass);
-            else await auth.createUserWithEmailAndPassword(email, pass);
-        } catch (e) { alert("שגיאה: " + e.message); }
+    async function handleAuth() {
+        const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+        try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאת כניסה: " + err.message); }
     }
 
-    function logout() { auth.signOut(); }
-
-    function showPage(p) {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+    function showP(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('p-'+p).classList.add('active');
-        document.getElementById('t-'+p).classList.add('active');
-        document.getElementById('fab').style.display = (p === 'quote') ? 'none' : 'block';
+        document.getElementById('pg-'+id).classList.add('active');
+        el.classList.add('active');
     }
 
-    function openModal() { document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
+    // שמירת פרויקט
     async function saveProject() {
-        const name = document.getElementById('new-name').value;
-        if(!name) return alert("חובה לתת שם לפרויקט");
-        await db.collection('projects').add({
-            name: name,
-            status: document.getElementById('new-status').value,
-            prog: Number(document.getElementById('new-prog').value) || 0,
-            income: Number(document.getElementById('new-income').value) || 0,
-            costs: Number(document.getElementById('new-costs').value) || 0,
-            images: [],
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        const title = document.getElementById('in-t').value;
+        const profit = Number(document.getElementById('in-p').value) || 0;
+        if(!title) return alert("שם פרויקט חובה");
+
+        await db.collection('projs').add({
+            title, client: document.getElementById('in-c').value,
+            profit, status: document.getElementById('in-s').value,
+            time: Date.now()
         });
-        closeModal();
-        toast("✅ פרויקט נשמר");
+        alert("הפרויקט נשמר!");
+        document.getElementById('in-t').value = '';
+        document.getElementById('in-p').value = '';
     }
 
-    async function uploadToImgBB(projectId, file) {
-        if(!file) return;
-        toast("📸 מעלה תמונה...");
-        let formData = new FormData();
-        formData.append("image", file);
-        try {
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
-            const result = await response.json();
-            await db.collection('projects').doc(projectId).update({ images: firebase.firestore.FieldValue.arrayUnion(result.data.url) });
-            toast("✅ התמונה נוספה");
-        } catch (e) { toast("❌ תקלה בהעלאה"); }
-    }
-
-    function loadProjects() {
-        db.collection('projects').orderBy('timestamp', 'desc').onSnapshot(snap => {
-            let html = ''; let totalProfit = 0; let totalCosts = 0; let activeCount = 0;
+    function loadData() {
+        db.collection('projs').orderBy('time', 'desc').onSnapshot(snap => {
+            const container = document.getElementById('list-container');
+            let count = 0, profit = 0;
+            container.innerHTML = '';
             snap.forEach(doc => {
-                const p = doc.data(); const id = doc.id;
-                if (p.status === 'ביצוע') activeCount++;
-                totalProfit += (p.income - p.costs); totalCosts += p.costs;
-                let imagesHtml = (p.images || []).map(img => `<img src="${img}" onclick="window.open('${img}')">`).join('');
-                html += `<div class="card proj-card"><span class="status-tag">${p.status}</span><h3>${p.name}</h3><div class="prog-bg"><div class="prog-fill" style="width:${p.prog}%"></div></div><div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted)"><span>${p.prog}% הושלם</span>${auth.currentUser.email === ADMIN_EMAIL ? `<span style="color:var(--green)">₪${(p.income-p.costs).toLocaleString()}</span>` : ''}</div><div class="image-strip">${imagesHtml || '<p style="font-size:11px; color:#444">אין תמונות</p>'}</div><label class="upload-btn">📷 הוסף תמונה<input type="file" accept="image/*" style="display:none" onchange="uploadToImgBB('${id}', this.files[0])"></label></div>`;
+                const p = doc.data();
+                count++; profit += p.profit;
+                container.innerHTML += `
+                    <div class="p-card">
+                        <span style="float:left; color:var(--accent);">₪${p.profit}</span>
+                        <strong>${p.title}</strong><br>
+                        <small>${p.client} | ${p.status}</small>
+                    </div>`;
             });
-            document.getElementById('project-list').innerHTML = html;
-            document.getElementById('count-active').innerText = activeCount;
-            if (auth.currentUser.email === ADMIN_EMAIL) {
-                document.getElementById('total-profit').innerText = '₪' + totalProfit.toLocaleString();
-                document.getElementById('total-costs').innerText = '₪' + totalCosts.toLocaleString();
-            }
+            document.getElementById('stat-count').innerText = count;
+            document.getElementById('stat-profit').innerText = profit.toLocaleString();
         });
     }
 
-    // Calculator Logic
-    let calcVal = "0";
-    function toggleCalc() {
-        const c = document.getElementById('calculator');
-        c.style.display = (c.style.display === 'block') ? 'none' : 'block';
-    }
-    function pressCalc(v) {
-        if(calcVal === "0") calcVal = v; else calcVal += v;
-        document.getElementById('calc-display').innerText = calcVal;
-    }
-    function clearCalc() { calcVal = "0"; document.getElementById('calc-display').innerText = "0"; }
-    function solveCalc() {
-        try { calcVal = eval(calcVal).toString(); document.getElementById('calc-display').innerText = calcVal; }
-        catch(e) { calcVal = "Error"; document.getElementById('calc-display').innerText = "Error"; }
-    }
-
-    function generateQuote() {
-        const client = document.getElementById('q-client').value; const price = Number(document.getElementById('q-price').value);
-        if(!client || !price) return alert("מלא שם ומחיר");
-        const vat = Math.round(price * 0.18); const total = price + vat;
-        document.getElementById('quote-result').style.display = 'block';
-        document.getElementById('quote-result').innerHTML = `<div style="text-align:center; border-bottom:2px solid #f5a623; padding-bottom:10px; margin-bottom:15px"><h2 style="color:#f5a623">נ.מ.ר - הצעת מחיר</h2></div><p><strong>לכבוד:</strong> ${client}</p><p style="margin:15px 0"><strong>תיאור:</strong> ${document.getElementById('q-work').value}</p><div style="background:#f9f9f9; padding:15px; border-radius:10px; border-right:4px solid #f5a623"><div style="display:flex; justify-content:space-between"><span>סה"כ:</span> <span>₪${price.toLocaleString()}</span></div><div style="display:flex; justify-content:space-between; font-size:12px; color:#666"><span>מע"מ (18%):</span> <span>₪${vat.toLocaleString()}</span></div><div style="display:flex; justify-content:space-between; font-weight:900; font-size:18px; margin-top:10px; color:#000"><span>לתשלום:</span> <span>₪${total.toLocaleString()}</span></div></div>`;
+    // AI
+    async function askAI() {
+        const inpt = document.getElementById('ai-msg'), box = document.getElementById('chat-box');
+        if(!inpt.value) return;
+        const msg = inpt.value; inpt.value = '';
+        box.innerHTML += `<div class="msg u">${msg}</div>`;
+        
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: "ענה בעברית קצרה מאוד: " + msg }] }] })
+            });
+            const data = await res.json();
+            box.innerHTML += `<div class="msg a">${data.candidates[0].content.parts[0].text}</div>`;
+        } catch(e) { box.innerHTML += `<div class="msg a" style="color:red;">שגיאת תקשורת</div>`; }
+        box.scrollTop = box.scrollHeight;
     }
 
-    function toast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
-    }
+    // מחשבון
+    let cur = "0";
+    function toggleCalc() { const ui = document.getElementById('calc-ui'); ui.style.display = ui.style.display==='block'?'none':'block'; }
+    function cPress(v) { if(cur==="0") cur=v; else cur+=v; document.getElementById('c-res').innerText=cur; }
+    function cClear() { cur="0"; document.getElementById('c-res').innerText="0"; }
+    function cSolve() { try { cur=eval(cur).toString(); document.getElementById('c-res').innerText=cur; } catch(e){ cur="Error"; } }
 </script>
 </body>
 </html>
