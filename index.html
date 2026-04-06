@@ -17,128 +17,87 @@
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); direction: rtl; min-height: 100vh; overflow-x: hidden; }
-
-        /* Auth Screen */
         #auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .auth-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 24px; padding: 30px; width: 100%; max-width: 380px; text-align: center; }
-        
         #app-content { display: none; }
-
-        /* Navigation */
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .nav-tabs { display: flex; gap: 8px; padding: 12px; overflow-x: auto; scrollbar-width: none; }
-        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; background: var(--glass); border-radius: 14px; font-size: 14px; cursor: pointer; color: #94a3b8; transition: 0.3s; }
-        .tab.active { background: var(--accent); color: #000; font-weight: 800; box-shadow: 0 0 15px rgba(0,242,255,0.3); }
-
-        /* General UI */
+        .tab { flex: 1; min-width: 90px; padding: 12px; text-align: center; background: var(--glass); border-radius: 14px; font-size: 14px; cursor: pointer; color: #94a3b8; }
+        .tab.active { background: var(--accent); color: #000; font-weight: 800; }
         main { padding: 15px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; }
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .page.active { display: block; }
         input, textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 15px; color: white; margin-bottom: 12px; font-size: 16px; outline: none; }
-        .btn-main { background: var(--accent); color: #000; padding: 16px; border-radius: 14px; border: none; font-weight: 900; width: 100%; cursor: pointer; font-size: 16px; }
-
-        /* AI Chat */
-        #ai-chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; padding: 5px; }
-        .msg { padding: 14px; border-radius: 18px; max-width: 85%; line-height: 1.5; font-size: 15px; }
-        .msg.user { background: var(--secondary); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg.ai { background: var(--glass); border: 1px solid var(--border); align-self: flex-end; border-bottom-right-radius: 4px; }
-
-        /* Calculator - FIXED DESIGN */
-        #calc-bubble { position: fixed; right: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--secondary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 9999; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
-        #calculator { display: none; position: fixed; right: 20px; bottom: 100px; width: 300px; background: #12161d; border: 2px solid var(--secondary); border-radius: 24px; padding: 20px; z-index: 9999; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .calc-display { background: #000; padding: 20px; border-radius: 15px; margin-bottom: 15px; text-align: left; font-size: 28px; color: var(--accent); font-family: monospace; overflow: hidden; }
+        .btn-main { background: var(--accent); color: #000; padding: 16px; border-radius: 14px; border: none; font-weight: 900; width: 100%; cursor: pointer; }
+        #ai-chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .msg { padding: 14px; border-radius: 18px; max-width: 85%; font-size: 15px; }
+        .msg.user { background: var(--secondary); align-self: flex-start; }
+        .msg.ai { background: var(--glass); border: 1px solid var(--border); align-self: flex-end; }
+        #calc-bubble { position: fixed; right: 20px; bottom: 30px; width: 60px; height: 60px; background: var(--secondary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 9999; cursor: pointer; }
+        #calculator { display: none; position: fixed; right: 20px; bottom: 100px; width: 300px; background: #12161d; border: 2px solid var(--secondary); border-radius: 24px; padding: 20px; z-index: 9999; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn { background: #1f2631; border: none; color: white; padding: 15px; font-size: 20px; font-weight: 700; border-radius: 12px; cursor: pointer; }
-        .calc-btn:active { background: #2d3748; }
-        .calc-btn.op { background: var(--secondary); color: white; }
-        .calc-btn.eq { background: var(--accent); color: #000; grid-column: span 2; }
+        .calc-btn { background: #1f2631; border: none; color: white; padding: 15px; font-size: 20px; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card">
-        <h1 style="color:var(--accent); font-weight:900; margin-bottom:10px;">N.M.R</h1>
-        <p style="color:#94a3b8; margin-bottom:30px;">מערכת ניהול פרויקטים</p>
+        <h1 style="color:var(--accent);">N.M.R</h1>
         <input type="email" id="login-email" placeholder="אימייל">
         <input type="password" id="login-pass" placeholder="סיסמה">
         <button class="btn-main" onclick="handleAuth('login')">כניסה</button>
-        <button style="background:none; border:none; color:#94a3b8; margin-top:15px; cursor:pointer;" onclick="handleAuth('signup')">אין חשבון? הרשמה</button>
     </div>
 </div>
 
 <div id="app-content">
-    <header>
-        <div style="font-weight:900; color:var(--accent);">N.M.R PROJECTS</div>
-        <button onclick="logout()" style="background:none; border:none; color:#ff4b5c; font-weight:700;">התנתק</button>
-    </header>
-
+    <header><div style="font-weight:900; color:var(--accent);">N.M.R</div><button onclick="logout()" style="background:none; border:none; color:#ff4b5c;">התנתק</button></header>
     <div class="nav-tabs">
         <div class="tab active" id="t-dash" onclick="showPage('dash')">📊 דשבורד</div>
         <div class="tab" id="t-projs" onclick="showPage('projs')">🏗️ פרויקטים</div>
         <div class="tab" id="t-quote" onclick="showPage('quote')">📄 הצעות</div>
         <div class="tab" id="t-ai" onclick="showPage('ai')">✨ היועץ AI</div>
     </div>
-
     <main>
-        <div class="page active" id="p-dash">
-            <div style="background:var(--glass); padding:30px; border-radius:24px; text-align:center; border:1px solid var(--border);">
-                <p style="color:#94a3b8; font-size:14px;">פרויקטים פעילים</p>
-                <h1 id="count-active" style="font-size:60px; color:white;">0</h1>
-            </div>
-        </div>
-
+        <div class="page active" id="p-dash"><div class="auth-card" style="max-width:100%;"><h3>פרויקטים</h3><h1 id="count-active">0</h1></div></div>
         <div class="page" id="p-projs"><div id="project-list"></div></div>
-
         <div class="page" id="p-quote">
-            <div class="auth-card" style="max-width:100%; text-align:right;">
-                <input type="text" id="q-client" placeholder="שם הלקוח">
-                <textarea id="q-work" rows="4" placeholder="תיאור העבודה"></textarea>
-                <input type="number" id="q-price" placeholder="מחיר (₪)">
-                <button class="btn-main" onclick="generateQuote()">הפק הצעת מחיר</button>
-            </div>
-            <div id="quote-result" style="display:none; background:white; color:black; padding:25px; border-radius:20px; margin-top:15px;"></div>
+            <input type="text" id="q-client" placeholder="שם הלקוח">
+            <textarea id="q-work" placeholder="תיאור העבודה"></textarea>
+            <input type="number" id="q-price" placeholder="מחיר">
+            <button class="btn-main" onclick="generateQuote()">הפק הצעה</button>
+            <div id="quote-result" style="display:none; background:white; color:black; padding:20px; border-radius:15px; margin-top:15px;"></div>
         </div>
-
         <div class="page" id="p-ai">
-            <div style="background:var(--glass); padding:15px; border-radius:24px; border:1px solid var(--border);">
-                <div id="ai-chat-box">
-                    <div class="msg ai">שלום רן, אני כאן לכל שאלה טכנית או חישוב. איך עוזרים היום?</div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="ai-input" placeholder="שאל משהו..." style="margin-bottom:0;">
-                    <button onclick="askAI()" style="background:var(--accent); border:none; padding:15px; border-radius:14px; cursor:pointer;">🚀</button>
-                </div>
+            <div id="ai-chat-box"></div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="ai-input" placeholder="שאל משהו..." style="margin-bottom:0;">
+                <button onclick="askAI()" style="background:var(--accent); border:none; padding:15px; border-radius:14px;">🚀</button>
             </div>
         </div>
     </main>
-
     <div id="calc-bubble" onclick="toggleCalc()">🧮</div>
     <div id="calculator">
-        <div class="calc-display" id="calc-display">0</div>
+        <div id="calc-display" style="color:var(--accent); font-size:24px; margin-bottom:10px;">0</div>
         <div class="calc-grid">
-            <button class="calc-btn op" onclick="clearCalc()">C</button>
-            <button class="calc-btn op" onclick="pressCalc('/')">/</button>
-            <button class="calc-btn op" onclick="pressCalc('*')">×</button>
-            <button class="calc-btn op" onclick="pressCalc('-')">-</button>
+            <button class="calc-btn" onclick="clearCalc()">C</button>
+            <button class="calc-btn" onclick="pressCalc('/')">/</button>
+            <button class="calc-btn" onclick="pressCalc('*')">×</button>
+            <button class="calc-btn" onclick="pressCalc('-')">-</button>
             <button class="calc-btn" onclick="pressCalc('7')">7</button>
             <button class="calc-btn" onclick="pressCalc('8')">8</button>
             <button class="calc-btn" onclick="pressCalc('9')">9</button>
-            <button class="calc-btn op" onclick="pressCalc('+')">+</button>
+            <button class="calc-btn" onclick="pressCalc('+')">+</button>
             <button class="calc-btn" onclick="pressCalc('4')">4</button>
             <button class="calc-btn" onclick="pressCalc('5')">5</button>
             <button class="calc-btn" onclick="pressCalc('6')">6</button>
-            <button class="calc-btn" onclick="pressCalc('0')">0</button>
+            <button class="calc-btn" onclick="solveCalc()" style="background:var(--accent); color:black;">=</button>
             <button class="calc-btn" onclick="pressCalc('1')">1</button>
             <button class="calc-btn" onclick="pressCalc('2')">2</button>
             <button class="calc-btn" onclick="pressCalc('3')">3</button>
-            <button class="calc-btn" onclick="pressCalc('.')">.</button>
-            <button class="calc-btn eq" onclick="solveCalc()" style="grid-column: span 4; margin-top:5px;">=</button>
+            <button class="calc-btn" onclick="pressCalc('0')">0</button>
         </div>
     </div>
 </div>
@@ -153,7 +112,8 @@
         appId: "1:780228662939:web:48931d5bccaa568b66583e"
     };
 
-    const GEMINI_KEY = "AIzaSyDBoI8k8TZTfqVcd7_zpP70vjWYQp1R0lw";
+    // המפתח החדש ששלחת
+    const GEMINI_KEY = "AIzaSyC9Nd9LKoh0mFCLMRxJXdIEYo_OyWhaB-k";
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -163,84 +123,55 @@
         if (user) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-            loadStats();
-        } else {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('app-content').style.display = 'none';
+            db.collection('projects').onSnapshot(s => document.getElementById('count-active').innerText = s.size);
         }
     });
 
-    async function handleAuth(type) {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-pass').value;
-        if(!email || !pass) return alert("מלא פרטים");
-        try {
-            if(type === 'login') await auth.signInWithEmailAndPassword(email, pass);
-            else await auth.createUserWithEmailAndPassword(email, pass);
-        } catch(e) { alert("שגיאה: " + e.message); }
+    async function handleAuth(t) {
+        const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+        try { await auth.signInWithEmailAndPassword(e,p); } catch(err) { alert(err.message); }
     }
 
-    function logout() { auth.signOut(); }
-
+    function logout() { auth.signOut(); location.reload(); }
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(tb => tb.classList.remove('active'));
         document.getElementById('p-'+p).classList.add('active');
         document.getElementById('t-'+p).classList.add('active');
     }
 
-    // AI Logic
+    // פונקציית AI משופרת עם דיווח שגיאות
     async function askAI() {
-        const input = document.getElementById('ai-input');
-        const box = document.getElementById('ai-chat-box');
+        const input = document.getElementById('ai-input'), box = document.getElementById('ai-chat-box');
         if(!input.value) return;
-        const val = input.value;
-        input.value = '';
+        const val = input.value; input.value = '';
         box.innerHTML += `<div class="msg user">${val}</div>`;
-        box.scrollTop = box.scrollHeight;
-
+        
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `אתה עוזר למנהל עבודה בשם רן. ענה בעברית קצרה מאוד. שאלה: ${val}` }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: val }] }] })
             });
             const data = await res.json();
-            const aiMsg = data.candidates[0].content.parts[0].text;
-            box.innerHTML += `<div class="msg ai">${aiMsg}</div>`;
-        } catch(e) {
-            box.innerHTML += `<div class="msg ai">רן, יש שגיאת תקשורת. בדוק שה-API KEY פעיל.</div>`;
-        }
+            if(data.error) {
+                box.innerHTML += `<div class="msg ai">שגיאת גוגל: ${data.error.message}</div>`;
+            } else {
+                box.innerHTML += `<div class="msg ai">${data.candidates[0].content.parts[0].text}</div>`;
+            }
+        } catch(e) { box.innerHTML += `<div class="msg ai">תקלת רשת.</div>`; }
         box.scrollTop = box.scrollHeight;
     }
 
-    // Calculator Logic
     let cv = "0";
-    function toggleCalc() {
-        const c = document.getElementById('calculator');
-        c.style.display = (c.style.display === 'block') ? 'none' : 'block';
-    }
-    function pressCalc(v) {
-        if(cv === "0") cv = v; else cv += v;
-        document.getElementById('calc-display').innerText = cv;
-    }
-    function clearCalc() { cv = "0"; document.getElementById('calc-display').innerText = "0"; }
-    function solveCalc() {
-        try { cv = eval(cv).toString(); document.getElementById('calc-display').innerText = cv; }
-        catch(e) { cv = "Error"; }
-    }
-
-    function loadStats() {
-        db.collection('projects').onSnapshot(snap => {
-            document.getElementById('count-active').innerText = snap.size;
-        });
-    }
-
+    function toggleCalc() { const c = document.getElementById('calculator'); c.style.display = (c.style.display==='block')?'none':'block'; }
+    function pressCalc(v) { if(cv==="0") cv=v; else cv+=v; document.getElementById('calc-display').innerText=cv; }
+    function clearCalc() { cv="0"; document.getElementById('calc-display').innerText="0"; }
+    function solveCalc() { try { cv=eval(cv).toString(); document.getElementById('calc-display').innerText=cv; } catch(e){ cv="Error"; } }
     function generateQuote() {
         const p = Number(document.getElementById('q-price').value);
-        const res = document.getElementById('quote-result');
-        res.style.display = 'block';
-        res.innerHTML = `<h3>הצעת מחיר - נ.מ.ר</h3><hr><p>לקוח: ${document.getElementById('q-client').value}</p><p>עבודה: ${document.getElementById('q-work').value}</p><h4>סה"כ כולל מע"מ: ₪${Math.round(p*1.18).toLocaleString()}</h4>`;
+        document.getElementById('quote-result').style.display='block';
+        document.getElementById('quote-result').innerHTML=`<h3>הצעה נ.מ.ר</h3><p>סה"כ כולל מע"מ: ₪${Math.round(p*1.18)}</p>`;
     }
 </script>
 </body>
