@@ -3,103 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NMR - Project Management</title>
+    <title>NMR - Project Pro</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         :root { --neon: #00f2ff; --bg: #05070a; --card: #111827; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; direction: rtl; }
-        .box { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #1f2937; max-width: 450px; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { color: var(--neon); text-align: center; margin-bottom: 25px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #374151; background: #030712; color: white; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--neon); color: black; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
-        .project-card { background: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-right: 4px solid var(--neon); position: relative; }
-        .delete-btn { background: #ef4444; color: white; width: auto; padding: 5px 12px; font-size: 12px; border-radius: 5px; cursor: pointer; float: left; }
-        .profit { color: #10b981; font-weight: bold; font-size: 1.1em; }
-        .logout-btn { background: none; color: #9ca3af; font-size: 14px; margin-top: 20px; text-decoration: underline; }
+        body { background: var(--bg); color: white; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 15px; direction: rtl; }
+        .box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #1f2937; max-width: 600px; margin: 10px auto; }
+        h2 { color: var(--neon); text-align: center; font-size: 24px; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #374151; background: #030712; color: white; box-sizing: border-box; }
+        .full-width { grid-column: span 2; }
+        button { width: 100%; padding: 15px; background: var(--neon); color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .project-card { background: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid var(--neon); position: relative; }
+        .status-tag { font-size: 11px; padding: 3px 8px; border-radius: 5px; background: #374151; float: left; }
+        .profit-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 5px; }
+        .actions { display: flex; gap: 5px; margin-top: 10px; }
+        .btn-small { padding: 8px; font-size: 12px; background: #374151; color: white; }
+        .btn-delete { background: #ef4444; color: white; width: auto; padding: 5px 10px; font-size: 11px; border-radius: 5px; float: left; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div style="text-align:center; margin-top:50px;">מתחבר לשרת...</div>
+    <div style="text-align:center; padding:50px;">טוען מערכת NMR...</div>
 </div>
 
 <script>
-    // הגדרות Firebase עם המפתח החדש שלך
     const firebaseConfig = {
         apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", 
         authDomain: "nmr-projects.firebaseapp.com",
         projectId: "nmr-projects",
-        storageBucket: "nmr-projects.appspot.com",
-        messagingSenderId: "780228662939",
         appId: "1:780228662939:web:48931d5bccaa568b66583e"
     };
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // פונקציית התחברות
-    async function login() {
-        const e = document.getElementById('email').value.trim().toLowerCase();
-        const p = document.getElementById('pass').value.trim();
-        const msg = document.getElementById('msg');
-        
-        try {
-            msg.innerText = "בודק נתונים...";
-            // הגדרה שהחיבור יישאר פעיל גם בטלפון
-            await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            await firebase.auth().signInWithEmailAndPassword(e, p);
-        } catch(err) {
-            console.error(err);
-            if(err.code === "auth/too-many-requests") {
-                msg.innerText = "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות או החלף רשת בטלפון.";
-            } else {
-                msg.innerText = "שגיאה: פרטים לא נכונים או בעיית תקשורת.";
-            }
-        }
-    }
-
-    // מאזין למצב התחברות
     firebase.auth().onAuthStateChanged(user => {
-        if(user) {
-            renderDashboard(user);
-        } else {
-            renderLogin();
-        }
+        if(user) renderDashboard();
+        else renderLogin();
     });
 
     function renderLogin() {
         document.getElementById('app').innerHTML = `
-            <div class="box">
+            <div class="box" style="max-width:350px; margin-top:100px;">
                 <h2>N.M.R LOGIN</h2>
                 <input type="email" id="email" placeholder="אימייל">
                 <input type="password" id="pass" placeholder="סיסמה">
-                <button onclick="login()">כניסה למערכת</button>
-                <p id="msg" style="color:#ef4444; font-size:13px; text-align:center; margin-top:15px;"></p>
-            </div>
-        `;
+                <button onclick="login()">כניסה</button>
+                <p id="msg" style="color:#ef4444; font-size:12px; text-align:center;"></p>
+            </div>`;
     }
 
-    function renderDashboard(user) {
+    async function login() {
+        const e = document.getElementById('email').value.trim();
+        const p = document.getElementById('pass').value.trim();
+        try {
+            await firebase.auth().signInWithEmailAndPassword(e, p);
+        } catch(err) { document.getElementById('msg').innerText = "פרטים שגויים"; }
+    }
+
+    function renderDashboard() {
         document.getElementById('app').innerHTML = `
-            <div style="max-width:500px; margin:auto;">
-                <h2>שלום רן 👋</h2>
+            <div style="max-width:600px; margin:auto;">
+                <h2>שלום רן 👋 | ניהול פרויקטים</h2>
                 <div class="box">
-                    <h3 style="margin-top:0;">פרויקט חדש</h3>
-                    <input id="pName" placeholder="שם הפרויקט / לקוח">
-                    <input type="number" id="pCost" placeholder="מחיר עלות (כמה עלה לך)">
-                    <input type="number" id="pPrice" placeholder="מחיר מכירה (ללקוח)">
-                    <button onclick="addProject()">שמור פרויקט</button>
+                    <div class="input-group">
+                        <input id="pName" class="full-width" placeholder="שם הלקוח / פרויקט">
+                        <input type="number" id="pCost" placeholder="עלות חומרים (₪)">
+                        <input type="number" id="pPrice" placeholder="מחיר ללקוח (₪)">
+                        <select id="pStatus" class="full-width">
+                            <option value="בתהליך">🚀 בתהליך</option>
+                            <option value="המתנה">⏳ המתנה לחומרים</option>
+                            <option value="הסתיים">✅ הסתיים</option>
+                        </select>
+                    </div>
+                    <button onclick="addProject()">+ שמור פרויקט חדש</button>
                 </div>
-                <div id="projects-list">טוען רשימה...</div>
-                <center>
-                    <button class="logout-btn" onclick="firebase.auth().signOut()">התנתק מהמערכת</button>
-                </center>
-            </div>
-        `;
+                <div id="projects-list">טוען נתונים...</div>
+                <button onclick="firebase.auth().signOut()" style="background:none; color:gray; font-size:12px;">התנתק</button>
+            </div>`;
         loadProjects();
     }
 
@@ -107,52 +94,70 @@
         const name = document.getElementById('pName').value;
         const cost = Number(document.getElementById('pCost').value);
         const price = Number(document.getElementById('pPrice').value);
+        const status = document.getElementById('pStatus').value;
+        if(!name) return alert("הכנס שם לקוח");
         
-        if(!name) return alert("נא להזין שם פרויקט");
-
-        try {
-            await db.collection("projects").add({
-                name: name,
-                cost: cost,
-                price: price,
-                profit: price - cost,
-                date: new Date()
-            });
-            document.getElementById('pName').value = "";
-            document.getElementById('pCost').value = "";
-            document.getElementById('pPrice').value = "";
-            loadProjects();
-        } catch(e) { alert("שגיאה בשמירה: " + e.message); }
+        await db.collection("projects").add({
+            name, cost, price, status,
+            profit: price - cost,
+            date: new Date()
+        });
+        renderDashboard();
     }
 
     async function loadProjects() {
-        const listDiv = document.getElementById('projects-list');
-        try {
-            const snapshot = await db.collection("projects").orderBy("date", "desc").get();
-            let html = '<h3 style="margin-right:10px;">פרויקטים פעילים:</h3>';
-            
-            if(snapshot.empty) html += '<p style="text-align:center; color:gray;">אין פרויקטים כרגע</p>';
-
-            snapshot.forEach(doc => {
-                const p = doc.data();
-                html += `
-                    <div class="project-card">
-                        <button class="delete-btn" onclick="deleteProject('${doc.id}')">מחק</button>
-                        <strong>${p.name}</strong><br>
-                        <small style="color:#9ca3af;">עלות: ${p.cost} ₪ | מכירה: ${p.price} ₪</small><br>
-                        <div class="profit">רווח נקי: ${p.profit} ₪</div>
+        const snapshot = await db.collection("projects").orderBy("date", "desc").get();
+        let html = '';
+        snapshot.forEach(doc => {
+            const p = doc.data();
+            const profitPct = p.price > 0 ? Math.round((p.profit / p.price) * 100) : 0;
+            html += `
+                <div class="project-card">
+                    <button class="btn-delete" onclick="deleteProject('${doc.id}')">מחיקה</button>
+                    <span class="status-tag">${p.status}</span>
+                    <strong style="font-size:18px;">${p.name}</strong><br>
+                    <div style="margin-top:10px; color:#9ca3af; font-size:14px;">
+                        עלות: ${p.cost} ₪ | הכנסה: ${p.price} ₪
                     </div>
-                `;
-            });
-            listDiv.innerHTML = html;
-        } catch(e) { listDiv.innerHTML = "שגיאה בטעינה. וודא שהפעלת את Firestore."; }
+                    <div class="profit-badge">
+                        רווח: ${p.profit} ₪ (${profitPct}%)
+                    </div>
+                    <div class="actions">
+                        <button class="btn-small" onclick="exportToWord('${p.name}', ${p.price})">📄 הצעת מחיר</button>
+                        <button class="btn-small" onclick="updateStatus('${doc.id}', 'הסתיים')">✅ סיום</button>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('projects-list').innerHTML = html || '<p style="text-align:center;">אין פרויקטים רשומים</p>';
     }
 
     async function deleteProject(id) {
-        if(confirm("למחוק את הפרויקט לצמיתות?")) {
-            await db.collection("projects").doc(id).delete();
-            loadProjects();
-        }
+        if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); loadProjects(); }
+    }
+
+    async function updateStatus(id, newStatus) {
+        await db.collection("projects").doc(id).update({ status: newStatus });
+        loadProjects();
+    }
+
+    // פונקציית ייצוא לוורד
+    function exportToWord(name, price) {
+        const doc = new docx.Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new docx.Paragraph({ text: "NMR - הצעת מחיר", heading: docx.HeadingLevel.HEADING_1 }),
+                    new docx.Paragraph({ text: `לכבוד: ${name}` }),
+                    new docx.Paragraph({ text: `תאריך: ${new Date().toLocaleDateString('he-IL')}` }),
+                    new docx.Paragraph({ text: "------------------------------------------" }),
+                    new docx.Paragraph({ text: `סה"כ לתשלום: ${price} ₪ כולל מע"מ` }),
+                    new docx.Paragraph({ text: "תודה שבחרתם NMR ביצוע וניהול פרויקטים!", alignment: docx.AlignmentType.CENTER }),
+                ],
+            }],
+        });
+        docx.Packer.toBlob(doc).then(blob => {
+            saveAs(blob, `הצעת_מחיר_${name}.docx`);
+        });
     }
 </script>
 </body>
