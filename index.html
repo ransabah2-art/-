@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NMR - Project Pro</title>
+    <title>NMR - Business Suite</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -11,26 +11,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         :root { --neon: #00f2ff; --bg: #05070a; --card: #111827; }
-        body { background: var(--bg); color: white; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 15px; direction: rtl; }
-        .box { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #1f2937; max-width: 600px; margin: 10px auto; }
-        h2 { color: var(--neon); text-align: center; font-size: 24px; }
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #374151; background: #030712; color: white; box-sizing: border-box; }
-        .full-width { grid-column: span 2; }
-        button { width: 100%; padding: 15px; background: var(--neon); color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .project-card { background: #1f2937; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid var(--neon); position: relative; }
-        .status-tag { font-size: 11px; padding: 3px 8px; border-radius: 5px; background: #374151; float: left; }
-        .profit-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 5px; }
-        .actions { display: flex; gap: 5px; margin-top: 10px; }
-        .btn-small { padding: 8px; font-size: 12px; background: #374151; color: white; }
-        .btn-delete { background: #ef4444; color: white; width: auto; padding: 5px 10px; font-size: 11px; border-radius: 5px; float: left; margin-bottom: 5px; }
+        body { background: var(--bg); color: white; font-family: system-ui, sans-serif; margin: 0; padding: 10px; direction: rtl; }
+        .box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #1f2937; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2, h3 { color: var(--neon); text-align: center; margin: 10px 0; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #374151; background: #030712; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--neon); color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 5px; }
+        
+        /* מחשבון כיס עיצוב */
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .calc-btn { background: #1f2937; color: white; padding: 15px; border-radius: 8px; border: 1px solid #374151; font-size: 18px; }
+        .calc-display { background: #000; color: var(--neon); text-align: left; padding: 15px; font-size: 24px; border-radius: 8px; margin-bottom: 5px; font-family: monospace; }
+        
+        .project-card { border-right: 5px solid var(--neon); }
+        .profit-text { color: #10b981; font-weight: bold; font-size: 1.2em; }
+        .img-preview { width: 100%; border-radius: 10px; margin-top: 10px; }
+        .btn-red { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <div style="text-align:center; padding:50px;">טוען מערכת NMR...</div>
-</div>
+<div id="app">טוען...</div>
 
 <script>
     const firebaseConfig = {
@@ -39,7 +39,6 @@
         projectId: "nmr-projects",
         appId: "1:780228662939:web:48931d5bccaa568b66583e"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -49,115 +48,121 @@
     });
 
     function renderLogin() {
-        document.getElementById('app').innerHTML = `
-            <div class="box" style="max-width:350px; margin-top:100px;">
-                <h2>N.M.R LOGIN</h2>
-                <input type="email" id="email" placeholder="אימייל">
-                <input type="password" id="pass" placeholder="סיסמה">
-                <button onclick="login()">כניסה</button>
-                <p id="msg" style="color:#ef4444; font-size:12px; text-align:center;"></p>
-            </div>`;
+        document.getElementById('app').innerHTML = `<div class="box" style="margin-top:50px;"><h2>NMR LOGIN</h2><input type="email" id="email" placeholder="אימייל"><input type="password" id="pass" placeholder="סיסמה"><button onclick="login()">כניסה</button></div>`;
     }
 
     async function login() {
-        const e = document.getElementById('email').value.trim();
-        const p = document.getElementById('pass').value.trim();
-        try {
-            await firebase.auth().signInWithEmailAndPassword(e, p);
-        } catch(err) { document.getElementById('msg').innerText = "פרטים שגויים"; }
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        try { await firebase.auth().signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאה"); }
     }
 
     function renderDashboard() {
         document.getElementById('app').innerHTML = `
-            <div style="max-width:600px; margin:auto;">
-                <h2>שלום רן 👋 | ניהול פרויקטים</h2>
+            <div style="max-width:500px; margin:auto;">
+                <h2>NMR - Project Suite</h2>
+
                 <div class="box">
-                    <div class="input-group">
-                        <input id="pName" class="full-width" placeholder="שם הלקוח / פרויקט">
-                        <input type="number" id="pCost" placeholder="עלות חומרים (₪)">
-                        <input type="number" id="pPrice" placeholder="מחיר ללקוח (₪)">
-                        <select id="pStatus" class="full-width">
-                            <option value="בתהליך">🚀 בתהליך</option>
-                            <option value="המתנה">⏳ המתנה לחומרים</option>
-                            <option value="הסתיים">✅ הסתיים</option>
-                        </select>
+                    <h3>🔢 מחשבון מהיר</h3>
+                    <div class="calc-display" id="calcRes">0</div>
+                    <div class="calc-grid">
+                        <button class="calc-btn" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('/')">/</button>
+                        <button class="calc-btn" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('*')">×</button>
+                        <button class="calc-btn" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('-')">-</button>
+                        <button class="calc-btn" onclick="calcClear()">C</button>
+                        <button class="calc-btn" onclick="calcInput('0')">0</button>
+                        <button class="calc-btn" onclick="calculate()">=</button>
+                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('+')">+</button>
                     </div>
-                    <button onclick="addProject()">+ שמור פרויקט חדש</button>
                 </div>
-                <div id="projects-list">טוען נתונים...</div>
-                <button onclick="firebase.auth().signOut()" style="background:none; color:gray; font-size:12px;">התנתק</button>
+
+                <div class="box">
+                    <h3>➕ פרויקט חדש</h3>
+                    <input id="pName" placeholder="שם הלקוח">
+                    <input type="number" id="pCost" placeholder="עלות (חומרים/עבודה)">
+                    <input type="number" id="pPrice" placeholder="מחיר מכירה">
+                    <input id="pImg" placeholder="קישור לתמונה מהשטח">
+                    <select id="pStatus">
+                        <option value="בתהליך">🚀 בתהליך</option>
+                        <option value="המתנה">⏳ המתנה</option>
+                        <option value="הסתיים">✅ הסתיים</option>
+                    </select>
+                    <button onclick="addProject()">שמור פרויקט</button>
+                </div>
+
+                <div id="projects-list">טוען רשימה...</div>
+                <center><button onclick="firebase.auth().signOut()" style="background:none; color:gray; font-size:12px; margin-top:20px;">התנתקות</button></center>
             </div>`;
         loadProjects();
     }
 
+    // לוגיקה מחשבון
+    let calcVal = "";
+    function calcInput(v) { calcVal += v; document.getElementById('calcRes').innerText = calcVal; }
+    function calcClear() { calcVal = ""; document.getElementById('calcRes').innerText = "0"; }
+    function calculate() { try { calcVal = eval(calcVal).toString(); document.getElementById('calcRes').innerText = calcVal; } catch(e) { calcClear(); } }
+
+    // לוגיקה פרויקטים
     async function addProject() {
         const name = document.getElementById('pName').value;
         const cost = Number(document.getElementById('pCost').value);
         const price = Number(document.getElementById('pPrice').value);
         const status = document.getElementById('pStatus').value;
-        if(!name) return alert("הכנס שם לקוח");
-        
-        await db.collection("projects").add({
-            name, cost, price, status,
-            profit: price - cost,
-            date: new Date()
-        });
+        const img = document.getElementById('pImg').value;
+        if(!name) return;
+        await db.collection("projects").add({ name, cost, price, status, img, profit: price - cost, date: new Date() });
         renderDashboard();
     }
 
     async function loadProjects() {
-        const snapshot = await db.collection("projects").orderBy("date", "desc").get();
-        let html = '';
-        snapshot.forEach(doc => {
+        const snap = await db.collection("projects").orderBy("date", "desc").get();
+        let h = '';
+        snap.forEach(doc => {
             const p = doc.data();
-            const profitPct = p.price > 0 ? Math.round((p.profit / p.price) * 100) : 0;
-            html += `
-                <div class="project-card">
-                    <button class="btn-delete" onclick="deleteProject('${doc.id}')">מחיקה</button>
-                    <span class="status-tag">${p.status}</span>
-                    <strong style="font-size:18px;">${p.name}</strong><br>
-                    <div style="margin-top:10px; color:#9ca3af; font-size:14px;">
-                        עלות: ${p.cost} ₪ | הכנסה: ${p.price} ₪
+            h += `
+                <div class="box project-card">
+                    <div style="float:left; font-size:12px; color:var(--neon);">${p.status}</div>
+                    <strong style="font-size:18px;">${p.name}</strong>
+                    <div class="profit-text">רווח נקי: ${p.profit} ₪</div>
+                    <small style="color:#9ca3af;">עלות: ${p.cost} | מכירה: ${p.price}</small>
+                    ${p.img ? `<img src="${p.img}" class="img-preview">` : ''}
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <button onclick="exportWord('${p.name}', ${p.price})">📄 הצעת מחיר</button>
+                        <button style="background:#374151; color:white;" onclick="editStatus('${doc.id}')">✏️ סטטוס</button>
                     </div>
-                    <div class="profit-badge">
-                        רווח: ${p.profit} ₪ (${profitPct}%)
-                    </div>
-                    <div class="actions">
-                        <button class="btn-small" onclick="exportToWord('${p.name}', ${p.price})">📄 הצעת מחיר</button>
-                        <button class="btn-small" onclick="updateStatus('${doc.id}', 'הסתיים')">✅ סיום</button>
-                    </div>
+                    <button class="btn-red" style="padding:5px; font-size:11px;" onclick="deleteP('${doc.id}')">מחק פרויקט</button>
                 </div>`;
         });
-        document.getElementById('projects-list').innerHTML = html || '<p style="text-align:center;">אין פרויקטים רשומים</p>';
+        document.getElementById('projects-list').innerHTML = h;
     }
 
-    async function deleteProject(id) {
-        if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); loadProjects(); }
+    async function deleteP(id) { if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); loadProjects(); } }
+    
+    async function editStatus(id) {
+        const ns = prompt("שנה סטטוס (בתהליך/המתנה/הסתיים):");
+        if(ns) { await db.collection("projects").doc(id).update({status: ns}); loadProjects(); }
     }
 
-    async function updateStatus(id, newStatus) {
-        await db.collection("projects").doc(id).update({ status: newStatus });
-        loadProjects();
-    }
-
-    // פונקציית ייצוא לוורד
-    function exportToWord(name, price) {
+    function exportWord(name, price) {
         const doc = new docx.Document({
             sections: [{
-                properties: {},
                 children: [
                     new docx.Paragraph({ text: "NMR - הצעת מחיר", heading: docx.HeadingLevel.HEADING_1 }),
                     new docx.Paragraph({ text: `לכבוד: ${name}` }),
-                    new docx.Paragraph({ text: `תאריך: ${new Date().toLocaleDateString('he-IL')}` }),
-                    new docx.Paragraph({ text: "------------------------------------------" }),
-                    new docx.Paragraph({ text: `סה"כ לתשלום: ${price} ₪ כולל מע"מ` }),
-                    new docx.Paragraph({ text: "תודה שבחרתם NMR ביצוע וניהול פרויקטים!", alignment: docx.AlignmentType.CENTER }),
+                    new docx.Paragraph({ text: `סה"כ לתשלום: ${price} ₪` }),
                 ],
             }],
         });
-        docx.Packer.toBlob(doc).then(blob => {
-            saveAs(blob, `הצעת_מחיר_${name}.docx`);
-        });
+        docx.Packer.toBlob(doc).then(blob => saveAs(blob, `NMR_${name}.docx`));
     }
 </script>
 </body>
