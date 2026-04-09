@@ -3,38 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NMR - Business Suite</title>
+    <title>NMR - ניהול פרויקטים</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        :root { --neon: #00f2ff; --bg: #05070a; --card: #111827; }
-        body { background: var(--bg); color: white; font-family: system-ui, sans-serif; margin: 0; padding: 10px; direction: rtl; }
-        .box { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #1f2937; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h2, h3 { color: var(--neon); text-align: center; margin: 10px 0; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #374151; background: #030712; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--neon); color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 5px; }
+        body { font-family: Arial, sans-serif; margin: 20px; direction: rtl; }
+        .container { max-width: 600px; margin: auto; }
+        input, button, select { padding: 10px; margin: 5px; width: calc(100% - 10px); box-sizing: border-box; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
         
-        /* מחשבון כיס עיצוב */
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-        .calc-btn { background: #1f2937; color: white; padding: 15px; border-radius: 8px; border: 1px solid #374151; font-size: 18px; }
-        .calc-display { background: #000; color: var(--neon); text-align: left; padding: 15px; font-size: 24px; border-radius: 8px; margin-bottom: 5px; font-family: monospace; }
+        /* מחשבון מקומי עיצוב נקי */
+        .calc-box { border: 1px solid #ddd; padding: 10px; margin-top: 10px; }
+        .calc-display { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 1.2em; margin-bottom: 5px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-btn { background-color: #f2f2f2; color: black; border: 1px solid #ccc; width: auto; padding: 15px; }
         
-        .project-card { border-right: 5px solid var(--neon); }
-        .profit-text { color: #10b981; font-weight: bold; font-size: 1.2em; }
-        .img-preview { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .btn-red { background: #ef4444; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: right; }
+        th { background-color: #f2f2f2; }
+        .delete-btn { background-color: #f44336; width: auto; padding: 5px; font-size: 10px; }
+        .edit-btn { background-color: #2196F3; width: auto; padding: 5px; font-size: 10px; }
+        .offer-btn { background-color: #ff9800; width: auto; padding: 5px; font-size: 10px; }
     </style>
 </head>
 <body>
 
-<div id="app">טוען...</div>
+<div class="container" id="app">טוען...</div>
 
 <script>
     const firebaseConfig = {
-        apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", 
+        apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
         authDomain: "nmr-projects.firebaseapp.com",
         projectId: "nmr-projects",
         appId: "1:780228662939:web:48931d5bccaa568b66583e"
@@ -48,107 +49,115 @@
     });
 
     function renderLogin() {
-        document.getElementById('app').innerHTML = `<div class="box" style="margin-top:50px;"><h2>NMR LOGIN</h2><input type="email" id="email" placeholder="אימייל"><input type="password" id="pass" placeholder="סיסמה"><button onclick="login()">כניסה</button></div>`;
+        document.getElementById('app').innerHTML = `
+            <h2>כניסה למערכת</h2>
+            <input type="email" id="email" placeholder="אימייל">
+            <input type="password" id="password" placeholder="סיסמה">
+            <button onclick="login()">התחבר</button>
+        `;
     }
 
     async function login() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        try { await firebase.auth().signInWithEmailAndPassword(e, p); } catch(err) { alert("שגיאה"); }
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        try { await firebase.auth().signInWithEmailAndPassword(email, pass); } catch(e) { alert("שגיאה"); }
     }
 
     function renderDashboard() {
         document.getElementById('app').innerHTML = `
-            <div style="max-width:500px; margin:auto;">
-                <h2>NMR - Project Suite</h2>
-
-                <div class="box">
-                    <h3>🔢 מחשבון מהיר</h3>
-                    <div class="calc-display" id="calcRes">0</div>
-                    <div class="calc-grid">
-                        <button class="calc-btn" onclick="calcInput('7')">7</button>
-                        <button class="calc-btn" onclick="calcInput('8')">8</button>
-                        <button class="calc-btn" onclick="calcInput('9')">9</button>
-                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('/')">/</button>
-                        <button class="calc-btn" onclick="calcInput('4')">4</button>
-                        <button class="calc-btn" onclick="calcInput('5')">5</button>
-                        <button class="calc-btn" onclick="calcInput('6')">6</button>
-                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('*')">×</button>
-                        <button class="calc-btn" onclick="calcInput('1')">1</button>
-                        <button class="calc-btn" onclick="calcInput('2')">2</button>
-                        <button class="calc-btn" onclick="calcInput('3')">3</button>
-                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('-')">-</button>
-                        <button class="calc-btn" onclick="calcClear()">C</button>
-                        <button class="calc-btn" onclick="calcInput('0')">0</button>
-                        <button class="calc-btn" onclick="calculate()">=</button>
-                        <button class="calc-btn" style="background:#f59e0b" onclick="calcInput('+')">+</button>
-                    </div>
+            <h2>NMR ניהול פרויקטים</h2>
+            
+            <input type="text" id="pName" placeholder="שם הפרויקט">
+            <input type="number" id="pCost" placeholder="עלות">
+            <input type="number" id="pPrice" placeholder="מחיר">
+            <button onclick="addProject()">הוסף פרויקט</button>
+            
+            <div class="calc-box">
+                <h4>מחשבון</h4>
+                <div class="calc-display" id="calcDisplay">0</div>
+                <div class="calc-grid">
+                    <button class="calc-btn" onclick="calcInput('7')">7</button>
+                    <button class="calc-btn" onclick="calcInput('8')">8</button>
+                    <button class="calc-btn" onclick="calcInput('9')">9</button>
+                    <button class="calc-btn" onclick="calcInput('/')">/</button>
+                    <button class="calc-btn" onclick="calcInput('4')">4</button>
+                    <button class="calc-btn" onclick="calcInput('5')">5</button>
+                    <button class="calc-btn" onclick="calcInput('6')">6</button>
+                    <button class="calc-btn" onclick="calcInput('*')">×</button>
+                    <button class="calc-btn" onclick="calcInput('1')">1</button>
+                    <button class="calc-btn" onclick="calcInput('2')">2</button>
+                    <button class="calc-btn" onclick="calcInput('3')">3</button>
+                    <button class="calc-btn" onclick="calcInput('-')">-</button>
+                    <button class="calc-btn" onclick="calcInput('0')">0</button>
+                    <button class="calc-btn" onclick="calcInput('.')">.</button>
+                    <button class="calc-btn" onclick="calcClear()">C</button>
+                    <button class="calc-btn" style="background:#4CAF50" onclick="calcEquals()">=</button>
+                    <button class="calc-btn" onclick="calcInput('+')">+</button>
                 </div>
-
-                <div class="box">
-                    <h3>➕ פרויקט חדש</h3>
-                    <input id="pName" placeholder="שם הלקוח">
-                    <input type="number" id="pCost" placeholder="עלות (חומרים/עבודה)">
-                    <input type="number" id="pPrice" placeholder="מחיר מכירה">
-                    <input id="pImg" placeholder="קישור לתמונה מהשטח">
-                    <select id="pStatus">
-                        <option value="בתהליך">🚀 בתהליך</option>
-                        <option value="המתנה">⏳ המתנה</option>
-                        <option value="הסתיים">✅ הסתיים</option>
-                    </select>
-                    <button onclick="addProject()">שמור פרויקט</button>
-                </div>
-
-                <div id="projects-list">טוען רשימה...</div>
-                <center><button onclick="firebase.auth().signOut()" style="background:none; color:gray; font-size:12px; margin-top:20px;">התנתקות</button></center>
-            </div>`;
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>שם</th>
+                        <th>עלות</th>
+                        <th>מחיר</th>
+                        <th>רווח</th>
+                        <th>סטטוס</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <button onclick="firebase.auth().signOut()" style="background:gray; margin-top:20px;">התנתק</button>
+        `;
         loadProjects();
     }
 
     // לוגיקה מחשבון
-    let calcVal = "";
-    function calcInput(v) { calcVal += v; document.getElementById('calcRes').innerText = calcVal; }
-    function calcClear() { calcVal = ""; document.getElementById('calcRes').innerText = "0"; }
-    function calculate() { try { calcVal = eval(calcVal).toString(); document.getElementById('calcRes').innerText = calcVal; } catch(e) { calcClear(); } }
+    let currentCalc = "";
+    function calcInput(val) { currentCalc += val; document.getElementById('calcDisplay').innerText = currentCalc; }
+    function calcClear() { currentCalc = ""; document.getElementById('calcDisplay').innerText = "0"; }
+    function calcEquals() { try { currentCalc = eval(currentCalc).toString(); document.getElementById('calcDisplay').innerText = currentCalc; } catch(e) { calcClear(); } }
 
-    // לוגיקה פרויקטים
     async function addProject() {
         const name = document.getElementById('pName').value;
-        const cost = Number(document.getElementById('pCost').value);
-        const price = Number(document.getElementById('pPrice').value);
-        const status = document.getElementById('pStatus').value;
-        const img = document.getElementById('pImg').value;
-        if(!name) return;
-        await db.collection("projects").add({ name, cost, price, status, img, profit: price - cost, date: new Date() });
-        renderDashboard();
+        const cost = document.getElementById('pCost').value;
+        const price = document.getElementById('pPrice').value;
+        if (name && price) {
+            await db.collection("projects").add({
+                name, cost, price, profit: price - cost, status: 'בתהליך', date: new Date()
+            });
+            renderDashboard();
+        }
     }
 
     async function loadProjects() {
-        const snap = await db.collection("projects").orderBy("date", "desc").get();
-        let h = '';
-        snap.forEach(doc => {
+        const snapshot = await db.collection("projects").orderBy("date", "desc").get();
+        const body = document.getElementById('tableBody');
+        body.innerHTML = "";
+        snapshot.forEach(doc => {
             const p = doc.data();
-            h += `
-                <div class="box project-card">
-                    <div style="float:left; font-size:12px; color:var(--neon);">${p.status}</div>
-                    <strong style="font-size:18px;">${p.name}</strong>
-                    <div class="profit-text">רווח נקי: ${p.profit} ₪</div>
-                    <small style="color:#9ca3af;">עלות: ${p.cost} | מכירה: ${p.price}</small>
-                    ${p.img ? `<img src="${p.img}" class="img-preview">` : ''}
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button onclick="exportWord('${p.name}', ${p.price})">📄 הצעת מחיר</button>
-                        <button style="background:#374151; color:white;" onclick="editStatus('${doc.id}')">✏️ סטטוס</button>
-                    </div>
-                    <button class="btn-red" style="padding:5px; font-size:11px;" onclick="deleteP('${doc.id}')">מחק פרויקט</button>
-                </div>`;
+            body.innerHTML += `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.cost || 0}</td>
+                    <td>${p.price}</td>
+                    <td>${p.price - (p.cost || 0)}</td>
+                    <td>${p.status || 'בתהליך'}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteP('${doc.id}')">X</button>
+                        <button class="edit-btn" onclick="editStatus('${doc.id}')">E</button>
+                        <button class="offer-btn" onclick="exportWord('${p.name}', ${p.price})">O</button>
+                    </td>
+                </tr>
+            `;
         });
-        document.getElementById('projects-list').innerHTML = h;
     }
 
     async function deleteP(id) { if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); loadProjects(); } }
-    
     async function editStatus(id) {
-        const ns = prompt("שנה סטטוס (בתהליך/המתנה/הסתיים):");
+        const ns = prompt("סטטוס חדש (בתהליך/סיום):");
         if(ns) { await db.collection("projects").doc(id).update({status: ns}); loadProjects(); }
     }
 
@@ -156,9 +165,9 @@
         const doc = new docx.Document({
             sections: [{
                 children: [
-                    new docx.Paragraph({ text: "NMR - הצעת מחיר", heading: docx.HeadingLevel.HEADING_1 }),
+                    new docx.Paragraph({ text: "NMR הצעת מחיר", heading: docx.HeadingLevel.HEADING_1 }),
                     new docx.Paragraph({ text: `לכבוד: ${name}` }),
-                    new docx.Paragraph({ text: `סה"כ לתשלום: ${price} ₪` }),
+                    new docx.Paragraph({ text: `סה"כ: ${price} ₪` })
                 ],
             }],
         });
