@@ -3,168 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר פרויקטים - ניהול</title>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
+    <title>נ.מ.ר פרויקטים - ניהול פיננסי</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0f1117; --surface: #1a1d27; --border: #2e3147;
-            --accent: #f5a623; --text: #eef0f8; --text-muted: #7b7f9e;
-            --green: #27c985; --red: #f26464;
-        }
-
-        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-
-        /* הסרת הנקודה הירוקה */
-        .green-dot, #status-blob, div[style*="background-color: rgb(39, 201, 133)"] { display: none !important; }
-
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        
-        input { background: #222536; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; margin: 5px; width: 200px; }
-        
-        button { cursor: pointer; padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; transition: 0.3s; }
+        :root { --bg: #0f1117; --surface: #1a1d27; --accent: #f5a623; --text: #eef0f8; --red: #f26464; --green: #27c985; }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .card { background: var(--surface); border: 1px solid #2e3147; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .admin-only { display: none; }
+        input, select { background: #222536; border: 1px solid #2e3147; color: white; padding: 8px; border-radius: 6px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; padding: 10px; border-radius: 8px; border: none; font-weight: bold; width: 100%; margin-top: 5px; }
         .btn-main { background: var(--accent); color: #000; }
-        .btn-danger { background: var(--red); color: #fff; }
-
-        /* מחשבון צף */
-        #mini-calc {
-            position: fixed; left: 20px; bottom: 85px; width: 180px;
-            background: var(--surface); border: 2px solid var(--accent);
-            padding: 10px; border-radius: 15px; z-index: 1000;
-        }
-        #calc-screen { width: 100%; background: #000; color: var(--accent); border: none; text-align: left; padding: 5px; font-size: 18px; margin-bottom: 5px; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 8px; background: #2e3147; color: white; border-radius: 4px; font-size: 14px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: right; }
-        
-        .admin-only { display: none; } /* יופיע רק למנהל */
+        .income { color: var(--green); }
+        .expense { color: var(--red); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #2e3147; text-align: center; }
+        .green-dot { display: none !important; } /* העלמת הנקודה */
     </style>
 </head>
 <body>
 
-    <h1 style="color: var(--accent);">🏗️ נ.מ.ר פרויקטים</h1>
+    <h2 style="color: var(--accent);">🏗️ נ.מ.ר - לוח בקרה</h2>
 
-    <div class="card">
-        <h3>➕ הוספת פרויקט חדש</h3>
-        <input type="text" id="projName" placeholder="שם הפרויקט">
-        <button class="btn-main" onclick="addProject()">שמור פרויקט</button>
-        <table id="projects-table">
-            <thead><tr><th>פרויקט</th><th>תאריך</th><th>פעולה</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div class="card">
-        <h3>👤 אנשי קשר וקבלנים</h3>
-        <input type="text" id="conName" placeholder="שם">
-        <input type="text" id="conPhone" placeholder="טלפון">
-        <button class="btn-main" onclick="addContact()">הוסף איש קשר</button>
-        <table id="contacts-table">
-            <thead><tr><th>שם</th><th>טלפון</th><th>פעולה</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div class="admin-only" id="admin-section">
-        <div class="card" style="border-color: var(--green);">
-            <h2>📊 דוח רווח והפסד (מנהל בלבד)</h2>
-            <table>
-                <thead><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>רווח</th></tr></thead>
-                <tbody id="finance-body">
-                    <tr><td>סיכום חודשי</td><td>₪0</td><td>₪0</td><td>₪0</td></tr>
-                </tbody>
-            </table>
+    <div class="admin-only" id="manager-dashboard">
+        <div class="card" style="border: 2px solid var(--green);">
+            <h3>📊 דשבורד מנהל - רווח והפסד</h3>
+            <div id="total-summary" style="display: flex; justify-content: space-around; font-size: 1.2em;">
+                <div>הכנסות: <span id="total-inc" class="income">₪0</span></div>
+                <div>הוצאות: <span id="total-exp" class="expense">₪0</span></div>
+                <div>רווח: <span id="total-net">₪0</span></div>
+            </div>
         </div>
     </div>
 
-    <div id="mini-calc">
-        <input type="text" id="calc-screen" readonly value="0">
-        <div class="calc-grid">
-            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">/</button>
-            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">*</button>
-            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
-            <button onclick="calcIn('0')">0</button><button onclick="clearCalc()">C</button><button onclick="calcIn('+')">+</button><button onclick="doCalc()" style="background:var(--accent); color:#000;">=</button>
-        </div>
+    <div class="card">
+        <h3>➕ הזנת תנועה כספית</h3>
+        <select id="projSelect"><option value="">בחר פרויקט...</option></select>
+        <input type="number" id="amount" placeholder="סכום בש״ח">
+        <select id="type">
+            <option value="income">הכנסה (מלקוח)</option>
+            <option value="expense">הוצאה (קבלן/חומרים)</option>
+        </select>
+        <input type="text" id="desc" placeholder="תיאור (למשל: תשלום עבור בטון)">
+        <button class="btn-main" onclick="addTransaction()">עדכן דוחות</button>
+    </div>
+
+    <div class="card">
+        <h3>📂 פרויקטים פעילים</h3>
+        <div id="projects-list"></div>
     </div>
 
     <script>
-        // הגדרות Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
-            authDomain: "nmr-projects.firebaseapp.com",
-            projectId: "nmr-projects"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", projectId: "nmr-projects" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // בדיקת משתמש והרשאות
+        let currentUserRole = "partner";
+
         firebase.auth().onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-            } else {
+            if (!user) window.location.href = "login.html";
+            else {
                 const userDoc = await db.collection("users").doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().role === "admin") {
-                    document.getElementById("admin-section").style.display = "block";
+                if (userDoc.exists) {
+                    currentUserRole = userDoc.data().role;
+                    if (currentUserRole === "admin") document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
                 }
-                loadProjects();
-                loadContacts();
+                loadData();
             }
         });
 
-        // פונקציות הוספה
-        async function addProject() {
-            const name = document.getElementById('projName').value;
-            if (name) {
-                await db.collection("projects").add({ name: name, date: new Date().toLocaleDateString('he-IL') });
-                document.getElementById('projName').value = "";
-                loadProjects();
+        async function addTransaction() {
+            const projId = document.getElementById('projSelect').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const desc = document.getElementById('desc').value;
+
+            if (!projId || !amount) return alert("מלא סכום ופרויקט");
+
+            await db.collection("transactions").add({
+                projId, amount, type, desc, 
+                date: new Date(),
+                user: firebase.auth().currentUser.email
+            });
+
+            alert("הנתון נשמר עודכן");
+            location.reload();
+        }
+
+        async function loadData() {
+            // טעינת פרויקטים לסלקט
+            const projsSnap = await db.collection("projects").get();
+            const select = document.getElementById('projSelect');
+            const list = document.getElementById('projects-list');
+            
+            let totalInc = 0; let totalExp = 0;
+
+            const transSnap = await db.collection("transactions").get();
+            const allTrans = transSnap.docs.map(doc => doc.data());
+
+            projsSnap.forEach(doc => {
+                const p = doc.data();
+                // הוספה לסלקט
+                select.innerHTML += `<option value="${doc.id}">${p.name}</option>`;
+                
+                // חישוב כספי לפרויקט ספציפי
+                const pTrans = allTrans.filter(t => t.projId === doc.id);
+                const pInc = pTrans.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+                const pExp = pTrans.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+                
+                totalInc += pInc; totalExp += pExp;
+
+                // תצוגת פרויקט לכולם (מנהל רואה כסף, שותף רואה רק שם)
+                list.innerHTML += `
+                    <div class="card" style="background:#222536">
+                        <strong>${p.name}</strong>
+                        ${currentUserRole === 'admin' ? `
+                            <div style="font-size:0.9em; margin-top:5px;">
+                                <span class="income">הכנסות: ₪${pInc}</span> | 
+                                <span class="expense">הוצאות: ₪${pExp}</span>
+                            </div>
+                        ` : '<div style="font-size:0.8em; color:gray;">סטטוס: פעיל</div>'}
+                    </div>`;
+            });
+
+            if (currentUserRole === 'admin') {
+                document.getElementById('total-inc').innerText = `₪${totalInc}`;
+                document.getElementById('total-exp').innerText = `₪${totalExp}`;
+                const net = totalInc - totalExp;
+                document.getElementById('total-net').innerText = `₪${net}`;
+                document.getElementById('total-net').className = net >= 0 ? 'income' : 'expense';
             }
         }
-
-        async function addContact() {
-            const name = document.getElementById('conName').value;
-            const phone = document.getElementById('conPhone').value;
-            if (name && phone) {
-                await db.collection("contacts").add({ name, phone });
-                document.getElementById('conName').value = ""; document.getElementById('conPhone').value = "";
-                loadContacts();
-            }
-        }
-
-        // טעינת נתונים
-        async function loadProjects() {
-            const snap = await db.collection("projects").get();
-            let html = "";
-            snap.forEach(doc => {
-                html += `<tr><td>${doc.data().name}</td><td>${doc.data().date}</td><td><button class="btn-danger" onclick="deleteDoc('projects','${doc.id}')">מחק</button></td></tr>`;
-            });
-            document.querySelector("#projects-table tbody").innerHTML = html;
-        }
-
-        async function loadContacts() {
-            const snap = await db.collection("contacts").get();
-            let html = "";
-            snap.forEach(doc => {
-                html += `<tr><td>${doc.data().name}</td><td>${doc.data().phone}</td><td><button class="btn-danger" onclick="deleteDoc('contacts','${doc.id}')">מחק</button></td></tr>`;
-            });
-            document.querySelector("#contacts-table tbody").innerHTML = html;
-        }
-
-        async function deleteDoc(col, id) {
-            if(confirm("בטוח?")) { await db.collection(col).doc(id).delete(); location.reload(); }
-        }
-
-        // מחשבון
-        let exp = "";
-        function calcIn(v) { exp += v; document.getElementById('calc-screen').value = exp; }
-        function clearCalc() { exp = ""; document.getElementById('calc-screen').value = "0"; }
-        function doCalc() { try { exp = eval(exp).toString(); document.getElementById('calc-screen').value = exp; } catch { clearCalc(); } }
     </script>
 </body>
 </html>
