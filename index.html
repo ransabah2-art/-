@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר פרויקטים - ניהול מתקדם</title>
+    <title>נ.מ.ר פרויקטים - ניהול</title>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -17,63 +17,154 @@
             --green: #27c985; --red: #f26464;
         }
 
-        body { 
-            font-family: 'Heebo', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding-bottom: 100px;
-        }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
 
-        /* --- ביטול הנקודה הירוקה --- */
-        .green-dot, .status-indicator, div[style*="background-color: rgb(39, 201, 133)"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
+        /* הסרת הנקודה הירוקה */
+        .green-dot, #status-blob, div[style*="background-color: rgb(39, 201, 133)"] { display: none !important; }
 
-        /* ניווט */
-        nav { 
-            background: var(--surface); 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .card { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            padding: 20px; 
-            margin: 20px; 
-        }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        
+        input { background: #222536; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; margin: 5px; width: 200px; }
+        
+        button { cursor: pointer; padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; transition: 0.3s; }
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-danger { background: var(--red); color: #fff; }
 
         /* מחשבון צף */
         #mini-calc {
-            position: fixed; left: 20px; bottom: 90px;
-            width: 180px; background: var(--surface);
-            border: 2px solid var(--accent); border-radius: 15px;
-            padding: 10px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: fixed; left: 20px; bottom: 85px; width: 180px;
+            background: var(--surface); border: 2px solid var(--accent);
+            padding: 10px; border-radius: 15px; z-index: 1000;
         }
-        #calc-screen {
-            width: 100%; background: #000; color: var(--accent);
-            border: none; text-align: left; padding: 10px;
-            font-family: monospace; font-size: 18px; margin-bottom: 10px;
-            box-sizing: border-box;
-        }
+        #calc-screen { width: 100%; background: #000; color: var(--accent); border: none; text-align: left; padding: 5px; font-size: 18px; margin-bottom: 5px; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { 
-            padding: 10px; border: none; border-radius: 5px; 
-            background: #2e3147; color: white; cursor: pointer; 
+        .calc-grid button { padding: 8px; background: #2e3147; color: white; border-radius: 4px; font-size: 14px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: right; }
+        
+        .admin-only { display: none; } /* יופיע רק למנהל */
+    </style>
+</head>
+<body>
+
+    <h1 style="color: var(--accent);">🏗️ נ.מ.ר פרויקטים</h1>
+
+    <div class="card">
+        <h3>➕ הוספת פרויקט חדש</h3>
+        <input type="text" id="projName" placeholder="שם הפרויקט">
+        <button class="btn-main" onclick="addProject()">שמור פרויקט</button>
+        <table id="projects-table">
+            <thead><tr><th>פרויקט</th><th>תאריך</th><th>פעולה</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>👤 אנשי קשר וקבלנים</h3>
+        <input type="text" id="conName" placeholder="שם">
+        <input type="text" id="conPhone" placeholder="טלפון">
+        <button class="btn-main" onclick="addContact()">הוסף איש קשר</button>
+        <table id="contacts-table">
+            <thead><tr><th>שם</th><th>טלפון</th><th>פעולה</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="admin-only" id="admin-section">
+        <div class="card" style="border-color: var(--green);">
+            <h2>📊 דוח רווח והפסד (מנהל בלבד)</h2>
+            <table>
+                <thead><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>רווח</th></tr></thead>
+                <tbody id="finance-body">
+                    <tr><td>סיכום חודשי</td><td>₪0</td><td>₪0</td><td>₪0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="mini-calc">
+        <input type="text" id="calc-screen" readonly value="0">
+        <div class="calc-grid">
+            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">/</button>
+            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">*</button>
+            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
+            <button onclick="calcIn('0')">0</button><button onclick="clearCalc()">C</button><button onclick="calcIn('+')">+</button><button onclick="doCalc()" style="background:var(--accent); color:#000;">=</button>
+        </div>
+    </div>
+
+    <script>
+        // הגדרות Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
+            authDomain: "nmr-projects.firebaseapp.com",
+            projectId: "nmr-projects"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // בדיקת משתמש והרשאות
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if (userDoc.exists && userDoc.data().role === "admin") {
+                    document.getElementById("admin-section").style.display = "block";
+                }
+                loadProjects();
+                loadContacts();
+            }
+        });
+
+        // פונקציות הוספה
+        async function addProject() {
+            const name = document.getElementById('projName').value;
+            if (name) {
+                await db.collection("projects").add({ name: name, date: new Date().toLocaleDateString('he-IL') });
+                document.getElementById('projName').value = "";
+                loadProjects();
+            }
         }
 
-        /* טבלאות */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: center; border-bottom: 1px solid var(--border); }
-        th { color: var(--accent); }
+        async function addContact() {
+            const name = document.getElementById('conName').value;
+            const phone = document.getElementById('conPhone').value;
+            if (name && phone) {
+                await db.collection("contacts").add({ name, phone });
+                document.getElementById('conName').value = ""; document.getElementById('conPhone').value = "";
+                loadContacts();
+            }
+        }
 
-        .admin-only { display: none; } /* יופעל רק ע"י JS למנהלים */
-        
-        input, button.main
+        // טעינת נתונים
+        async function loadProjects() {
+            const snap = await db.collection("projects").get();
+            let html = "";
+            snap.forEach(doc => {
+                html += `<tr><td>${doc.data().name}</td><td>${doc.data().date}</td><td><button class="btn-danger" onclick="deleteDoc('projects','${doc.id}')">מחק</button></td></tr>`;
+            });
+            document.querySelector("#projects-table tbody").innerHTML = html;
+        }
+
+        async function loadContacts() {
+            const snap = await db.collection("contacts").get();
+            let html = "";
+            snap.forEach(doc => {
+                html += `<tr><td>${doc.data().name}</td><td>${doc.data().phone}</td><td><button class="btn-danger" onclick="deleteDoc('contacts','${doc.id}')">מחק</button></td></tr>`;
+            });
+            document.querySelector("#contacts-table tbody").innerHTML = html;
+        }
+
+        async function deleteDoc(col, id) {
+            if(confirm("בטוח?")) { await db.collection(col).doc(id).delete(); location.reload(); }
+        }
+
+        // מחשבון
+        let exp = "";
+        function calcIn(v) { exp += v; document.getElementById('calc-screen').value = exp; }
+        function clearCalc() { exp = ""; document.getElementById('calc-screen').value = "0"; }
+        function doCalc() { try { exp = eval(exp).toString(); document.getElementById('calc-screen').value = exp; } catch { clearCalc(); } }
+    </script>
+</body>
+</html>
