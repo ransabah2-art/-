@@ -3,95 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר - ניהול ובקרה</title>
+    <title>נ.מ.ר - ניהול פרויקטים</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #0f1117; --surface: #1a1d27; --accent: #f5a623; --text: #eef0f8; --red: #f26464; --green: #27c985; }
-        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; overflow-x: hidden; }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        .card { background: var(--surface); border: 1px solid #2e3147; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid #2e3147; padding-bottom: 10px; }
+        /* תפריט עליון */
+        .tabs { display: flex; background: var(--surface); border-bottom: 1px solid #2e3147; sticky: top; z-index: 100; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: var(--text); cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom-color: var(--accent); color: var(--accent); }
+
+        .container { padding: 20px; padding-bottom: 100px; }
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .card { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid #2e3147; }
+        input, select { background: #222536; border: 1px solid #3d415c; color: white; padding: 12px; border-radius: 8px; margin: 10px 0; width: 100%; box-sizing: border-box; }
         
-        input, select { background: #222536; border: 1px solid #3d415c; color: white; padding: 12px; border-radius: 8px; margin: 8px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
-        input:focus { border-color: var(--accent); outline: none; }
-        
-        button { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; transition: 0.2s; font-size: 16px; }
+        .btn { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; }
         .btn-main { background: var(--accent); color: #000; }
-        .btn-main:active { transform: scale(0.98); }
+        .btn-del { background: var(--red); color: white; width: auto; padding: 5px 10px; font-size: 12px; }
 
-        /* מחשבון צף וגריר */
-        #draggable-calc {
-            position: fixed; top: 100px; left: 20px; width: 200px;
-            background: #1a1d27; border: 2px solid var(--accent);
-            border-radius: 15px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            cursor: move; touch-action: none;
+        /* מחשבון מתקפל */
+        #calc-wrapper { position: fixed; left: 20px; bottom: 20px; z-index: 9999; }
+        #calc-toggle { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 20px; }
+        #mini-calc { 
+            display: none; position: absolute; bottom: 60px; left: 0; width: 220px; 
+            background: var(--surface); border: 2px solid var(--accent); border-radius: 15px; padding: 10px; 
         }
-        #calc-header { padding: 5px; text-align: center; font-size: 12px; background: var(--accent); color: #000; border-radius: 12px 12px 0 0; font-weight: bold; }
-        #calc-screen { width: 100%; background: #000; color: var(--accent); border: none; text-align: left; padding: 10px; font-size: 20px; box-sizing: border-box; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
-        .calc-grid button { padding: 10px; background: #2e3147; color: white; font-size: 14px; width: auto; }
+        #calc-screen { width: 100%; background: #000; color: var(--accent); border: none; text-align: left; padding: 10px; font-size: 1.5em; margin-bottom: 10px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 10px; background: #2e3147; color: white; border-radius: 5px; border: none; cursor: pointer; }
 
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 10px; border-bottom: 1px solid #2e3147; text-align: right; }
         .admin-only { display: none; }
-        .income { color: var(--green); font-weight: bold; }
-        .expense { color: var(--red); font-weight: bold; }
-        
-        .flex-row { display: flex; gap: 10px; }
-        .green-dot { display: none !important; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center; color: var(--accent); font-weight: 900;">🏗️ נ.מ.ר פרויקטים</h2>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openPage('projs')">פרויקטים</button>
+        <button class="tab-btn" onclick="openPage('contacts')">אנשי קשר</button>
+        <button class="tab-btn" onclick="openPage('finance')">כספים ודוחות</button>
+    </div>
 
-    <div class="admin-only" id="manager-dashboard">
-        <div class="card" style="border-right: 5px solid var(--green);">
-            <h3>📊 סיכום רווח והפסד כללי</h3>
-            <div style="display: flex; justify-content: space-between; font-size: 1.1em;">
-                <div>הכנסות: <span id="total-inc" class="income">₪0</span></div>
-                <div>הוצאות: <span id="total-exp" class="expense">₪0</span></div>
-                <div>רווח: <span id="total-net">₪0</span></div>
+    <div class="container">
+        <div id="projs" class="page active">
+            <div class="card">
+                <h3>🆕 הוספת פרויקט</h3>
+                <input type="text" id="projNameInput" placeholder="שם הפרויקט">
+                <button class="btn btn-main" onclick="addProject()">צור פרויקט חדש</button>
+            </div>
+            <div class="card">
+                <h3>📁 רשימת פרויקטים פעילים</h3>
+                <table id="projs-list"></table>
+            </div>
+        </div>
+
+        <div id="contacts" class="page">
+            <div class="card">
+                <h3>👤 הוספת איש קשר</h3>
+                <input type="text" id="conName" placeholder="שם">
+                <input type="tel" id="conPhone" placeholder="טלפון">
+                <button class="btn btn-main" onclick="addContact()">שמור איש קשר</button>
+            </div>
+            <div class="card">
+                <table id="contacts-list"></table>
+            </div>
+        </div>
+
+        <div id="finance" class="page">
+            <div class="admin-only" id="admin-summary">
+                <div class="card" style="border: 2px solid var(--green);">
+                    <h3>📊 סיכום רווח והפסד</h3>
+                    <p>הכנסות: <span id="total-inc" style="color:var(--green)">₪0</span></p>
+                    <p>הוצאות: <span id="total-exp" style="color:var(--red)">₪0</span></p>
+                    <hr>
+                    <p>רווח נקי: <span id="total-net">₪0</span></p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>💰 רישום הכנסה/הוצאה</h3>
+                <select id="projSelect"><option value="">בחר פרויקט...</option></select>
+                <input type="number" id="amt" placeholder="סכום">
+                <select id="type">
+                    <option value="income">הכנסה (+)</option>
+                    <option value="expense">הוצאה (-)</option>
+                </select>
+                <input type="text" id="desc" placeholder="תיאור">
+                <button class="btn btn-main" onclick="addTransaction()">עדכן נתונים</button>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <h3>📂 הקמת פרויקט חדש</h3>
-        <div class="flex-row">
-            <input type="text" id="newProjName" placeholder="שם הפרויקט (למשל: וילה 5)">
-            <button class="btn-main" style="width: 100px;" onclick="createNewProject()">צור</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <h3>💰 הזנת תנועה כספית</h3>
-        <select id="projSelect"><option value="">בחר פרויקט...</option></select>
-        <input type="number" id="amount" placeholder="סכום בש״ח" inputmode="decimal">
-        <select id="type">
-            <option value="income">הכנסה מלקוח (+)</option>
-            <option value="expense">הוצאה / קבלן (-)</option>
-        </select>
-        <input type="text" id="desc" placeholder="תיאור (בטון, חשמל, מקדמה...)">
-        <button class="btn-main" onclick="addTransaction()">עדכן נתונים</button>
-    </div>
-
-    <div class="card">
-        <h3>👤 הוספת איש קשר / קבלן</h3>
-        <input type="text" id="conName" placeholder="שם איש הקשר">
-        <input type="tel" id="conPhone" placeholder="מספר טלפון">
-        <button class="btn-main" onclick="addContact()">שמור איש קשר</button>
-    </div>
-
-    <div id="draggable-calc">
-        <div id="calc-header">גרור אותי</div>
-        <input type="text" id="calc-screen" readonly value="0">
-        <div class="calc-grid">
-            <button onclick="cIn('7')">7</button><button onclick="cIn('8')">8</button><button onclick="cIn('9')">9</button><button onclick="cIn('/')">/</button>
-            <button onclick="cIn('4')">4</button><button onclick="cIn('5')">5</button><button onclick="cIn('6')">6</button><button onclick="cIn('*')">*</button>
-            <button onclick="cIn('1')">1</button><button onclick="cIn('2')">2</button><button onclick="cIn('3')">3</button><button onclick="cIn('-')">-</button>
-            <button onclick="cIn('0')">0</button><button onclick="cClr()">C</button><button onclick="cRes()" style="background:var(--accent); color:#000;">=</button><button onclick="cIn('+')">+</button>
+    <div id="calc-wrapper">
+        <button id="calc-toggle" onclick="toggleCalc()">🧮</button>
+        <div id="mini-calc">
+            <input type="text" id="calc-screen" readonly value="0">
+            <div class="calc-grid">
+                <button onclick="cIn('7')">7</button><button onclick="cIn('8')">8</button><button onclick="cIn('9')">9</button><button onclick="cIn('/')">/</button>
+                <button onclick="cIn('4')">4</button><button onclick="cIn('5')">5</button><button onclick="cIn('6')">6</button><button onclick="cIn('*')">*</button>
+                <button onclick="cIn('1')">1</button><button onclick="cIn('2')">2</button><button onclick="cIn('3')">3</button><button onclick="cIn('-')">-</button>
+                <button onclick="cIn('0')">0</button><button onclick="cClr()">C</button><button onclick="cRes()" style="background:var(--accent); color:#000;">=</button><button onclick="cIn('+')">+</button>
+            </div>
         </div>
     </div>
 
@@ -100,82 +119,77 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let role = "partner";
+        function openPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
 
         firebase.auth().onAuthStateChanged(async (user) => {
             if (!user) window.location.href = "login.html";
             else {
                 const doc = await db.collection("users").doc(user.uid).get();
-                if (doc.exists && doc.data().role === "admin") {
-                    role = "admin";
-                    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
-                }
-                loadEverything();
+                if (doc.exists && doc.data().role === "admin") document.getElementById('admin-summary').style.display = 'block';
+                loadData();
             }
         });
 
-        async function createNewProject() {
-            const name = document.getElementById('newProjName').value;
-            if (!name) return;
-            await db.collection("projects").add({ name, createdAt: new Date() });
-            alert("פרויקט נוצר!");
-            location.reload();
+        // פרויקטים
+        async function addProject() {
+            const name = document.getElementById('projNameInput').value;
+            if (name) { await db.collection("projects").add({ name }); location.reload(); }
         }
 
-        async function addTransaction() {
-            const pid = document.getElementById('projSelect').value;
-            const amt = parseFloat(document.getElementById('amount').value);
-            const type = document.getElementById('type').value;
-            const desc = document.getElementById('desc').value;
-            if (!pid || !amt) return alert("מלא פרויקט וסכום");
-            await db.collection("transactions").add({ pid, amt, type, desc, date: new Date() });
-            alert("עודכן בהצלחה");
-            location.reload();
-        }
-
-        async function addContact() {
-            const name = document.getElementById('conName').value;
-            const phone = document.getElementById('conPhone').value;
-            if (!name || !phone) return alert("מלא שם וטלפון");
-            await db.collection("contacts").add({ name, phone });
-            alert("איש קשר נשמר");
-        }
-
-        async function loadEverything() {
-            const projs = await db.collection("projects").get();
-            const select = document.getElementById('projSelect');
-            projs.forEach(doc => {
-                select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
-            });
-
-            if (role === "admin") {
-                const trans = await db.collection("transactions").get();
-                let ti = 0, te = 0;
-                trans.forEach(d => {
-                    const t = d.data();
-                    if (t.type === 'income') ti += t.amt; else te += t.amt;
-                });
-                document.getElementById('total-inc').innerText = `₪${ti}`;
-                document.getElementById('total-exp').innerText = `₪${te}`;
-                document.getElementById('total-net').innerText = `₪${ti - te}`;
+        async function deleteProject(id) {
+            if(confirm("למחוק פרויקט זה ואת כל הנתונים שלו?")) {
+                await db.collection("projects").doc(id).delete();
+                const trans = await db.collection("transactions").where("pid", "==", id).get();
+                trans.forEach(t => t.ref.delete());
+                location.reload();
             }
         }
 
-        // לוגיקה מחשבון
+        // כספים
+        async function addTransaction() {
+            const pid = document.getElementById('projSelect').value;
+            const amt = parseFloat(document.getElementById('amt').value);
+            const type = document.getElementById('type').value;
+            if (!pid || !amt) return alert("מלא פרטים");
+            await db.collection("transactions").add({ pid, amt, type, date: new Date() });
+            alert("עודכן!"); location.reload();
+        }
+
+        // טעינה
+        async function loadData() {
+            const projs = await db.collection("projects").get();
+            const pList = document.getElementById('projs-list');
+            const pSelect = document.getElementById('projSelect');
+            projs.forEach(doc => {
+                pList.innerHTML += `<tr><td>${doc.data().name}</td><td><button class="btn-del" onclick="deleteProject('${doc.id}')">מחיקה</button></td></tr>`;
+                pSelect.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+            });
+
+            const trans = await db.collection("transactions").get();
+            let ti=0, te=0;
+            trans.forEach(d => {
+                const t = d.data();
+                if(t.type === 'income') ti += t.amt; else te += t.amt;
+            });
+            document.getElementById('total-inc').innerText = `₪${ti}`;
+            document.getElementById('total-exp').innerText = `₪${te}`;
+            document.getElementById('total-net').innerText = `₪${ti-te}`;
+        }
+
+        // מחשבון
+        function toggleCalc() { 
+            const c = document.getElementById('mini-calc');
+            c.style.display = c.style.display === 'block' ? 'none' : 'block';
+        }
         let exp = "";
         function cIn(v) { exp += v; document.getElementById('calc-screen').value = exp; }
         function cClr() { exp = ""; document.getElementById('calc-screen').value = "0"; }
         function cRes() { try { exp = eval(exp).toString(); document.getElementById('calc-screen').value = exp; } catch { cClr(); } }
-
-        // גרירת מחשבון
-        const calc = document.getElementById('draggable-calc');
-        let offset = [0,0], isDown = false;
-        calc.addEventListener('mousedown', (e) => { isDown = true; offset = [calc.offsetLeft - e.clientX, calc.offsetTop - e.clientY]; });
-        document.addEventListener('mouseup', () => isDown = false);
-        document.addEventListener('mousemove', (e) => { if (isDown) { calc.style.left = (e.clientX + offset[0]) + 'px'; calc.style.top = (e.clientY + offset[1]) + 'px'; }});
-        calc.addEventListener('touchstart', (e) => { isDown = true; offset = [calc.offsetLeft - e.touches[0].clientX, calc.offsetTop - e.touches[0].clientY]; });
-        document.addEventListener('touchend', () => isDown = false);
-        document.addEventListener('touchmove', (e) => { if (isDown) { calc.style.left = (e.touches[0].clientX + offset[0]) + 'px'; calc.style.top = (e.touches[0].clientY + offset[1]) + 'px'; }});
     </script>
 </body>
 </html>
