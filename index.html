@@ -3,136 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר - ניהול פרויקטים מתקדם</title>
+    <title>נ.מ.ר - מערכת ניהול ובקרה</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg: #0b0e14; --surface: #161b22; --accent: #f5a623; --text: #f0f6fc; 
-            --red: #ff7b72; --green: #3fb950; --border: #30363d; --shadow: rgba(0,0,0,0.5);
-        }
-        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.6; }
+        :root { --bg: #0b0e14; --surface: #161b22; --accent: #f5a623; --text: #f0f6fc; --border: #30363d; --red: #ff7b72; --green: #3fb950; }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        /* תפריט ניווט אלגנטי */
-        .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); sticky: top; z-index: 1000; box-shadow: 0 4px 12px var(--shadow); }
-        .nav-item { flex: 1; padding: 18px; border: none; background: none; color: #8b949e; cursor: pointer; font-weight: 700; transition: 0.3s; font-size: 16px; }
-        .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); background: rgba(245, 166, 35, 0.05); }
+        .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
+        .nav-item { flex: 1; padding: 15px; border: none; background: none; color: #8b949e; cursor: pointer; font-weight: bold; min-width: 100px; }
+        .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
 
-        .container { padding: 25px; max-width: 900px; margin: auto; }
-        .page { display: none; animation: fadeIn 0.4s ease; }
+        .container { padding: 20px; max-width: 800px; margin: auto; padding-bottom: 100px; }
+        .page { display: none; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* כרטיסים מעוצבים */
-        .card { background: var(--surface); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
-        h3 { margin: 0 0 20px 0; color: var(--accent); font-weight: 900; font-size: 1.4em; }
-
-        input, select, textarea { 
-            background: #0d1117; border: 1px solid var(--border); color: white; padding: 14px; 
-            border-radius: 10px; margin: 8px 0; width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(245,166,35,0.2); outline: none; }
+        .card { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        input, select { background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; margin: 8px 0; width: 100%; box-sizing: border-box; }
         
-        .btn { cursor: pointer; padding: 14px; border-radius: 10px; border: none; font-weight: 800; width: 100%; transition: 0.3s; font-size: 16px; }
-        .btn-primary { background: var(--accent); color: #000; box-shadow: 0 4px 14px rgba(245,166,35,0.4); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.6); }
+        .btn { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-main:hover { opacity: 0.9; }
 
-        /* פרויקטים ברשימה */
-        .project-item { background: #21262d; padding: 20px; border-radius: 12px; margin-bottom: 12px; border-right: 4px solid var(--accent); position: relative; }
-        .progress-bar { height: 8px; background: #30363d; border-radius: 4px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--green); width: 0%; transition: 1s; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 20px; font-weight: 900; color: var(--accent); }
 
-        /* מחשבון מינימליסטי */
-        #calc-container { position: fixed; left: 25px; bottom: 25px; z-index: 2000; }
-        #calc-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; font-size: 24px; box-shadow: 0 8px 32px var(--shadow); }
-        #calc-box { 
-            display: none; position: absolute; bottom: 75px; left: 0; width: 260px; 
-            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 12px 48px rgba(0,0,0,0.7);
-        }
-        #calc-display { width: 100%; background: #000; color: var(--accent); border: none; text-align: right; padding: 15px; font-size: 24px; border-radius: 10px; margin-bottom: 10px; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-grid button { padding: 15px; background: #30363d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        .admin-only { display: none; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 10px; }
-        .status-active { background: rgba(63, 185, 80, 0.2); color: var(--green); }
+        /* מחשבון */
+        #calc-toggle { position: fixed; left: 20px; bottom: 20px; width: 55px; height: 55px; border-radius: 50%; background: var(--accent); border: none; font-size: 24px; cursor: pointer; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #calc-window { display: none; position: fixed; left: 20px; bottom: 85px; width: 220px; background: var(--surface); border: 2px solid var(--accent); border-radius: 15px; padding: 10px; z-index: 2000; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 10px; background: #30363d; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <nav class="nav-bar">
-        <button class="nav-item active" onclick="showPage('projs')">🏢 פרויקטים</button>
-        <button class="nav-item" onclick="showPage('finance')">💎 כספים</button>
+        <button class="nav-item active" onclick="showPage('home')">🏠 סיכום</button>
+        <button class="nav-item" onclick="showPage('projs')">🏗️ פרויקטים</button>
+        <button class="nav-item" onclick="showPage('finance')">💰 כספים</button>
         <button class="nav-item" onclick="showPage('contacts')">📞 קשר</button>
     </nav>
 
     <div class="container">
-        <div id="projs" class="page active">
-            <div class="card">
-                <h3>🛠️ הקמת פרויקט מאפס</h3>
-                <input type="text" id="p_name" placeholder="שם הפרויקט (למשל: וילה משפחת כהן)">
-                <input type="number" id="p_budget" placeholder="תקציב יעד כולל (₪)">
-                <input type="text" id="p_client" placeholder="שם הלקוח">
-                <select id="p_status">
-                    <option value="בתהליך">🟢 בתהליך</option>
-                    <option value="לפני ביצוע">🟡 לפני ביצוע</option>
-                    <option value="הסתיים">⚪ הסתיים</option>
-                </select>
-                <button class="btn btn-primary" onclick="setupProject()">הקם פרויקט ושמור</button>
+        <div id="home" class="page active">
+            <div class="stat-grid">
+                <div class="stat-card"><div>פרויקטים</div><div class="stat-val" id="count-p">0</div></div>
+                <div class="stat-card"><div>אנשי קשר</div><div class="stat-val" id="count-c">0</div></div>
             </div>
-            
-            <div id="project-feed">
+            <div class="card" style="border-right: 4px solid var(--green);">
+                <h3>📊 מצב פיננסי נוכחי</h3>
+                <div style="display:flex; justify-content:space-between;">
+                    <div>הכנסות: <span id="h-inc" style="color:var(--green)">₪0</span></div>
+                    <div>הוצאות: <span id="h-exp" style="color:var(--red)">₪0</span></div>
                 </div>
+                <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+                <div style="text-align:center; font-size:1.2em;">רווח נקי: <strong id="h-net">₪0</strong></div>
+            </div>
+        </div>
+
+        <div id="projs" class="page">
+            <div class="card">
+                <h3>🆕 הקמת פרויקט</h3>
+                <input type="text" id="p_name" placeholder="שם הפרויקט">
+                <input type="number" id="p_target" placeholder="תקציב יעד (מה שהלקוח משלם)">
+                <input type="number" id="p_cost" placeholder="מחיר עלות משוער (חומרים+עבודה)">
+                <button class="btn btn-main" onclick="addProject()">שמור פרויקט</button>
+            </div>
+            <div id="p-list"></div>
         </div>
 
         <div id="finance" class="page">
-            <div class="admin-only" id="finance-summary">
-                <div class="card" style="border-right: 5px solid var(--green);">
-                    <h3>📊 סיכום כספי מאוחד</h3>
-                    <div style="display:flex; justify-content:space-between;">
-                        <div>הכנסות: <span id="sum-inc" style="color:var(--green)">₪0</span></div>
-                        <div>הוצאות: <span id="sum-exp" style="color:var(--red)">₪0</span></div>
-                        <div>רווח: <span id="sum-net" style="font-weight:900;">₪0</span></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="card">
-                <h3>💸 רישום תנועה כספית</h3>
-                <select id="select-p"><option value="">בחר פרויקט...</option></select>
-                <input type="number" id="t_amt" placeholder="סכום בש״ח">
+                <h3>💸 רישום תנועה</h3>
+                <select id="sel-p"><option value="">בחר פרויקט...</option></select>
+                <input type="number" id="t_amt" placeholder="סכום">
                 <select id="t_type">
-                    <option value="income">הכנסה מלקוח (+)</option>
-                    <option value="expense">הוצאה / ספק / קבלן (-)</option>
+                    <option value="income">הכנסה (+)</option>
+                    <option value="expense">הוצאה (-)</option>
                 </select>
-                <input type="text" id="t_desc" placeholder="תיאור הפעולה">
-                <button class="btn btn-primary" onclick="logTransaction()">עדכן נתונים</button>
+                <input type="text" id="t_desc" placeholder="תיאור">
+                <button class="btn btn-main" onclick="addTransaction()">עדכן</button>
             </div>
         </div>
 
         <div id="contacts" class="page">
             <div class="card">
-                <h3>➕ איש קשר חדש</h3>
-                <input type="text" id="c_name" placeholder="שם איש קשר">
-                <input type="tel" id="c_phone" placeholder="מספר טלפון">
-                <button class="btn btn-primary" onclick="saveContact()">שמור איש קשר</button>
+                <h3>👤 איש קשר חדש</h3>
+                <input type="text" id="c_name" placeholder="שם">
+                <input type="tel" id="c_phone" placeholder="טלפון">
+                <button class="btn btn-main" onclick="addContact()">שמור</button>
             </div>
-            <div id="contacts-feed"></div>
+            <div id="c-list"></div>
         </div>
     </div>
 
-    <div id="calc-container">
-        <button id="calc-btn" onclick="toggleCalculator()">🧮</button>
-        <div id="calc-box">
-            <input type="text" id="calc-display" readonly value="0">
-            <div class="calc-grid">
-                <button onclick="key('7')">7</button><button onclick="key('8')">8</button><button onclick="key('9')">9</button><button onclick="key('/')">/</button>
-                <button onclick="key('4')">4</button><button onclick="key('5')">5</button><button onclick="key('6')">6</button><button onclick="key('*')">*</button>
-                <button onclick="key('1')">1</button><button onclick="key('2')">2</button><button onclick="key('3')">3</button><button onclick="key('-')">-</button>
-                <button onclick="key('0')">0</button><button onclick="keyClr()">C</button><button onclick="keyRes()" style="background:var(--accent); color:#000;">=</button><button onclick="key('+')">+</button>
-            </div>
+    <button id="calc-toggle" onclick="toggleCalc()">🧮</button>
+    <div id="calc-window">
+        <input type="text" id="calc-display" style="width:100%; background:#000; color:var(--accent); border:none; padding:10px; margin-bottom:10px; text-align:right;" readonly value="0">
+        <div class="calc-grid">
+            <button onclick="k('7')">7</button><button onclick="k('8')">8</button><button onclick="k('9')">9</button><button onclick="k('/')">/</button>
+            <button onclick="k('4')">4</button><button onclick="k('5')">5</button><button onclick="k('6')">6</button><button onclick="k('*')">*</button>
+            <button onclick="k('1')">1</button><button onclick="k('2')">2</button><button onclick="k('3')">3</button><button onclick="k('-')">-</button>
+            <button onclick="k('0')">0</button><button onclick="kC()">C</button><button onclick="kR()" style="background:var(--accent); color:#000;">=</button><button onclick="k('+')">+</button>
         </div>
     </div>
 
@@ -148,83 +123,71 @@
             event.currentTarget.classList.add('active');
         }
 
-        firebase.auth().onAuthStateChanged(async (user) => {
-            if (!user) window.location.href = "login.html";
-            else {
-                const u = await db.collection("users").doc(user.uid).get();
-                if (u.exists && u.data().role === 'admin') document.getElementById('finance-summary').style.display = 'block';
-                initData();
-            }
-        });
+        firebase.auth().onAuthStateChanged(user => { if(user) loadAll(); else window.location.href="login.html"; });
 
-        async function setupProject() {
+        async function addProject() {
             const name = document.getElementById('p_name').value;
-            const budget = parseFloat(document.getElementById('p_budget').value) || 0;
-            const client = document.getElementById('p_client').value;
-            const status = document.getElementById('p_status').value;
-            if(!name) return;
-            await db.collection("projects").add({ name, budget, client, status, date: new Date() });
-            location.reload();
+            const target = parseFloat(document.getElementById('p_target').value) || 0;
+            const cost = parseFloat(document.getElementById('p_cost').value) || 0;
+            if(name) { await db.collection("projects").add({ name, target, cost }); location.reload(); }
         }
 
-        async function logTransaction() {
-            const pid = document.getElementById('select-p').value;
+        async function addContact() {
+            const name = document.getElementById('c_name').value;
+            const phone = document.getElementById('c_phone').value;
+            if(name && phone) { await db.collection("contacts").add({ name, phone }); location.reload(); }
+        }
+
+        async function addTransaction() {
+            const pid = document.getElementById('sel-p').value;
             const amt = parseFloat(document.getElementById('t_amt').value);
             const type = document.getElementById('t_type').value;
-            const desc = document.getElementById('t_desc').value;
-            if(!pid || !amt) return;
-            await db.collection("transactions").add({ pid, amt, type, desc, date: new Date() });
-            alert("נתון עודכן בהצלחה!"); location.reload();
+            if(pid && amt) { await db.collection("transactions").add({ pid, amt, type, date: new Date() }); location.reload(); }
         }
 
-        async function initData() {
-            const projs = await db.collection("projects").get();
-            const trans = await db.collection("transactions").get();
-            const allT = trans.docs.map(d => d.data());
+        async function loadAll() {
+            const pSnap = await db.collection("projects").get();
+            const cSnap = await db.collection("contacts").get();
+            const tSnap = await db.collection("transactions").get();
 
-            let sInc = 0, sExp = 0;
-            const feed = document.getElementById('project-feed');
-            const select = document.getElementById('select-p');
+            document.getElementById('count-p').innerText = pSnap.size;
+            document.getElementById('count-c').innerText = cSnap.size;
 
-            projs.forEach(doc => {
+            let ti=0, te=0;
+            tSnap.forEach(d => { if(d.data().type==='income') ti+=d.data().amt; else te+=d.data().amt; });
+            document.getElementById('h-inc').innerText = `₪${ti.toLocaleString()}`;
+            document.getElementById('h-exp').innerText = `₪${te.toLocaleString()}`;
+            document.getElementById('h-net').innerText = `₪${(ti-te).toLocaleString()}`;
+
+            const pList = document.getElementById('p-list');
+            const selP = document.getElementById('sel-p');
+            pSnap.forEach(doc => {
                 const p = doc.data();
-                const pT = allT.filter(t => t.pid === doc.id);
-                const pInc = pT.filter(t => t.type === 'income').reduce((s,t)=>s+t.amt,0);
-                const pExp = pT.filter(t => t.type === 'expense').reduce((s,t)=>s+t.amt,0);
-                sInc += pInc; sExp += pExp;
-
-                const percent = p.budget > 0 ? Math.min((pExp / p.budget) * 100, 100) : 0;
-
-                select.innerHTML += `<option value="${doc.id}">${p.name}</option>`;
-                feed.innerHTML += `
-                    <div class="project-item">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong>${p.name}</strong>
-                            <span class="badge status-active">${p.status}</span>
-                        </div>
-                        <div style="font-size:14px; color:#8b949e; margin-top:5px;">לקוח: ${p.client || 'לא צוין'} | תקציב: ₪${p.budget.toLocaleString()}</div>
-                        <div style="font-size:13px; margin-top:10px; display:flex; justify-content:space-between;">
-                            <span>הוצאות: ₪${pExp.toLocaleString()}</span>
-                            <span>רווח פרויקט: ₪${(pInc - pExp).toLocaleString()}</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-                        <button class="btn" style="width:auto; padding:5px; margin-top:10px; font-size:12px; background:none; color:var(--red);" onclick="delP('${doc.id}')">מחק פרויקט</button>
-                    </div>
-                `;
+                selP.innerHTML += `<option value="${doc.id}">${p.name}</option>`;
+                pList.innerHTML += `<div class="card">
+                    <strong>${p.name}</strong><br>
+                    <small>יעד: ₪${p.target.toLocaleString()} | עלות: ₪${p.cost.toLocaleString()}</small>
+                    <div style="font-size:12px; color:var(--green); margin-top:5px;">רווח גולמי: ₪${(p.target - p.cost).toLocaleString()}</div>
+                    <button class="btn" style="background:none; color:var(--red); font-size:12px; width:auto;" onclick="del('projects','${doc.id}')">מחק פרויקט</button>
+                </div>`;
             });
 
-            document.getElementById('sum-inc').innerText = `₪${sInc.toLocaleString()}`;
-            document.getElementById('sum-exp').innerText = `₪${sExp.toLocaleString()}`;
-            document.getElementById('sum-net').innerText = `₪${(sInc - sExp).toLocaleString()}`;
+            const cList = document.getElementById('c-list');
+            cSnap.forEach(doc => {
+                cList.innerHTML += `<div class="card" style="display:flex; justify-content:space-between;">
+                    <span>${doc.data().name} - ${doc.data().phone}</span>
+                    <button onclick="del('contacts','${doc.id}')" style="background:none; border:none; color:var(--red);">🗑️</button>
+                </div>`;
+            });
         }
 
-        async function delP(id) { if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); location.reload(); } }
+        async function del(col, id) { if(confirm("למחוק?")) { await db.collection(col).doc(id).delete(); location.reload(); } }
 
-        function toggleCalculator() { const b = document.getElementById('calc-box'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
-        let exp = "";
-        function key(v) { exp += v; document.getElementById('calc-display').value = exp; }
-        function keyClr() { exp = ""; document.getElementById('calc-display').value = "0"; }
-        function keyRes() { try { exp = eval(exp).toString(); document.getElementById('calc-display').value = exp; } catch { keyClr(); } }
+        function toggleCalc() { const w = document.getElementById('calc-window'); w.style.display = w.style.display === 'block' ? 'none' : 'block'; }
+        let ex = "";
+        function k(v) { ex+=v; document.getElementById('calc-display').value=ex; }
+        function kC() { ex=""; document.getElementById('calc-display').value="0"; }
+        function kR() { try { ex=eval(ex).toString(); document.getElementById('calc-display').value=ex; } catch { kC(); } }
     </script>
 </body>
 </html>
