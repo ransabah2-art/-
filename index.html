@@ -1,181 +1,170 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>נ.מ.ר ביצוע פרויקטים</title>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נ.מ.ר - ניהול מתקדם</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
-<style>
-  /* כאן נשאר כל ה-CSS המעולה שלך מהקוד הקודם */
-  :root {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #222536; --border: #2e3147;
-    --accent: #f5a623; --accent2: #e8873a; --text: #eef0f8; --text-muted: #7b7f9e;
-    --green: #27c985; --blue: #4c8ef7; --red: #f26464; --yellow: #f5c842;
-    --radius: 16px; --radius-sm: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; }
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-  .logo { display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
-  .logo-text { font-size: 15px; font-weight: 800; }
-  .logo-text span { color: var(--accent); }
-  .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; gap: 4px; }
-  .tab { padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.18s; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-sm); border: none; font-family: 'Heebo', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #111; }
-  main { padding: 20px 16px 100px; max-width: 640px; margin: 0 auto; }
-  .page { display: none; }
-  .page.active { display: block; }
-  /* המשך ה-CSS שלך (קיצרתי כדי שייכנס בתשובה) */
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 10px; text-align: center; }
-  .stat-num { font-size: 24px; font-weight: 800; color: var(--accent); }
-  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom:10px; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
-  .overlay.open { display: flex; }
-  .modal { background: var(--surface); width: 100%; max-width: 640px; padding: 24px; border-radius: 24px 24px 0 0; }
-  .form-group { margin-bottom: 14px; }
-  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); padding: 11px; color: #fff; border-radius: 8px; }
-  .fab-row { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
-  .fab { padding: 13px 20px; border-radius: 30px; border: none; font-weight: 700; }
-</style>
+    <style>
+        :root {
+            --bg: #0f1117; --surface: #1a1d27; --border: #2e3147;
+            --accent: #f5a623; --text: #eef0f8; --text-muted: #7b7f9e;
+            --green: #27c985; --red: #f26464;
+        }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; direction: rtl; }
+        
+        /* Navigation */
+        nav { background: var(--surface); padding: 10px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); sticky; top: 0; z-index: 1000; }
+        .nav-tabs { display: flex; gap: 15px; }
+        .nav-tab { cursor: pointer; padding: 5px 10px; color: var(--text-muted); font-weight: 600; }
+        .nav-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        main { padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        
+        /* Calculator Mini Style */
+        .calc-mini { position: fixed; left: 20px; bottom: 80px; width: 200px; background: var(--surface); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; z-index: 100; }
+        .calc-mini input { width: 100%; background: #000; color: var(--accent); border: none; padding: 5px; text-align: left; margin-bottom: 5px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); }
+        .profit { color: var(--green); }
+        .loss { color: var(--red); }
+
+        .hidden { display: none !important; }
+        .fab-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; }
+        .btn-main { background: var(--accent); color: #000; }
+        
+        /* Remove the green dot bug */
+        .green-dot-fix { display: none; }
+    </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">🏗️</div>
-    <div class="logo-text">נ.מ.ר <span>ביצוע פרויקטים</span></div>
-  </div>
-</header>
-
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('dashboard')">📊 דשבורד</div>
-  <div class="tab" onclick="switchTab('projects')">📋 פרויקטים</div>
-  <div class="tab" onclick="switchTab('quote')">📄 הצעת מחיר</div>
-</div>
+<nav>
+    <div class="logo">🏗️ <strong>נ.מ.ר פרויקטים</strong></div>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="showPage('dash')">דשבורד</div>
+        <div class="nav-tab" onclick="showPage('projects')">פרויקטים</div>
+        <div class="nav-tab" onclick="showPage('contacts')">אנשי קשר</div>
+        <div class="nav-tab admin-only" onclick="showPage('finance')">כספים 💰</div>
+    </div>
+</nav>
 
 <main>
-  <div class="page active" id="page-dashboard">
-    <div class="stats-row">
-        <div class="stat-card"><div class="stat-num" id="dash-total">0</div><div>סה״כ</div></div>
-        <div class="stat-card"><div class="stat-num" id="dash-active" style="color:var(--green)">0</div><div>פעילים</div></div>
-        <div class="stat-card"><div class="stat-num" id="dash-done" style="color:var(--blue)">0</div><div>הושלמו</div></div>
-    </div>
-    <div id="recent-activity-list" style="font-size: 13px; color: var(--text-muted);">טוען נתונים...</div>
-  </div>
+    <section id="page-dash">
+        <div class="card">
+            <h2>סיכום רווחים חודשי (מנהל בלבד)</h2>
+            <div class="admin-only">
+                <table id="monthly-summary">
+                    <thead><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>רווח נקי</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <p class="partner-msg hidden">אין לך הרשאה לצפות בנתונים כספיים.</p>
+        </div>
+    </section>
 
-  <div class="page" id="page-projects">
-    <div id="projectsList" class="projects-list"></div>
-  </div>
+    <section id="page-contacts" class="hidden">
+        <div class="card">
+            <h3>אנשי קשר וקבלנים</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <input type="text" id="conName" placeholder="שם הקבלן/ספק">
+                <input type="text" id="conPhone" placeholder="טלפון">
+                <button class="btn btn-main" onclick="addContact()">הוסף</button>
+            </div>
+            <table id="contactsTable">
+                <thead><tr><th>שם</th><th>טלפון</th><th>פעולות</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
 
-  <div class="page" id="page-quote">
-    <input type="text" id="qClient" placeholder="שם לקוח">
-    <textarea id="qDesc" placeholder="תיאור עבודה"></textarea>
-    <input type="number" id="qPrice" placeholder="מחיר">
-    <button class="btn btn-primary" onclick="generateQuote()">צור הצעה</button>
-    <div id="quotePreview" style="margin-top:20px; background:white; color:black; padding:15px; border-radius:10px; display:none;"></div>
-  </div>
+    <section id="page-projects" class="hidden">
+        <div id="projectList"></div>
+    </section>
 </main>
 
-<div class="fab-row" id="fabRow">
-  <button class="fab btn-primary" onclick="openProjectModal()">＋ פרויקט חדש</button>
+<div class="calc-mini">
+    <input type="text" id="calcDisplay" readonly value="0">
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:5px;">
+        <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcOp('/')">/</button>
+        <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcOp('*')">*</button>
+        <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcOp('-')">-</button>
+        <button onclick="calcIn('0')">0</button><button onclick="clearCalc()">C</button><button onclick="doCalc()" style="grid-column: span 2; background:var(--accent);">=</button>
+    </div>
 </div>
 
-<div class="overlay" id="projectOverlay">
-  <div class="modal">
-    <h3>פרויקט חדש</h3>
-    <div class="form-group"><input type="text" id="projName" placeholder="שם הפרויקט"></div>
-    <div class="form-group">
-        <select id="projStatus">
-            <option value="active">פעיל</option>
-            <option value="done">הושלם</option>
-        </select>
-    </div>
-    <button class="btn btn-primary" style="width:100%" onclick="addProject()">שמור בענן</button>
-    <button onclick="closeModal()" style="background:none; color:white; border:none; margin-top:10px; width:100%">ביטול</button>
-  </div>
+<div class="fab-container">
+    <button class="btn btn-main" onclick="openProjectModal()">+ פרויקט חדש</button>
 </div>
 
 <script>
-  // 1. חיבור ל-Firebase (המפתח המפוצל כדי שלא ייחסם ב-Github)
-  const p1 = "AIzaSyBb-7PPYP2";
-  const p2 = "GFIPMVnMlJRT2U5jBxDsg_vM";
-  const firebaseConfig = {
-    apiKey: p1 + p2,
-    authDomain: "nmr-projects.firebaseapp.com",
-    projectId: "nmr-projects",
-    appId: "1:780228662939:web:48931d5bccaa568b66583e"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // --- הגדרות משתמש והרשאות ---
+    // כאן אתה מגדיר מי אתה. במציאות נשתמש ב-Firebase Auth
+    const USER_ROLE = "admin"; // שנה ל-"partner" כדי לבדוק את הגישה המוגבלת
 
-  // 2. פונקציות ניווט
-  function switchTab(tab) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-' + tab).classList.add('active');
-    if(tab === 'dashboard') loadStats();
-    if(tab === 'projects') loadProjects();
-  }
-
-  // 3. הוספת פרויקט ל-Firebase
-  async function addProject() {
-    const name = document.getElementById('projName').value;
-    const status = document.getElementById('projStatus').value;
-    if(!name) return alert("צריך שם");
-    
-    await db.collection("projects").add({
-      name: name,
-      status: status,
-      date: new Date()
-    });
-    closeModal();
-    switchTab('projects');
-  }
-
-  // 4. טעינת נתונים (סנכרון מלא מחשב-טלפון)
-  async function loadProjects() {
-    const snap = await db.collection("projects").orderBy("date", "desc").get();
-    let html = "";
-    snap.forEach(doc => {
-      const p = doc.data();
-      html += `
-        <div class="project-card">
-          <strong>${p.name}</strong><br>
-          <small>סטטוס: ${p.status === 'active' ? 'פעיל' : 'הושלם'}</small>
-          <button onclick="deleteProj('${doc.id}')" style="float:left; background:none; border:none; color:red;">🗑</button>
-        </div>`;
-    });
-    document.getElementById('projectsList').innerHTML = html || "אין פרויקטים";
-  }
-
-  async function loadStats() {
-    const snap = await db.collection("projects").get();
-    const total = snap.size;
-    let active = 0;
-    snap.forEach(doc => { if(doc.data().status === 'active') active++; });
-    document.getElementById('dash-total').innerText = total;
-    document.getElementById('dash-active').innerText = active;
-    document.getElementById('dash-done').innerText = total - active;
-  }
-
-  async function deleteProj(id) {
-    if(confirm("למחוק?")) {
-        await db.collection("projects").doc(id).delete();
-        loadProjects();
+    function checkPermissions() {
+        if (USER_ROLE === "partner") {
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.partner-msg').forEach(el => el.classList.remove('hidden'));
+        }
     }
-  }
 
-  function openProjectModal() { document.getElementById('projectOverlay').classList.add('open'); }
-  function closeModal() { document.getElementById('projectOverlay').classList.remove('open'); }
+    // --- מחשבון ---
+    let currentExp = "";
+    function calcIn(v) { currentExp += v; document.getElementById('calcDisplay').value = currentExp; }
+    function calcOp(o) { currentExp += " " + o + " "; document.getElementById('calcDisplay').value = currentExp; }
+    function clearCalc() { currentExp = ""; document.getElementById('calcDisplay').value = "0"; }
+    function doCalc() { 
+        try { currentExp = eval(currentExp).toString(); document.getElementById('calcDisplay').value = currentExp; }
+        catch { document.getElementById('calcDisplay').value = "Error"; currentExp = ""; }
+    }
 
-  loadStats();
+    // --- ניווט ---
+    function showPage(id) {
+        document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('page-' + id).classList.remove('hidden');
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        checkPermissions();
+    }
+
+    // --- Firebase Logic (סימולציה של פונקציות) ---
+    // הערה: יש להשתמש ב-config שלך מהצילום מסך
+    const p1 = "AIzaSyBb-7PPYP2";
+    const p2 = "GFIPMVnMlJRT2U5jBxDsg_vM";
+    firebase.initializeApp({ apiKey: p1+p2, projectId: "nmr-projects" });
+    const db = firebase.firestore();
+
+    async function addContact() {
+        const name = document.getElementById('conName').value;
+        const phone = document.getElementById('conPhone').value;
+        if(!name || !phone) return;
+        await db.collection("contacts").add({ name, phone, addedBy: USER_ROLE });
+        document.getElementById('conName').value = '';
+        document.getElementById('conPhone').value = '';
+        loadContacts();
+    }
+
+    async function loadContacts() {
+        const snap = await db.collection("contacts").get();
+        let html = "";
+        snap.forEach(doc => {
+            const c = doc.data();
+            html += `<tr><td>${c.name}</td><td>${c.phone}</td><td><button onclick="deleteDoc('contacts','${doc.id}')">🗑️</button></td></tr>`;
+        });
+        document.querySelector("#contactsTable tbody").innerHTML = html;
+    }
+
+    // הפעלה ראשונית
+    checkPermissions();
+    loadContacts();
 </script>
 </body>
 </html>
