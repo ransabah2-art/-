@@ -12,19 +12,18 @@
         :root { --bg: #0b0e14; --surface: #161b22; --accent: #f5a623; --text: #f0f6fc; --border: #30363d; --red: #ff7b72; --green: #3fb950; }
         body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
-        .nav-item { flex: 1; padding: 15px; border: none; background: none; color: #8b949e; cursor: pointer; font-weight: bold; min-width: 90px; font-size: 14px; }
+        .nav-item { flex: 1; padding: 15px; border: none; background: none; color: #8b949e; cursor: pointer; font-weight: bold; min-width: 90px; }
         .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
         .container { padding: 20px; max-width: 800px; margin: auto; padding-bottom: 100px; }
         .page { display: none; }
         .page.active { display: block; }
-        .card { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .card { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); position: relative; }
         input, select { background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; margin: 8px 0; width: 100%; box-sizing: border-box; }
         .btn { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; transition: 0.2s; }
         .btn-main { background: var(--accent); color: #000; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--surface); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
-        #calc-toggle { position: fixed; left: 20px; bottom: 20px; width: 55px; height: 55px; border-radius: 50%; background: var(--accent); border: none; font-size: 24px; cursor: pointer; z-index: 2000; }
-        .quote-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-whatsapp { background: #25D366; color: white; margin-top: 15px; }
+        .del-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; }
+        .quote-item { display: flex; gap: 8px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -32,42 +31,16 @@
     <nav class="nav-bar">
         <button class="nav-item active" onclick="showPage('home')">🏠 סיכום</button>
         <button class="nav-item" onclick="showPage('projs')">🏗️ פרויקטים</button>
+        <button class="nav-item" onclick="showPage('quotes')">📝 הצעה</button>
         <button class="nav-item" onclick="showPage('finance')">💰 כספים</button>
-        <button class="nav-item" onclick="showPage('quotes')">📝 הצעת מחיר</button>
         <button class="nav-item" onclick="showPage('contacts')">📞 קשר</button>
     </nav>
 
     <div class="container">
         <div id="home" class="page active">
-            <div class="stat-grid">
-                <div class="stat-card"><div>פרויקטים</div><div class="stat-val" id="count-p" style="font-size:24px; color:var(--accent);">0</div></div>
-                <div class="stat-card"><div>אנשי קשר</div><div class="stat-val" id="count-c" style="font-size:24px; color:var(--accent);">0</div></div>
-            </div>
-            <div class="card" style="border-right: 4px solid var(--green);">
-                <h3>📊 מצב פיננסי נוכחי</h3>
-                <div style="display:flex; justify-content:space-between;">
-                    <div>הכנסות: <span id="h-inc" style="color:var(--green)">₪0</span></div>
-                    <div>הוצאות: <span id="h-exp" style="color:var(--red)">₪0</span></div>
-                </div>
-                <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
-                <div style="text-align:center;">רווח נקי: <strong id="h-net">₪0</strong></div>
-            </div>
-        </div>
-
-        <div id="quotes" class="page">
-            <div class="card">
-                <h3>📝 מחשבון הצעת מחיר</h3>
-                <div id="quote-items">
-                    <div class="quote-item">
-                        <input type="text" placeholder="סעיף (למשל: בטון)" class="q-desc">
-                        <input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()">
-                        <input type="number" placeholder="מחיר יח'" class="q-price" oninput="calcQuote()">
-                    </div>
-                </div>
-                <button class="btn" style="background:#30363d; margin-bottom:10px;" onclick="addQuoteRow()">+ הוסף סעיף</button>
-                <div style="font-size:1.2em; text-align:left; border-top:1px solid var(--border); padding-top:10px;">
-                    סה"כ הצעה: <strong id="quote-total" style="color:var(--accent);">₪0</strong>
-                </div>
+            <div class="card" style="text-align: center;">
+                <h3>📊 מצב כללי</h3>
+                <p>רווח נקי נוכחי: <strong id="h-net" style="font-size: 24px; color: var(--accent);">₪0</strong></p>
             </div>
         </div>
 
@@ -76,15 +49,32 @@
                 <h3>🆕 הקמת פרויקט</h3>
                 <input type="text" id="p_name" placeholder="שם הפרויקט">
                 <input type="number" id="p_target" placeholder="תקציב יעד (מלקוח)">
-                <input type="number" id="p_cost" placeholder="מחיר עלות משוער">
+                <input type="number" id="p_cost" placeholder="עלות משוערת">
                 <button class="btn btn-main" onclick="addProject()">שמור פרויקט</button>
             </div>
             <div id="p-list"></div>
         </div>
 
+        <div id="quotes" class="page">
+            <div class="card">
+                <h3>📝 מחשבון ושליחת הצעת מחיר</h3>
+                <input type="text" id="q_client_name" placeholder="שם הלקוח">
+                <div id="quote-items">
+                    <div class="quote-item">
+                        <input type="text" placeholder="סעיף" class="q-desc">
+                        <input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()">
+                        <input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">
+                    </div>
+                </div>
+                <button class="btn" style="background:#30363d;" onclick="addQuoteRow()">+ הוסף שורה</button>
+                <div style="margin-top:15px; font-size:1.2em;">סה"כ: <strong id="quote-total">₪0</strong></div>
+                <button class="btn btn-whatsapp" onclick="sendWhatsApp()">שלח הצעת מחיר בוואטסאפ ✅</button>
+            </div>
+        </div>
+
         <div id="finance" class="page">
             <div class="card">
-                <h3>💸 רישום תנועה</h3>
+                <h3>💸 תנועה חדשה</h3>
                 <select id="sel-p"><option value="">בחר פרויקט...</option></select>
                 <input type="number" id="t_amt" placeholder="סכום">
                 <select id="t_type"><option value="income">הכנסה (+)</option><option value="expense">הוצאה (-)</option></select>
@@ -137,53 +127,72 @@
             if(pid && amt) { await db.collection("transactions").add({ pid, amt, type, date: new Date() }); location.reload(); }
         }
 
+        async function deleteDoc(col, id) {
+            if(confirm("בטוח שברצונך למחוק?")) {
+                await db.collection(col).doc(id).delete();
+                location.reload();
+            }
+        }
+
         async function loadAll() {
             const pSnap = await db.collection("projects").get();
             const cSnap = await db.collection("contacts").get();
             const tSnap = await db.collection("transactions").get();
 
-            document.getElementById('count-p').innerText = pSnap.size;
-            document.getElementById('count-c').innerText = cSnap.size;
-
             let ti=0, te=0;
-            tSnap.forEach(d => { 
-                const data = d.data();
-                const amt = parseFloat(data.amt) || 0;
-                if(data.type==='income') ti += amt; else te += amt; 
-            });
-
-            document.getElementById('h-inc').innerText = `₪${ti.toLocaleString()}`;
-            document.getElementById('h-exp').innerText = `₪${te.toLocaleString()}`;
+            tSnap.forEach(d => { if(d.data().type==='income') ti+=d.data().amt; else te+=d.data().amt; });
             document.getElementById('h-net').innerText = `₪${(ti-te).toLocaleString()}`;
 
+            const pList = document.getElementById('p-list');
             pSnap.forEach(doc => {
                 const p = doc.data();
                 document.getElementById('sel-p').innerHTML += `<option value="${doc.id}">${p.name}</option>`;
-                document.getElementById('p-list').innerHTML += `<div class="card"><strong>${p.name}</strong><br><small>יעד: ₪${(p.target||0).toLocaleString()} | עלות: ₪${(p.cost||0).toLocaleString()}</small></div>`;
+                pList.innerHTML += `<div class="card">
+                    <button class="del-btn" onclick="deleteDoc('projects','${doc.id}')">🗑️</button>
+                    <strong>${p.name}</strong><br><small>יעד: ₪${p.target.toLocaleString()}</small>
+                </div>`;
             });
 
             const cList = document.getElementById('c-list');
-            cList.innerHTML = "";
             cSnap.forEach(doc => {
-                cList.innerHTML += `<div class="card"><strong>${doc.data().name}</strong>: ${doc.data().phone}</div>`;
+                cList.innerHTML += `<div class="card">
+                    <button class="del-btn" onclick="deleteDoc('contacts','${doc.id}')">🗑️</button>
+                    <strong>${doc.data().name}</strong>: ${doc.data().phone}
+                </div>`;
             });
         }
 
         function addQuoteRow() {
-            const div = document.createElement('div');
-            div.className = 'quote-item';
-            div.innerHTML = `<input type="text" placeholder="סעיף" class="q-desc"><input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()"><input type="number" placeholder="מחיר יח'" class="q-price" oninput="calcQuote()">`;
-            document.getElementById('quote-items').appendChild(div);
+            const row = document.createElement('div');
+            row.className = 'quote-item';
+            row.innerHTML = `<input type="text" placeholder="סעיף" class="q-desc"><input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()"><input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">`;
+            document.getElementById('quote-items').appendChild(row);
         }
 
         function calcQuote() {
-            let total = 0;
-            document.querySelectorAll('.quote-item').forEach(row => {
-                const q = parseFloat(row.querySelector('.q-qty').value) || 0;
-                const p = parseFloat(row.querySelector('.q-price').value) || 0;
-                total += (q * p);
+            let t = 0;
+            document.querySelectorAll('.quote-item').forEach(r => {
+                t += (parseFloat(r.querySelector('.q-qty').value)||0) * (parseFloat(r.querySelector('.q-price').value)||0);
             });
-            document.getElementById('quote-total').innerText = `₪${total.toLocaleString()}`;
+            document.getElementById('quote-total').innerText = `₪${t.toLocaleString()}`;
+        }
+
+        function sendWhatsApp() {
+            const client = document.getElementById('q_client_name').value || "לקוח";
+            let msg = `*הצעת מחיר - נ.מ.ר פרויקטים*\nלכבוד: ${client}\n\n`;
+            let total = 0;
+            document.querySelectorAll('.quote-item').forEach(r => {
+                const d = r.querySelector('.q-desc').value;
+                const q = r.querySelector('.q-qty').value;
+                const p = r.querySelector('.q-price').value;
+                if(d && q && p) {
+                    const sub = q * p;
+                    msg += `• ${d}: ${q} יח' x ₪${p} = *₪${sub}*\n`;
+                    total += sub;
+                }
+            });
+            msg += `\n*סה"כ לתשלום: ₪${total}*\n\nנשמח לעמוד לשירותכם.`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
         }
     </script>
 </body>
