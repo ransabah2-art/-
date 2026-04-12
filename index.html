@@ -3,113 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר - ניהול פרויקטים</title>
+    <title>נ.מ.ר - ניהול פרויקטים מתקדם</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0f1117; --surface: #1a1d27; --accent: #f5a623; --text: #eef0f8; --red: #f26464; --green: #27c985; }
-        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-        
-        /* תפריט עליון */
-        .tabs { display: flex; background: var(--surface); border-bottom: 1px solid #2e3147; sticky: top; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: var(--text); cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
-        .tab-btn.active { border-bottom-color: var(--accent); color: var(--accent); }
-
-        .container { padding: 20px; padding-bottom: 100px; }
-        .page { display: none; }
-        .page.active { display: block; }
-
-        .card { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid #2e3147; }
-        input, select { background: #222536; border: 1px solid #3d415c; color: white; padding: 12px; border-radius: 8px; margin: 10px 0; width: 100%; box-sizing: border-box; }
-        
-        .btn { cursor: pointer; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; }
-        .btn-main { background: var(--accent); color: #000; }
-        .btn-del { background: var(--red); color: white; width: auto; padding: 5px 10px; font-size: 12px; }
-
-        /* מחשבון מתקפל */
-        #calc-wrapper { position: fixed; left: 20px; bottom: 20px; z-index: 9999; }
-        #calc-toggle { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 20px; }
-        #mini-calc { 
-            display: none; position: absolute; bottom: 60px; left: 0; width: 220px; 
-            background: var(--surface); border: 2px solid var(--accent); border-radius: 15px; padding: 10px; 
+        :root { 
+            --bg: #0b0e14; --surface: #161b22; --accent: #f5a623; --text: #f0f6fc; 
+            --red: #ff7b72; --green: #3fb950; --border: #30363d; --shadow: rgba(0,0,0,0.5);
         }
-        #calc-screen { width: 100%; background: #000; color: var(--accent); border: none; text-align: left; padding: 10px; font-size: 1.5em; margin-bottom: 10px; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 10px; background: #2e3147; color: white; border-radius: 5px; border: none; cursor: pointer; }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.6; }
+        
+        /* תפריט ניווט אלגנטי */
+        .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); sticky: top; z-index: 1000; box-shadow: 0 4px 12px var(--shadow); }
+        .nav-item { flex: 1; padding: 18px; border: none; background: none; color: #8b949e; cursor: pointer; font-weight: 700; transition: 0.3s; font-size: 16px; }
+        .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); background: rgba(245, 166, 35, 0.05); }
 
-        table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 10px; border-bottom: 1px solid #2e3147; text-align: right; }
+        .container { padding: 25px; max-width: 900px; margin: auto; }
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* כרטיסים מעוצבים */
+        .card { background: var(--surface); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
+        h3 { margin: 0 0 20px 0; color: var(--accent); font-weight: 900; font-size: 1.4em; }
+
+        input, select, textarea { 
+            background: #0d1117; border: 1px solid var(--border); color: white; padding: 14px; 
+            border-radius: 10px; margin: 8px 0; width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(245,166,35,0.2); outline: none; }
+        
+        .btn { cursor: pointer; padding: 14px; border-radius: 10px; border: none; font-weight: 800; width: 100%; transition: 0.3s; font-size: 16px; }
+        .btn-primary { background: var(--accent); color: #000; box-shadow: 0 4px 14px rgba(245,166,35,0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.6); }
+
+        /* פרויקטים ברשימה */
+        .project-item { background: #21262d; padding: 20px; border-radius: 12px; margin-bottom: 12px; border-right: 4px solid var(--accent); position: relative; }
+        .progress-bar { height: 8px; background: #30363d; border-radius: 4px; margin-top: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--green); width: 0%; transition: 1s; }
+
+        /* מחשבון מינימליסטי */
+        #calc-container { position: fixed; left: 25px; bottom: 25px; z-index: 2000; }
+        #calc-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; font-size: 24px; box-shadow: 0 8px 32px var(--shadow); }
+        #calc-box { 
+            display: none; position: absolute; bottom: 75px; left: 0; width: 260px; 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+        }
+        #calc-display { width: 100%; background: #000; color: var(--accent); border: none; text-align: right; padding: 15px; font-size: 24px; border-radius: 10px; margin-bottom: 10px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-grid button { padding: 15px; background: #30363d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
         .admin-only { display: none; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 10px; }
+        .status-active { background: rgba(63, 185, 80, 0.2); color: var(--green); }
     </style>
 </head>
 <body>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="openPage('projs')">פרויקטים</button>
-        <button class="tab-btn" onclick="openPage('contacts')">אנשי קשר</button>
-        <button class="tab-btn" onclick="openPage('finance')">כספים ודוחות</button>
-    </div>
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="showPage('projs')">🏢 פרויקטים</button>
+        <button class="nav-item" onclick="showPage('finance')">💎 כספים</button>
+        <button class="nav-item" onclick="showPage('contacts')">📞 קשר</button>
+    </nav>
 
     <div class="container">
         <div id="projs" class="page active">
             <div class="card">
-                <h3>🆕 הוספת פרויקט</h3>
-                <input type="text" id="projNameInput" placeholder="שם הפרויקט">
-                <button class="btn btn-main" onclick="addProject()">צור פרויקט חדש</button>
+                <h3>🛠️ הקמת פרויקט מאפס</h3>
+                <input type="text" id="p_name" placeholder="שם הפרויקט (למשל: וילה משפחת כהן)">
+                <input type="number" id="p_budget" placeholder="תקציב יעד כולל (₪)">
+                <input type="text" id="p_client" placeholder="שם הלקוח">
+                <select id="p_status">
+                    <option value="בתהליך">🟢 בתהליך</option>
+                    <option value="לפני ביצוע">🟡 לפני ביצוע</option>
+                    <option value="הסתיים">⚪ הסתיים</option>
+                </select>
+                <button class="btn btn-primary" onclick="setupProject()">הקם פרויקט ושמור</button>
             </div>
+            
+            <div id="project-feed">
+                </div>
+        </div>
+
+        <div id="finance" class="page">
+            <div class="admin-only" id="finance-summary">
+                <div class="card" style="border-right: 5px solid var(--green);">
+                    <h3>📊 סיכום כספי מאוחד</h3>
+                    <div style="display:flex; justify-content:space-between;">
+                        <div>הכנסות: <span id="sum-inc" style="color:var(--green)">₪0</span></div>
+                        <div>הוצאות: <span id="sum-exp" style="color:var(--red)">₪0</span></div>
+                        <div>רווח: <span id="sum-net" style="font-weight:900;">₪0</span></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
-                <h3>📁 רשימת פרויקטים פעילים</h3>
-                <table id="projs-list"></table>
+                <h3>💸 רישום תנועה כספית</h3>
+                <select id="select-p"><option value="">בחר פרויקט...</option></select>
+                <input type="number" id="t_amt" placeholder="סכום בש״ח">
+                <select id="t_type">
+                    <option value="income">הכנסה מלקוח (+)</option>
+                    <option value="expense">הוצאה / ספק / קבלן (-)</option>
+                </select>
+                <input type="text" id="t_desc" placeholder="תיאור הפעולה">
+                <button class="btn btn-primary" onclick="logTransaction()">עדכן נתונים</button>
             </div>
         </div>
 
         <div id="contacts" class="page">
             <div class="card">
-                <h3>👤 הוספת איש קשר</h3>
-                <input type="text" id="conName" placeholder="שם">
-                <input type="tel" id="conPhone" placeholder="טלפון">
-                <button class="btn btn-main" onclick="addContact()">שמור איש קשר</button>
+                <h3>➕ איש קשר חדש</h3>
+                <input type="text" id="c_name" placeholder="שם איש קשר">
+                <input type="tel" id="c_phone" placeholder="מספר טלפון">
+                <button class="btn btn-primary" onclick="saveContact()">שמור איש קשר</button>
             </div>
-            <div class="card">
-                <table id="contacts-list"></table>
-            </div>
-        </div>
-
-        <div id="finance" class="page">
-            <div class="admin-only" id="admin-summary">
-                <div class="card" style="border: 2px solid var(--green);">
-                    <h3>📊 סיכום רווח והפסד</h3>
-                    <p>הכנסות: <span id="total-inc" style="color:var(--green)">₪0</span></p>
-                    <p>הוצאות: <span id="total-exp" style="color:var(--red)">₪0</span></p>
-                    <hr>
-                    <p>רווח נקי: <span id="total-net">₪0</span></p>
-                </div>
-            </div>
-            <div class="card">
-                <h3>💰 רישום הכנסה/הוצאה</h3>
-                <select id="projSelect"><option value="">בחר פרויקט...</option></select>
-                <input type="number" id="amt" placeholder="סכום">
-                <select id="type">
-                    <option value="income">הכנסה (+)</option>
-                    <option value="expense">הוצאה (-)</option>
-                </select>
-                <input type="text" id="desc" placeholder="תיאור">
-                <button class="btn btn-main" onclick="addTransaction()">עדכן נתונים</button>
-            </div>
+            <div id="contacts-feed"></div>
         </div>
     </div>
 
-    <div id="calc-wrapper">
-        <button id="calc-toggle" onclick="toggleCalc()">🧮</button>
-        <div id="mini-calc">
-            <input type="text" id="calc-screen" readonly value="0">
+    <div id="calc-container">
+        <button id="calc-btn" onclick="toggleCalculator()">🧮</button>
+        <div id="calc-box">
+            <input type="text" id="calc-display" readonly value="0">
             <div class="calc-grid">
-                <button onclick="cIn('7')">7</button><button onclick="cIn('8')">8</button><button onclick="cIn('9')">9</button><button onclick="cIn('/')">/</button>
-                <button onclick="cIn('4')">4</button><button onclick="cIn('5')">5</button><button onclick="cIn('6')">6</button><button onclick="cIn('*')">*</button>
-                <button onclick="cIn('1')">1</button><button onclick="cIn('2')">2</button><button onclick="cIn('3')">3</button><button onclick="cIn('-')">-</button>
-                <button onclick="cIn('0')">0</button><button onclick="cClr()">C</button><button onclick="cRes()" style="background:var(--accent); color:#000;">=</button><button onclick="cIn('+')">+</button>
+                <button onclick="key('7')">7</button><button onclick="key('8')">8</button><button onclick="key('9')">9</button><button onclick="key('/')">/</button>
+                <button onclick="key('4')">4</button><button onclick="key('5')">5</button><button onclick="key('6')">6</button><button onclick="key('*')">*</button>
+                <button onclick="key('1')">1</button><button onclick="key('2')">2</button><button onclick="key('3')">3</button><button onclick="key('-')">-</button>
+                <button onclick="key('0')">0</button><button onclick="keyClr()">C</button><button onclick="keyRes()" style="background:var(--accent); color:#000;">=</button><button onclick="key('+')">+</button>
             </div>
         </div>
     </div>
@@ -119,77 +141,90 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function openPage(pageId) {
+        function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
         firebase.auth().onAuthStateChanged(async (user) => {
             if (!user) window.location.href = "login.html";
             else {
-                const doc = await db.collection("users").doc(user.uid).get();
-                if (doc.exists && doc.data().role === "admin") document.getElementById('admin-summary').style.display = 'block';
-                loadData();
+                const u = await db.collection("users").doc(user.uid).get();
+                if (u.exists && u.data().role === 'admin') document.getElementById('finance-summary').style.display = 'block';
+                initData();
             }
         });
 
-        // פרויקטים
-        async function addProject() {
-            const name = document.getElementById('projNameInput').value;
-            if (name) { await db.collection("projects").add({ name }); location.reload(); }
+        async function setupProject() {
+            const name = document.getElementById('p_name').value;
+            const budget = parseFloat(document.getElementById('p_budget').value) || 0;
+            const client = document.getElementById('p_client').value;
+            const status = document.getElementById('p_status').value;
+            if(!name) return;
+            await db.collection("projects").add({ name, budget, client, status, date: new Date() });
+            location.reload();
         }
 
-        async function deleteProject(id) {
-            if(confirm("למחוק פרויקט זה ואת כל הנתונים שלו?")) {
-                await db.collection("projects").doc(id).delete();
-                const trans = await db.collection("transactions").where("pid", "==", id).get();
-                trans.forEach(t => t.ref.delete());
-                location.reload();
-            }
+        async function logTransaction() {
+            const pid = document.getElementById('select-p').value;
+            const amt = parseFloat(document.getElementById('t_amt').value);
+            const type = document.getElementById('t_type').value;
+            const desc = document.getElementById('t_desc').value;
+            if(!pid || !amt) return;
+            await db.collection("transactions").add({ pid, amt, type, desc, date: new Date() });
+            alert("נתון עודכן בהצלחה!"); location.reload();
         }
 
-        // כספים
-        async function addTransaction() {
-            const pid = document.getElementById('projSelect').value;
-            const amt = parseFloat(document.getElementById('amt').value);
-            const type = document.getElementById('type').value;
-            if (!pid || !amt) return alert("מלא פרטים");
-            await db.collection("transactions").add({ pid, amt, type, date: new Date() });
-            alert("עודכן!"); location.reload();
-        }
-
-        // טעינה
-        async function loadData() {
+        async function initData() {
             const projs = await db.collection("projects").get();
-            const pList = document.getElementById('projs-list');
-            const pSelect = document.getElementById('projSelect');
-            projs.forEach(doc => {
-                pList.innerHTML += `<tr><td>${doc.data().name}</td><td><button class="btn-del" onclick="deleteProject('${doc.id}')">מחיקה</button></td></tr>`;
-                pSelect.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
-            });
-
             const trans = await db.collection("transactions").get();
-            let ti=0, te=0;
-            trans.forEach(d => {
-                const t = d.data();
-                if(t.type === 'income') ti += t.amt; else te += t.amt;
+            const allT = trans.docs.map(d => d.data());
+
+            let sInc = 0, sExp = 0;
+            const feed = document.getElementById('project-feed');
+            const select = document.getElementById('select-p');
+
+            projs.forEach(doc => {
+                const p = doc.data();
+                const pT = allT.filter(t => t.pid === doc.id);
+                const pInc = pT.filter(t => t.type === 'income').reduce((s,t)=>s+t.amt,0);
+                const pExp = pT.filter(t => t.type === 'expense').reduce((s,t)=>s+t.amt,0);
+                sInc += pInc; sExp += pExp;
+
+                const percent = p.budget > 0 ? Math.min((pExp / p.budget) * 100, 100) : 0;
+
+                select.innerHTML += `<option value="${doc.id}">${p.name}</option>`;
+                feed.innerHTML += `
+                    <div class="project-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>${p.name}</strong>
+                            <span class="badge status-active">${p.status}</span>
+                        </div>
+                        <div style="font-size:14px; color:#8b949e; margin-top:5px;">לקוח: ${p.client || 'לא צוין'} | תקציב: ₪${p.budget.toLocaleString()}</div>
+                        <div style="font-size:13px; margin-top:10px; display:flex; justify-content:space-between;">
+                            <span>הוצאות: ₪${pExp.toLocaleString()}</span>
+                            <span>רווח פרויקט: ₪${(pInc - pExp).toLocaleString()}</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
+                        <button class="btn" style="width:auto; padding:5px; margin-top:10px; font-size:12px; background:none; color:var(--red);" onclick="delP('${doc.id}')">מחק פרויקט</button>
+                    </div>
+                `;
             });
-            document.getElementById('total-inc').innerText = `₪${ti}`;
-            document.getElementById('total-exp').innerText = `₪${te}`;
-            document.getElementById('total-net').innerText = `₪${ti-te}`;
+
+            document.getElementById('sum-inc').innerText = `₪${sInc.toLocaleString()}`;
+            document.getElementById('sum-exp').innerText = `₪${sExp.toLocaleString()}`;
+            document.getElementById('sum-net').innerText = `₪${(sInc - sExp).toLocaleString()}`;
         }
 
-        // מחשבון
-        function toggleCalc() { 
-            const c = document.getElementById('mini-calc');
-            c.style.display = c.style.display === 'block' ? 'none' : 'block';
-        }
+        async function delP(id) { if(confirm("למחוק?")) { await db.collection("projects").doc(id).delete(); location.reload(); } }
+
+        function toggleCalculator() { const b = document.getElementById('calc-box'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
         let exp = "";
-        function cIn(v) { exp += v; document.getElementById('calc-screen').value = exp; }
-        function cClr() { exp = ""; document.getElementById('calc-screen').value = "0"; }
-        function cRes() { try { exp = eval(exp).toString(); document.getElementById('calc-screen').value = exp; } catch { cClr(); } }
+        function key(v) { exp += v; document.getElementById('calc-display').value = exp; }
+        function keyClr() { exp = ""; document.getElementById('calc-display').value = "0"; }
+        function keyRes() { try { exp = eval(exp).toString(); document.getElementById('calc-display').value = exp; } catch { keyClr(); } }
     </script>
 </body>
 </html>
