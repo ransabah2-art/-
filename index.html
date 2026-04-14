@@ -3,1300 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר פרויקטים</title>
+    <title>נ.מ.ר פרויקטים - ניהול ובקרה</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #080b10;
-            --surface: #0f1318;
-            --surface2: #161c24;
-            --accent: #f5a623;
-            --accent2: #e8890a;
-            --text: #eef2f7;
-            --muted: #6b7888;
-            --border: #1e2530;
-            --red: #ff6b6b;
-            --green: #4ecb71;
-            --blue: #4a9eff;
+            --bg: #080b10; --surface: #0f1318; --surface2: #161c24; --accent: #f5a623;
+            --accent2: #e8890a; --text: #eef2f7; --muted: #6b7888; --border: #1e2530;
+            --red: #ff6b6b; --green: #4ecb71;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
 
-        body {
-            font-family: 'Heebo', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        /* AUTH SCREEN */
+        #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; text-align: center; }
+        .auth-logo { font-size: 42px; font-weight: 900; color: var(--accent); margin-bottom: 20px; }
 
-        /* ───── AUTH ───── */
-        #auth-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(ellipse at 60% 40%, #1a2035 0%, var(--bg) 70%);
-        }
-
-        .auth-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 48px 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-            animation: fadeUp 0.5s ease;
-        }
-
-        .auth-logo {
-            font-size: 42px;
-            font-weight: 900;
-            color: var(--accent);
-            letter-spacing: -1px;
-            margin-bottom: 6px;
-        }
-
-        .auth-sub {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 36px;
-        }
-
-        .auth-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: var(--bg);
-            border-radius: 10px;
-            padding: 4px;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background: transparent;
-            color: var(--muted);
-            font-family: 'Heebo', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .auth-tab.active {
-            background: var(--surface2);
-            color: var(--text);
-        }
-
-        .field-label {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 6px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .field-wrap { margin-bottom: 16px; }
-
-        input[type="text"], input[type="email"], input[type="password"],
-        input[type="number"], input[type="tel"], select, textarea {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px 14px;
-            border-radius: 10px;
-            width: 100%;
-            font-family: 'Heebo', sans-serif;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent);
-        }
-
-        select option { background: #1a1f2e; }
-
-        .btn {
-            cursor: pointer;
-            padding: 13px 20px;
-            border-radius: 10px;
-            border: none;
-            font-family: 'Heebo', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            width: 100%;
-            transition: all 0.2s;
-        }
-
-        .btn-main {
-            background: var(--accent);
-            color: #000;
-        }
-
-        .btn-main:hover { background: var(--accent2); transform: translateY(-1px); }
-
-        .btn-ghost {
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-ghost:hover { border-color: var(--accent); }
-
-        .btn-danger { background: rgba(255,107,107,0.15); color: var(--red); border: 1px solid rgba(255,107,107,0.3); }
-        .btn-danger:hover { background: rgba(255,107,107,0.25); }
-
-        .btn-whatsapp { background: #25D366; color: white; }
-        .btn-whatsapp:hover { background: #1db954; transform: translateY(-1px); }
-
-        .btn-sm { padding: 7px 14px; font-size: 13px; width: auto; border-radius: 8px; }
-
-        #auth-error {
-            color: var(--red);
-            font-size: 13px;
-            margin-top: 12px;
-            text-align: center;
-            min-height: 20px;
-        }
-
-        /* ───── APP ───── */
+        /* APP SCREEN */
         #app-screen { display: none; }
+        .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; sticky: top; }
+        .nav-item { flex: 1; padding: 15px; border: none; background: none; color: var(--muted); cursor: pointer; font-weight: bold; min-width: 90px; }
+        .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
 
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .top-logo { font-weight: 900; font-size: 20px; color: var(--accent); letter-spacing: -0.5px; }
-
-        .top-user { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
-
-        .logout-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Heebo', sans-serif;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .logout-btn:hover { color: var(--red); border-color: var(--red); }
-
-        .nav-bar {
-            display: flex;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .nav-bar::-webkit-scrollbar { display: none; }
-
-        .nav-item {
-            flex: 1;
-            padding: 13px 8px;
-            border: none;
-            background: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-family: 'Heebo', sans-serif;
-            font-weight: 600;
-            font-size: 13px;
-            min-width: 80px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-        .container {
-            padding: 20px;
-            max-width: 820px;
-            margin: auto;
-            padding-bottom: 60px;
-        }
-
-        .page { display: none; animation: fadeUp 0.3s ease; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .page { display: none; }
         .page.active { display: block; }
 
-        /* ───── CARDS ───── */
-        .card {
-            background: var(--surface);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-            position: relative;
-        }
+        .card { background: var(--surface); border-radius: 14px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); position: relative; }
+        input, select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; width: 100%; margin: 8px 0; }
+        
+        .btn { cursor: pointer; padding: 12px; border-radius: 10px; border: none; font-weight: 700; width: 100%; transition: 0.2s; }
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-del { background: none; color: var(--red); border: 1px solid var(--red); width: auto; padding: 5px 10px; font-size: 12px; margin-top: 10px; }
+        .btn-whatsapp { background: #25D366; color: white; margin-top: 15px; }
 
-        .card-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 16px;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ───── HOME ───── */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .kpi {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px 16px;
-            text-align: center;
-        }
-
-        .kpi-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px; }
-        .kpi-val { font-size: 22px; font-weight: 900; }
-        .kpi-val.positive { color: var(--green); }
-        .kpi-val.negative { color: var(--red); }
-        .kpi-val.neutral { color: var(--accent); }
-
-        .recent-tx { }
-        .tx-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 11px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-        .tx-row:last-child { border-bottom: none; }
-        .tx-label { color: var(--muted); }
-        .tx-amt.income { color: var(--green); font-weight: 700; }
-        .tx-amt.expense { color: var(--red); font-weight: 700; }
-
-        /* ───── PROJECTS ───── */
-        .proj-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 12px;
-            position: relative;
-        }
-
-        .proj-name { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
-
-        .proj-stats {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .proj-stat { font-size: 13px; color: var(--muted); }
-        .proj-stat strong { color: var(--text); }
-
-        .progress-bar {
-            height: 4px;
-            background: var(--border);
-            border-radius: 4px;
-            margin-top: 12px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .proj-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .action-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Heebo', sans-serif;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .action-btn:hover { color: var(--text); border-color: var(--accent); }
-        .action-btn.del:hover { color: var(--red); border-color: var(--red); }
-
-        /* ───── FINANCE ───── */
-        .tx-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .tx-list-item:last-child { border-bottom: none; }
-
-        .tx-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-        /* ───── CONTACTS ───── */
-        .contact-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 18px;
-            margin-bottom: 10px;
-        }
-
-        .contact-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .contact-name { font-weight: 600; font-size: 15px; }
-        .contact-phone { font-size: 13px; color: var(--muted); }
-
-        .contact-actions { margin-right: auto; display: flex; gap: 8px; }
-
-        /* ───── QUOTES ───── */
-        .quote-item {
-            display: grid;
-            grid-template-columns: 1fr 70px 90px 32px;
-            gap: 8px;
-            margin-bottom: 8px;
-            align-items: center;
-        }
-
-        .remove-row-btn {
-            background: none;
-            border: none;
-            color: var(--red);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        .remove-row-btn:hover { opacity: 1; }
-
-        .quote-total-box {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0;
-        }
-
-        .quote-total-label { color: var(--muted); font-size: 14px; }
-        .quote-total-val { font-size: 22px; font-weight: 900; color: var(--accent); }
-
-        /* ───── MODAL ───── */
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-backdrop.open { display: flex; animation: fadeIn 0.2s ease; }
-
-        .modal {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 28px;
-            width: 100%;
-            max-width: 460px;
-            animation: fadeUp 0.25s ease;
-        }
-
-        .modal-title {
-            font-weight: 700;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* ───── SEARCH ───── */
-        .search-bar {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .search-bar input {
-            padding-right: 40px;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--muted);
-            font-size: 16px;
-        }
-
-        /* ───── TOAST ───── */
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 9999;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            opacity: 0;
-            white-space: nowrap;
-        }
-
-        #toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        /* ───── UTILS ───── */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--muted);
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-bottom: 8px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--muted);
-        }
-
-        .empty-icon { font-size: 40px; margin-bottom: 12px; }
-        .empty-text { font-size: 15px; }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .section-title { font-weight: 700; font-size: 16px; }
-
-        .badge {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .gap-10 { display: flex; flex-direction: column; gap: 10px; }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 480px) {
-            .kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .kpi { padding: 14px 10px; }
-            .kpi-val { font-size: 18px; }
-            .quote-item { grid-template-columns: 1fr 55px 75px 28px; gap: 5px; }
-        }
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; }
+        .kpi-val { font-size: 18px; font-weight: 900; }
+        
+        .quote-item { display: grid; grid-template-columns: 1fr 60px 80px; gap: 8px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
-<!-- ══════════ AUTH SCREEN ══════════ -->
 <div id="auth-screen">
     <div class="auth-box">
         <div class="auth-logo">נ.מ.ר</div>
-        <div class="auth-sub">מערכת ניהול פרויקטים</div>
-
-        <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchAuthTab('login')">התחברות</button>
-            <button class="auth-tab" onclick="switchAuthTab('register')">הרשמה</button>
-        </div>
-
-        <div id="login-form">
-            <div class="field-wrap">
-                <div class="field-label">אימייל</div>
-                <input type="email" id="login-email" placeholder="name@example.com" autocomplete="email">
-            </div>
-            <div class="field-wrap">
-                <div class="field-label">סיסמה</div>
-                <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-            </div>
-            <button class="btn btn-main" onclick="loginUser()">כניסה</button>
-        </div>
-
-        <div id="register-form" style="display:none;">
-            <div class="field-wrap">
-                <div class="field-label">אימייל</div>
-                <input type="email" id="reg-email" placeholder="name@example.com" autocomplete="email">
-            </div>
-            <div class="field-wrap">
-                <div class="field-label">סיסמה (לפחות 6 תווים)</div>
-                <input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password">
-            </div>
-            <button class="btn btn-main" onclick="registerUser()">יצירת חשבון</button>
-        </div>
-
-        <div id="auth-error"></div>
+        <input type="email" id="login-email" placeholder="אימייל">
+        <input type="password" id="login-pass" placeholder="סיסמה">
+        <button class="btn btn-main" onclick="login()">התחברות</button>
+        <div id="auth-error" style="color:var(--red); margin-top:10px; font-size:13px;"></div>
     </div>
 </div>
 
-<!-- ══════════ APP SCREEN ══════════ -->
 <div id="app-screen">
-    <div class="top-bar">
-        <div class="top-logo">נ.מ.ר פרויקטים</div>
-        <div class="top-user">
-            <span id="user-email-display"></span>
-            <button class="logout-btn" onclick="logoutUser()">יציאה</button>
-        </div>
-    </div>
-
     <nav class="nav-bar">
-        <button class="nav-item active" data-page="home" onclick="showPage('home',this)">🏠 סיכום</button>
-        <button class="nav-item" data-page="projs" onclick="showPage('projs',this)">🏗️ פרויקטים</button>
-        <button class="nav-item" data-page="quotes" onclick="showPage('quotes',this)">📝 הצעות</button>
-        <button class="nav-item" data-page="finance" onclick="showPage('finance',this)">💰 כספים</button>
-        <button class="nav-item" data-page="contacts" onclick="showPage('contacts',this)">📞 אנשי קשר</button>
+        <button class="nav-item active" onclick="showPage('home', this)">🏠 סיכום</button>
+        <button class="nav-item" onclick="showPage('projs', this)">🏗️ פרויקטים</button>
+        <button class="nav-item" onclick="showPage('quotes', this)">📝 הצעה</button>
+        <button class="nav-item" onclick="showPage('finance', this)">💰 כספים</button>
+        <button class="nav-item" onclick="showPage('contacts', this)">📞 קשר</button>
     </nav>
 
     <div class="container">
-
-        <!-- HOME -->
         <div id="home" class="page active">
             <div class="kpi-grid">
-                <div class="kpi">
-                    <div class="kpi-label">הכנסות</div>
-                    <div class="kpi-val positive" id="h-income">₪0</div>
-                </div>
-                <div class="kpi">
-                    <div class="kpi-label">הוצאות</div>
-                    <div class="kpi-val negative" id="h-expense">₪0</div>
-                </div>
-                <div class="kpi">
-                    <div class="kpi-label">רווח נקי</div>
-                    <div class="kpi-val neutral" id="h-net">₪0</div>
-                </div>
+                <div class="kpi"><small>הכנסות</small><div id="h-inc" class="kpi-val" style="color:var(--green)">₪0</div></div>
+                <div class="kpi"><small>הוצאות</small><div id="h-exp" class="kpi-val" style="color:var(--red)">₪0</div></div>
+                <div class="kpi"><small>רווח נקי</small><div id="h-net" class="kpi-val" style="color:var(--accent)">₪0</div></div>
             </div>
-
             <div class="card">
-                <div class="section-header">
-                    <div class="section-title">📊 סטטיסטיקות</div>
-                </div>
-                <div style="display:flex; gap:24px; flex-wrap:wrap; font-size:14px; color:var(--muted);">
-                    <span>פרויקטים פעילים: <strong id="h-pcount" style="color:var(--text)">0</strong></span>
-                    <span>אנשי קשר: <strong id="h-ccount" style="color:var(--text)">0</strong></span>
-                    <span>תנועות: <strong id="h-tcount" style="color:var(--text)">0</strong></span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-header">
-                    <div class="section-title">🕒 תנועות אחרונות</div>
-                </div>
-                <div id="h-recent-tx"><div class="loading"><div class="spinner"></div><br>טוען...</div></div>
+                <h3>סטטיסטיקה</h3>
+                <p>פרויקטים פעילים: <span id="h-pcount">0</span></p>
+                <p>אנשי קשר: <span id="h-ccount">0</span></p>
             </div>
         </div>
 
-        <!-- PROJECTS -->
         <div id="projs" class="page">
             <div class="card">
-                <div class="card-title">🆕 פרויקט חדש</div>
-                <div class="field-wrap">
-                    <div class="field-label">שם הפרויקט</div>
-                    <input type="text" id="p_name" placeholder="לדוג׳: בניית קיר גבס בחדר שינה">
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div class="field-wrap">
-                        <div class="field-label">תקציב לקוח (₪)</div>
-                        <input type="number" id="p_target" placeholder="0">
-                    </div>
-                    <div class="field-wrap">
-                        <div class="field-label">עלות משוערת (₪)</div>
-                        <input type="number" id="p_cost" placeholder="0">
-                    </div>
-                </div>
-                <button class="btn btn-main" onclick="addProject()">➕ שמור פרויקט</button>
+                <h3>🆕 הקמת פרויקט (0-100)</h3>
+                <input type="text" id="p_name" placeholder="שם הפרויקט">
+                <input type="number" id="p_target" placeholder="תקציב לקוח">
+                <input type="number" id="p_cost" placeholder="מחיר עלות משוער">
+                <button class="btn btn-main" onclick="addProject()">שמור פרויקט</button>
             </div>
-
-            <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="proj-search" placeholder="חיפוש פרויקט..." oninput="filterProjects()" style="padding-right:40px;">
-            </div>
-
             <div id="p-list"></div>
         </div>
 
-        <!-- QUOTES -->
         <div id="quotes" class="page">
             <div class="card">
-                <div class="card-title">📝 הצעת מחיר</div>
-                <div class="field-wrap">
-                    <div class="field-label">שם הלקוח</div>
-                    <input type="text" id="q_client_name" placeholder="ישראל ישראלי">
-                </div>
-                <div style="font-size:12px; color:var(--muted); margin-bottom:10px; font-weight:600;">פריטים</div>
+                <h3>📝 מחשבון הצעת מחיר לוואטסאפ</h3>
+                <input type="text" id="q_client" placeholder="שם הלקוח">
                 <div id="quote-items">
                     <div class="quote-item">
-                        <input type="text" placeholder="תיאור" class="q-desc">
+                        <input type="text" placeholder="סעיף" class="q-desc">
                         <input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()">
                         <input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">
-                        <span></span>
                     </div>
                 </div>
-                <button class="btn btn-ghost btn-sm" style="margin-bottom:14px;" onclick="addQuoteRow()">+ הוסף שורה</button>
-
-                <div class="quote-total-box">
-                    <span class="quote-total-label">סה"כ לתשלום</span>
-                    <span class="quote-total-val" id="quote-total">₪0</span>
-                </div>
-
-                <button class="btn btn-whatsapp" onclick="sendWhatsApp()">📤 שלח בוואטסאפ</button>
+                <button class="btn" style="background:var(--surface2); color:white;" onclick="addQuoteRow()">+ הוסף סעיף</button>
+                <div style="margin-top:20px; font-size:1.2em;">סה"כ: <strong id="quote-total" style="color:var(--accent)">₪0</strong></div>
+                <button class="btn btn-whatsapp" onclick="sendWhatsApp()">שלח הצעה בוואטסאפ ✅</button>
             </div>
         </div>
 
-        <!-- FINANCE -->
         <div id="finance" class="page">
             <div class="card">
-                <div class="card-title">💸 תנועה חדשה</div>
-                <div class="field-wrap">
-                    <div class="field-label">פרויקט</div>
-                    <select id="sel-p"><option value="">בחר פרויקט...</option></select>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div class="field-wrap">
-                        <div class="field-label">סכום (₪)</div>
-                        <input type="number" id="t_amt" placeholder="0">
-                    </div>
-                    <div class="field-wrap">
-                        <div class="field-label">סוג</div>
-                        <select id="t_type">
-                            <option value="income">הכנסה ✅</option>
-                            <option value="expense">הוצאה ❌</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="field-wrap">
-                    <div class="field-label">תיאור (אופציונלי)</div>
-                    <input type="text" id="t_desc" placeholder="לדוג׳: תשלום ראשון מלקוח">
-                </div>
-                <button class="btn btn-main" onclick="addTransaction()">➕ הוסף תנועה</button>
+                <h3>💸 רישום תנועה</h3>
+                <select id="sel-p"><option value="">בחר פרויקט...</option></select>
+                <input type="number" id="t_amt" placeholder="סכום">
+                <select id="t_type"><option value="income">הכנסה (+)</option><option value="expense">הוצאה (-)</option></select>
+                <button class="btn btn-main" onclick="addTransaction()">עדכן</button>
             </div>
-
-            <div class="section-header" style="margin-top:8px;">
-                <div class="section-title">היסטוריית תנועות</div>
-                <span class="badge" id="tx-count-badge">0</span>
-            </div>
-
-            <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="tx-search" placeholder="חיפוש לפי פרויקט / תיאור..." oninput="filterTransactions()" style="padding-right:40px;">
-            </div>
-
-            <div id="tx-list"></div>
         </div>
 
-        <!-- CONTACTS -->
         <div id="contacts" class="page">
             <div class="card">
-                <div class="card-title">👤 איש קשר חדש</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div class="field-wrap">
-                        <div class="field-label">שם מלא</div>
-                        <input type="text" id="c_name" placeholder="ישראל ישראלי">
-                    </div>
-                    <div class="field-wrap">
-                        <div class="field-label">טלפון</div>
-                        <input type="tel" id="c_phone" placeholder="050-0000000">
-                    </div>
-                </div>
-                <button class="btn btn-main" onclick="addContact()">➕ שמור</button>
+                <h3>👤 איש קשר חדש</h3>
+                <input type="text" id="c_name" placeholder="שם">
+                <input type="tel" id="c_phone" placeholder="טלפון">
+                <button class="btn btn-main" onclick="addContact()">שמור איש קשר</button>
             </div>
-
-            <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="contact-search" placeholder="חיפוש איש קשר..." oninput="filterContacts()" style="padding-right:40px;">
-            </div>
-
             <div id="c-list"></div>
         </div>
-
     </div>
 </div>
-
-<!-- ══════════ EDIT PROJECT MODAL ══════════ -->
-<div class="modal-backdrop" id="edit-proj-modal">
-    <div class="modal">
-        <div class="modal-title">✏️ עריכת פרויקט</div>
-        <input type="hidden" id="edit-proj-id">
-        <div class="field-wrap">
-            <div class="field-label">שם</div>
-            <input type="text" id="edit-proj-name">
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div class="field-wrap">
-                <div class="field-label">תקציב לקוח</div>
-                <input type="number" id="edit-proj-target">
-            </div>
-            <div class="field-wrap">
-                <div class="field-label">עלות משוערת</div>
-                <input type="number" id="edit-proj-cost">
-            </div>
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-main" style="flex:1;" onclick="saveEditProject()">שמור</button>
-            <button class="btn btn-ghost btn-sm" onclick="closeModal('edit-proj-modal')">ביטול</button>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════ TOAST ══════════ -->
-<div id="toast"></div>
 
 <script>
-// ══════════ FIREBASE ══════════
+// CONFIG FIREBASE (מעודכן לפי התמונה שלך)
 const firebaseConfig = {
     apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
-    projectId: "nmr-projects"
+    authDomain: "nmr-projects.firebaseapp.com",
+    projectId: "nmr-projects",
+    storageBucket: "nmr-projects.appspot.com",
+    messagingSenderId: "635398254882",
+    appId: "1:635398254882:web:785f7a0b5a3e1458e08d66"
 };
+
 firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-var auth = firebase.auth();
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// ══════════ STATE ══════════
-var allProjects = [];
-var allContacts = [];
-var allTransactions = [];
-var currentUser = null;
-
-// ══════════ AUTH ══════════
-function switchAuthTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach(function(t,i) {
-        t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
-    });
-    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
-    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-    document.getElementById('auth-error').textContent = '';
+// AUTH
+async function login() {
+    const e = document.getElementById('login-email').value;
+    const p = document.getElementById('login-pass').value;
+    try {
+        await auth.signInWithEmailAndPassword(e, p);
+    } catch (err) {
+        document.getElementById('auth-error').innerText = "פרטים שגויים";
+    }
 }
 
-function setAuthError(msg) {
-    document.getElementById('auth-error').textContent = msg;
-}
-
-function loginUser() {
-    var email = document.getElementById('login-email').value.trim();
-    var pass = document.getElementById('login-pass').value;
-    if (!email || !pass) { setAuthError('נא למלא אימייל וסיסמה'); return; }
-    auth.signInWithEmailAndPassword(email, pass)
-        .catch(function(e) { setAuthError('שגיאה: ' + translateAuthError(e.code)); });
-}
-
-function registerUser() {
-    var email = document.getElementById('reg-email').value.trim();
-    var pass = document.getElementById('reg-pass').value;
-    if (!email || !pass) { setAuthError('נא למלא את כל השדות'); return; }
-    if (pass.length < 6) { setAuthError('הסיסמה חייבת להיות לפחות 6 תווים'); return; }
-    auth.createUserWithEmailAndPassword(email, pass)
-        .catch(function(e) { setAuthError('שגיאה: ' + translateAuthError(e.code)); });
-}
-
-function logoutUser() {
-    auth.signOut();
-}
-
-function translateAuthError(code) {
-    var map = {
-        'auth/user-not-found': 'משתמש לא נמצא',
-        'auth/wrong-password': 'סיסמה שגויה',
-        'auth/email-already-in-use': 'אימייל כבר בשימוש',
-        'auth/invalid-email': 'אימייל לא תקין',
-        'auth/weak-password': 'סיסמה חלשה מדי',
-        'auth/invalid-credential': 'פרטי כניסה שגויים'
-    };
-    return map[code] || code;
-}
-
-auth.onAuthStateChanged(function(user) {
-    if (user) {
-        currentUser = user;
+auth.onAuthStateChanged(user => {
+    if(user) {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
-        document.getElementById('user-email-display').textContent = user.email;
         loadAll();
     } else {
-        currentUser = null;
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('app-screen').style.display = 'none';
     }
 });
 
-// ══════════ NAVIGATION ══════════
 function showPage(id, btn) {
-    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
+    btn.classList.add('active');
 }
 
-// ══════════ TOAST ══════════
-function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2500);
+// DATA ACTIONS
+function userDoc() { return db.collection('users').doc(auth.currentUser.uid); }
+
+async function addProject() {
+    const name = document.getElementById('p_name').value;
+    const target = parseFloat(document.getElementById('p_target').value) || 0;
+    const cost = parseFloat(document.getElementById('p_cost').value) || 0;
+    if(name) { await userDoc().collection('projects').add({ name, target, cost }); location.reload(); }
 }
 
-// ══════════ MODAL ══════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ══════════ SANITIZE ══════════
-function sanitize(str) {
-    var d = document.createElement('div');
-    d.appendChild(document.createTextNode(String(str || '')));
-    return d.innerHTML;
+async function addContact() {
+    const name = document.getElementById('c_name').value;
+    const phone = document.getElementById('c_phone').value;
+    if(name && phone) { await userDoc().collection('contacts').add({ name, phone }); location.reload(); }
 }
 
-// ══════════ LOAD ALL ══════════
-function userCol(col) {
-    return db.collection('users').doc(currentUser.uid).collection(col);
+async function addTransaction() {
+    const pid = document.getElementById('sel-p').value;
+    const amt = parseFloat(document.getElementById('t_amt').value) || 0;
+    const type = document.getElementById('t_type').value;
+    if(pid && amt) { await userDoc().collection('transactions').add({ pid, amt, type, date: new Date() }); location.reload(); }
 }
 
+async function deleteItem(col, id) {
+    if(confirm("למחוק לצמיתות?")) { await userDoc().collection(col).doc(id).delete(); location.reload(); }
+}
+
+// LOAD & RENDER
 async function loadAll() {
-    try {
-        var pSnap = await userCol('projects').get();
-        var cSnap = await userCol('contacts').get();
-        var tSnap = await userCol('transactions').orderBy('date','desc').get();
+    const pSnap = await userDoc().collection('projects').get();
+    const cSnap = await userDoc().collection('contacts').get();
+    const tSnap = await userDoc().collection('transactions').get();
 
-        allProjects = [];
-        pSnap.forEach(function(d) { allProjects.push({ id: d.id, ...d.data() }); });
+    document.getElementById('h-pcount').innerText = pSnap.size;
+    document.getElementById('h-ccount').innerText = cSnap.size;
 
-        allContacts = [];
-        cSnap.forEach(function(d) { allContacts.push({ id: d.id, ...d.data() }); });
-
-        allTransactions = [];
-        tSnap.forEach(function(d) { allTransactions.push({ id: d.id, ...d.data() }); });
-
-        renderHome();
-        renderProjects();
-        renderContacts();
-        renderTransactions();
-        populateProjectSelect();
-    } catch(e) {
-        console.error(e);
-        showToast('שגיאה בטעינת הנתונים');
-    }
-}
-
-// ══════════ HOME ══════════
-function renderHome() {
-    var income = 0, expense = 0;
-    allTransactions.forEach(function(t) {
-        if (t.type === 'income') income += t.amt;
-        else expense += t.amt;
+    let ti=0, te=0;
+    tSnap.forEach(d => {
+        const t = d.data();
+        const val = parseFloat(t.amt) || 0;
+        if(t.type === 'income') ti += val; else te += val;
     });
 
-    document.getElementById('h-income').textContent = '₪' + income.toLocaleString();
-    document.getElementById('h-expense').textContent = '₪' + expense.toLocaleString();
-    var net = income - expense;
-    var netEl = document.getElementById('h-net');
-    netEl.textContent = '₪' + net.toLocaleString();
-    netEl.className = 'kpi-val ' + (net >= 0 ? 'positive' : 'negative');
+    document.getElementById('h-inc').innerText = `₪${ti.toLocaleString()}`;
+    document.getElementById('h-exp').innerText = `₪${te.toLocaleString()}`;
+    document.getElementById('h-net').innerText = `₪${(ti-te).toLocaleString()}`;
 
-    document.getElementById('h-pcount').textContent = allProjects.length;
-    document.getElementById('h-ccount').textContent = allContacts.length;
-    document.getElementById('h-tcount').textContent = allTransactions.length;
+    pSnap.forEach(doc => {
+        const p = doc.data();
+        document.getElementById('sel-p').innerHTML += `<option value="${doc.id}">${p.name}</option>`;
+        document.getElementById('p-list').innerHTML += `<div class="card">
+            <strong>${p.name}</strong><br><small>יעד: ₪${(p.target||0).toLocaleString()} | עלות: ₪${(p.cost||0).toLocaleString()}</small><br>
+            <button class="btn-del" onclick="deleteItem('projects','${doc.id}')">מחק פרויקט 🗑️</button>
+        </div>`;
+    });
 
-    var recent = allTransactions.slice(0, 8);
-    var html = '';
-    if (recent.length === 0) {
-        html = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">אין תנועות עדיין</div>';
-    } else {
-        recent.forEach(function(t) {
-            var proj = allProjects.find(function(p) { return p.id === t.pid; });
-            var pName = proj ? sanitize(proj.name) : 'כללי';
-            var sign = t.type === 'income' ? '+' : '-';
-            var cls = t.type === 'income' ? 'income' : 'expense';
-            var date = t.date && t.date.toDate ? t.date.toDate().toLocaleDateString('he-IL') : '';
-            html += '<div class="tx-row">' +
-                '<div><div style="font-size:14px;">' + pName + (t.desc ? ' — ' + sanitize(t.desc) : '') + '</div>' +
-                '<div class="tx-meta">' + date + '</div></div>' +
-                '<div class="tx-amt ' + cls + '">' + sign + '₪' + t.amt.toLocaleString() + '</div>' +
-                '</div>';
-        });
-    }
-    document.getElementById('h-recent-tx').innerHTML = html;
-}
-
-// ══════════ PROJECTS ══════════
-function addProject() {
-    var name = document.getElementById('p_name').value.trim();
-    var target = parseFloat(document.getElementById('p_target').value) || 0;
-    var cost = parseFloat(document.getElementById('p_cost').value) || 0;
-    if (!name) { showToast('נא להזין שם פרויקט'); return; }
-    userCol('projects').add({ name: name, target: target, cost: cost })
-        .then(function(ref) {
-            allProjects.push({ id: ref.id, name: name, target: target, cost: cost });
-            document.getElementById('p_name').value = '';
-            document.getElementById('p_target').value = '';
-            document.getElementById('p_cost').value = '';
-            renderProjects();
-            renderHome();
-            populateProjectSelect();
-            showToast('✅ הפרויקט נשמר');
-        }).catch(function() { showToast('שגיאה בשמירת הפרויקט'); });
-}
-
-function renderProjects(filter) {
-    var list = allProjects;
-    if (filter) {
-        filter = filter.toLowerCase();
-        list = list.filter(function(p) { return p.name.toLowerCase().includes(filter); });
-    }
-
-    var html = '';
-    if (list.length === 0) {
-        html = '<div class="empty-state"><div class="empty-icon">🏗️</div><div class="empty-text">אין פרויקטים עדיין</div></div>';
-    } else {
-        list.forEach(function(p) {
-            var income = 0, expense = 0;
-            allTransactions.forEach(function(t) {
-                if (t.pid === p.id) {
-                    if (t.type === 'income') income += t.amt;
-                    else expense += t.amt;
-                }
-            });
-            var profit = income - expense;
-            var pct = p.target > 0 ? Math.min(100, Math.round((income / p.target) * 100)) : 0;
-
-            html += '<div class="proj-card">' +
-                '<div class="proj-name">' + sanitize(p.name) + '</div>' +
-                '<div class="proj-stats">' +
-                '<span class="proj-stat">יעד: <strong>₪' + (p.target||0).toLocaleString() + '</strong></span>' +
-                '<span class="proj-stat">עלות: <strong>₪' + (p.cost||0).toLocaleString() + '</strong></span>' +
-                '<span class="proj-stat">הכנסות: <strong style="color:var(--green)">₪' + income.toLocaleString() + '</strong></span>' +
-                '<span class="proj-stat">הוצאות: <strong style="color:var(--red)">₪' + expense.toLocaleString() + '</strong></span>' +
-                '<span class="proj-stat">רווח: <strong style="color:' + (profit>=0?'var(--green)':'var(--red)') + '">₪' + profit.toLocaleString() + '</strong></span>' +
-                '</div>' +
-                '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-                '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + pct + '% מהיעד</div>' +
-                '<div class="proj-actions">' +
-                '<button class="action-btn" onclick="openEditProject(\'' + p.id + '\')">✏️ ערוך</button>' +
-                '<button class="action-btn del" onclick="deleteProject(\'' + p.id + '\')">🗑️ מחק</button>' +
-                '</div>' +
-                '</div>';
-        });
-    }
-    document.getElementById('p-list').innerHTML = html;
-}
-
-function filterProjects() {
-    renderProjects(document.getElementById('proj-search').value);
-}
-
-function openEditProject(id) {
-    var p = allProjects.find(function(x) { return x.id === id; });
-    if (!p) return;
-    document.getElementById('edit-proj-id').value = id;
-    document.getElementById('edit-proj-name').value = p.name;
-    document.getElementById('edit-proj-target').value = p.target || '';
-    document.getElementById('edit-proj-cost').value = p.cost || '';
-    openModal('edit-proj-modal');
-}
-
-function saveEditProject() {
-    var id = document.getElementById('edit-proj-id').value;
-    var name = document.getElementById('edit-proj-name').value.trim();
-    var target = parseFloat(document.getElementById('edit-proj-target').value) || 0;
-    var cost = parseFloat(document.getElementById('edit-proj-cost').value) || 0;
-    if (!name) { showToast('נא להזין שם'); return; }
-    userCol('projects').doc(id).update({ name: name, target: target, cost: cost })
-        .then(function() {
-            var idx = allProjects.findIndex(function(x) { return x.id === id; });
-            if (idx > -1) allProjects[idx] = { id: id, name: name, target: target, cost: cost };
-            closeModal('edit-proj-modal');
-            renderProjects();
-            populateProjectSelect();
-            showToast('✅ הפרויקט עודכן');
-        }).catch(function() { showToast('שגיאה בעדכון'); });
-}
-
-function deleteProject(id) {
-    if (!confirm('בטוח שברצונך למחוק את הפרויקט?')) return;
-    userCol('projects').doc(id).delete().then(function() {
-        allProjects = allProjects.filter(function(p) { return p.id !== id; });
-        renderProjects();
-        renderHome();
-        populateProjectSelect();
-        showToast('🗑️ הפרויקט נמחק');
+    cSnap.forEach(doc => {
+        const c = doc.data();
+        document.getElementById('c-list').innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <span><strong>${c.name}</strong>: ${c.phone}</span>
+            <button onclick="deleteItem('contacts','${doc.id}')" style="background:none; border:none; color:var(--red);">🗑️</button>
+        </div>`;
     });
 }
 
-// ══════════ CONTACTS ══════════
-function addContact() {
-    var name = document.getElementById('c_name').value.trim();
-    var phone = document.getElementById('c_phone').value.trim();
-    if (!name || !phone) { showToast('נא למלא שם וטלפון'); return; }
-    userCol('contacts').add({ name: name, phone: phone })
-        .then(function(ref) {
-            allContacts.push({ id: ref.id, name: name, phone: phone });
-            document.getElementById('c_name').value = '';
-            document.getElementById('c_phone').value = '';
-            renderContacts();
-            renderHome();
-            showToast('✅ איש הקשר נשמר');
-        }).catch(function() { showToast('שגיאה בשמירה'); });
-}
-
-function renderContacts(filter) {
-    var list = allContacts;
-    if (filter) {
-        filter = filter.toLowerCase();
-        list = list.filter(function(c) {
-            return c.name.toLowerCase().includes(filter) || c.phone.includes(filter);
-        });
-    }
-
-    var html = '';
-    if (list.length === 0) {
-        html = '<div class="empty-state"><div class="empty-icon">📞</div><div class="empty-text">אין אנשי קשר עדיין</div></div>';
-    } else {
-        list.forEach(function(c) {
-            var initials = c.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0,2);
-            html += '<div class="contact-card">' +
-                '<div class="contact-avatar">' + sanitize(initials) + '</div>' +
-                '<div>' +
-                '<div class="contact-name">' + sanitize(c.name) + '</div>' +
-                '<div class="contact-phone">' + sanitize(c.phone) + '</div>' +
-                '</div>' +
-                '<div class="contact-actions">' +
-                '<a href="tel:' + sanitize(c.phone) + '"><button class="action-btn">📞</button></a>' +
-                '<a href="https://wa.me/972' + sanitize(c.phone.replace(/^0/,'').replace(/[^0-9]/g,'')) + '" target="_blank"><button class="action-btn">💬</button></a>' +
-                '<button class="action-btn del" onclick="deleteContact(\'' + c.id + '\')">🗑️</button>' +
-                '</div>' +
-                '</div>';
-        });
-    }
-    document.getElementById('c-list').innerHTML = html;
-}
-
-function filterContacts() {
-    renderContacts(document.getElementById('contact-search').value);
-}
-
-function deleteContact(id) {
-    if (!confirm('בטוח שברצונך למחוק?')) return;
-    userCol('contacts').doc(id).delete().then(function() {
-        allContacts = allContacts.filter(function(c) { return c.id !== id; });
-        renderContacts();
-        renderHome();
-        showToast('🗑️ נמחק');
-    });
-}
-
-// ══════════ TRANSACTIONS ══════════
-function populateProjectSelect() {
-    var sel = document.getElementById('sel-p');
-    sel.innerHTML = '<option value="">בחר פרויקט...</option>';
-    allProjects.forEach(function(p) {
-        sel.innerHTML += '<option value="' + p.id + '">' + sanitize(p.name) + '</option>';
-    });
-}
-
-function addTransaction() {
-    var pid = document.getElementById('sel-p').value;
-    var amt = parseFloat(document.getElementById('t_amt').value) || 0;
-    var type = document.getElementById('t_type').value;
-    var desc = document.getElementById('t_desc').value.trim();
-    if (!pid) { showToast('נא לבחור פרויקט'); return; }
-    if (!amt) { showToast('נא להזין סכום'); return; }
-    userCol('transactions').add({ pid: pid, amt: amt, type: type, desc: desc, date: new Date() })
-        .then(function(ref) {
-            allTransactions.unshift({ id: ref.id, pid: pid, amt: amt, type: type, desc: desc, date: { toDate: function() { return new Date(); } } });
-            document.getElementById('t_amt').value = '';
-            document.getElementById('t_desc').value = '';
-            renderTransactions();
-            renderHome();
-            showToast('✅ התנועה נשמרה');
-        }).catch(function() { showToast('שגיאה בשמירה'); });
-}
-
-function renderTransactions(filter) {
-    var list = allTransactions;
-    if (filter) {
-        filter = filter.toLowerCase();
-        list = list.filter(function(t) {
-            var proj = allProjects.find(function(p) { return p.id === t.pid; });
-            var pName = proj ? proj.name.toLowerCase() : '';
-            return pName.includes(filter) || (t.desc && t.desc.toLowerCase().includes(filter));
-        });
-    }
-
-    document.getElementById('tx-count-badge').textContent = allTransactions.length;
-
-    var html = '';
-    if (list.length === 0) {
-        html = '<div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">אין תנועות עדיין</div></div>';
-    } else {
-        html = '<div class="card">';
-        list.forEach(function(t) {
-            var proj = allProjects.find(function(p) { return p.id === t.pid; });
-            var pName = proj ? sanitize(proj.name) : 'כללי';
-            var sign = t.type === 'income' ? '+' : '-';
-            var cls = t.type;
-            var date = t.date && t.date.toDate ? t.date.toDate().toLocaleDateString('he-IL') : '';
-            html += '<div class="tx-list-item">' +
-                '<div>' +
-                '<div style="font-size:14px;font-weight:600;">' + pName + '</div>' +
-                '<div class="tx-meta">' + (t.desc ? sanitize(t.desc) + ' • ' : '') + date + '</div>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:10px;">' +
-                '<span class="tx-amt ' + cls + '">' + sign + '₪' + t.amt.toLocaleString() + '</span>' +
-                '<button class="action-btn del btn-sm" onclick="deleteTransaction(\'' + t.id + '\')">🗑️</button>' +
-                '</div>' +
-                '</div>';
-        });
-        html += '</div>';
-    }
-    document.getElementById('tx-list').innerHTML = html;
-}
-
-function filterTransactions() {
-    renderTransactions(document.getElementById('tx-search').value);
-}
-
-function deleteTransaction(id) {
-    if (!confirm('בטוח שברצונך למחוק?')) return;
-    userCol('transactions').doc(id).delete().then(function() {
-        allTransactions = allTransactions.filter(function(t) { return t.id !== id; });
-        renderTransactions();
-        renderHome();
-        showToast('🗑️ נמחק');
-    });
-}
-
-// ══════════ QUOTES ══════════
+// QUOTE LOGIC
 function addQuoteRow() {
-    var row = document.createElement('div');
+    const row = document.createElement('div');
     row.className = 'quote-item';
-    row.innerHTML = '<input type="text" placeholder="תיאור" class="q-desc">' +
-        '<input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()">' +
-        '<input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">' +
-        '<button class="remove-row-btn" onclick="removeQuoteRow(this)">✕</button>';
+    row.innerHTML = `<input type="text" placeholder="סעיף" class="q-desc"><input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()"><input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">`;
     document.getElementById('quote-items').appendChild(row);
 }
 
-function removeQuoteRow(btn) {
-    btn.closest('.quote-item').remove();
-    calcQuote();
-}
-
 function calcQuote() {
-    var t = 0;
-    document.querySelectorAll('.quote-item').forEach(function(r) {
-        t += (parseFloat(r.querySelector('.q-qty').value) || 0) * (parseFloat(r.querySelector('.q-price').value) || 0);
+    let t = 0;
+    document.querySelectorAll('.quote-item').forEach(r => {
+        t += (parseFloat(r.querySelector('.q-qty').value)||0) * (parseFloat(r.querySelector('.q-price').value)||0);
     });
-    document.getElementById('quote-total').textContent = '₪' + t.toLocaleString();
+    document.getElementById('quote-total').innerText = `₪${t.toLocaleString()}`;
 }
 
 function sendWhatsApp() {
-    var client = document.getElementById('q_client_name').value.trim() || 'לקוח';
-    var msg = '*הצעת מחיר — נ.מ.ר פרויקטים*\nלכבוד: ' + client + '\n\n';
-    var total = 0;
-    var hasItems = false;
-    document.querySelectorAll('.quote-item').forEach(function(r) {
-        var d = r.querySelector('.q-desc').value.trim();
-        var q = parseFloat(r.querySelector('.q-qty').value) || 0;
-        var p = parseFloat(r.querySelector('.q-price').value) || 0;
-        if (d && q && p) {
-            var sub = q * p;
-            msg += '• ' + d + ': ' + q + ' יח׳ × ₪' + p.toLocaleString() + ' = *₪' + sub.toLocaleString() + '*\n';
-            total += sub;
-            hasItems = true;
+    const client = document.getElementById('q_client').value || "לקוח";
+    let msg = `*הצעת מחיר - נ.מ.ר פרויקטים*\nלכבוד: ${client}\n\n`;
+    let total = 0;
+    document.querySelectorAll('.quote-item').forEach(r => {
+        const d = r.querySelector('.q-desc').value;
+        const q = parseFloat(r.querySelector('.q-qty').value) || 0;
+        const p = parseFloat(r.querySelector('.q-price').value) || 0;
+        if(d && q && p) {
+            msg += `• ${d}: ${q} יח' x ₪${p.toLocaleString()} = *₪${(q*p).toLocaleString()}*\n`;
+            total += (q*p);
         }
     });
-    if (!hasItems) { showToast('נא למלא לפחות פריט אחד'); return; }
-    msg += '\n*סה״כ לתשלום: ₪' + total.toLocaleString() + '*\n\nנשמח לעמוד לשירותכם 🙏';
-    window.open('https://wa.me/?text=' + encodeURIComponent(msg));
+    msg += `\n*סה"כ לתשלום: ₪${total.toLocaleString()}*\n\nנשמח לעמוד לשירותכם.`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 </script>
-
 </body>
 </html>
