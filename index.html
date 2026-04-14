@@ -2,8 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NMR Pro | המערכת המושלמת</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NMR Pro Mobile</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,245 +11,214 @@
             --text: #ffffff; --gray: #999; --success: #00ff88; --danger: #ff4d4d;
         }
 
-        body { font-family: 'Assistant', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* סרגל כלים מודרני, צף וממותג */
-        nav {
-            background: rgba(18, 18, 20, 0.85);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.08);
-            margin: 20px auto; width: 90%; max-width: 1100px;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 30px; height: 65px; border-radius: 40px;
-            position: sticky; top: 20px; z-index: 1000;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        body { 
+            font-family: 'Assistant', sans-serif; background-color: var(--bg); color: var(--text); 
+            margin: 0; padding: 0; padding-bottom: 80px; /* רווח לסרגל תחתון */
         }
 
-        /* מיתוג: מנוף + שם חברה */
-        .brand { display: flex; align-items: center; gap: 12px; }
-        
-        /* אייקון מנוף SVG נקי */
-        .crane-icon {
-            width: 32px; height: 32px;
-            fill: var(--orange); /* צבע כתום ממותג */
+        /* Header קומפקטי לנייד */
+        header {
+            background: #000; padding: 15px 20px; display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
         }
+        .crane-icon { width: 24px; height: 24px; fill: var(--orange); }
+        .brand-name { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
 
-        .brand .main { 
-            font-size: 20px; font-weight: 800; letter-spacing: 1.5px; 
-            color: #fff; text-transform: uppercase;
+        /* סרגל ניווט תחתון - Mobile Style */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+            background: rgba(18, 18, 20, 0.95); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #333; z-index: 1000; padding-bottom: env(safe-area-inset-bottom);
         }
-
-        .nav-links { display: flex; gap: 10px; }
         .nav-item { 
-            padding: 10px 20px; border-radius: 25px; cursor: pointer; 
-            color: #eee; font-weight: 600; transition: all 0.3s ease;
-            font-size: 14px; letter-spacing: 0.5px;
+            display: flex; flex-direction: column; align-items: center; 
+            color: var(--gray); font-size: 11px; font-weight: 600; text-decoration: none;
         }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--blue); }
-        .nav-item.active { background: var(--blue); color: #fff; box-shadow: 0 4px 15px rgba(0,168,255,0.4); }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--orange); }
 
-        .container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+        .container { padding: 20px; }
 
-        /* כרטיסיות UI */
-        .card { background: var(--panel); padding: 25px; border-radius: 24px; border: 1px solid #222; margin-bottom: 25px; transition: 0.3s; }
-        .card:hover { border-color: #333; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        /* כרטיסיות נתונים */
+        .card { 
+            background: var(--panel); padding: 20px; border-radius: 20px; 
+            border: 1px solid #222; margin-bottom: 15px;
+        }
         
-        input, textarea { background: #1a1a1c; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; width: 100%; box-sizing: border-box; margin-bottom: 12px; transition: 0.3s; font-family: inherit; }
-        input:focus { border-color: var(--blue); outline: none; background: #222; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: #1a1a1c; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-box.full { grid-column: span 2; }
+        .stat-label { font-size: 12px; color: var(--gray); display: block; }
+        .stat-val { font-size: 20px; font-weight: 800; }
 
-        .btn { padding: 14px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 16px; font-family: inherit; }
+        /* טפסים */
+        input, textarea { 
+            background: #1a1a1c; border: 1px solid #333; color: white; 
+            padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 10px; 
+            font-size: 16px; /* מונע זום באייפון */
+        }
+
+        .btn { 
+            padding: 16px; border-radius: 12px; border: none; font-weight: 800; 
+            width: 100%; cursor: pointer; font-size: 16px;
+        }
         .btn-orange { background: var(--orange); color: #000; }
         .btn-blue { background: var(--blue); color: #fff; }
 
-        /* מחשבון צף משולב */
-        #calc-trigger { position: fixed; bottom: 25px; left: 25px; background: var(--orange); color: #000; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 26px; z-index: 1001; box-shadow: 0 10px 25px rgba(255,159,28,0.4); transition: 0.3s; }
-        #calc-trigger:hover { transform: scale(1.1) rotate(10deg); }
+        /* רשימות מותאמות לנייד */
+        .list-item {
+            background: #1a1a1c; padding: 15px; border-radius: 15px;
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .list-info { display: flex; flex-direction: column; }
+        .list-title { font-weight: 700; color: #fff; }
+        .list-sub { font-size: 13px; color: var(--gray); }
+
+        /* מחשבון צף קטן יותר */
+        #calc-trigger { 
+            position: fixed; bottom: 85px; left: 20px; background: var(--blue); 
+            width: 50px; height: 50px; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; z-index: 999;
+        }
         
         #calc-floating {
-            position: fixed; bottom: 105px; left: 25px; width: 300px; 
-            background: #18181a; border: 1px solid #333; border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7); display: none; z-index: 2000; overflow: hidden;
-            animation: slideIn 0.3s ease;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 75vh;
+            background: #000; border-radius: 25px 25px 0 0; display: none; z-index: 2000;
         }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .calc-header { background: #222; padding: 15px 20px; font-weight: 800; display: flex; justify-content: space-between; border-bottom: 1px solid #333; align-items: center; }
-        
-        /* מחשבון רגיל - עיצוב */
-        .basic-calc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 15px; background: #111; border-bottom: 1px solid #333; }
-        .basic-calc input { grid-column: span 4; text-align: left; font-size: 24px; margin-bottom: 10px; background: #000; border: 1px solid #222; padding: 10px; color: var(--success); }
-        .calc-btn { padding: 15px; background: #222; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 18px; transition: 0.2s; }
-        .calc-btn:hover { background: #333; }
-        .calc-btn.op { background: rgba(255,159,28,0.15); color: var(--orange); }
-        .calc-btn.op:hover { background: rgba(255,159,28,0.3); }
-        .calc-btn.eq { background: var(--blue); color: #fff; grid-column: span 2; }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: right; padding: 15px; color: var(--gray); border-bottom: 1px solid #222; font-size: 14px; }
-        td { padding: 15px; border-bottom: 1px solid #1a1a1c; }
-        .profit-val { font-weight: 700; color: var(--success); }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="brand">
-            <svg class="crane-icon" viewBox="0 0 24 24">
-                <path d="M18,16H16V13.82L13,11V16H11V8.33L14.75,11.08L16.17,9.67L12.08,6.58C12.72,6.21 13.37,6 14,6C16.21,6 18,7.79 18,10V16M11,18H13V22H11V18M2,22V18H4V16.18L2.83,15.17L4.25,13.75L6,15.18V16H8V15.18L9.75,13.75L11.17,15.17L10,16.18V18H12V16H10.18L13.18,13H11V11.18L9.18,13H7V11.18L5.18,13H3V11.18L1,13V22H2M22,10V16H20V11.82L17,9V16H15V6.33L18.75,9.08L20.17,7.67L16.08,4.58C16.72,4.21 17.37,4 18,4C20.21,4 22,5.79 22,8V10Z" />
-            </svg>
-            <span class="main">NMR PERFORMANCE</span>
-        </div>
-        <div class="nav-links">
-            <div class="nav-item active" onclick="showTab('dashboard', this)">📊 דוחות</div>
-            <div class="nav-item" onclick="showTab('projects', this)">📂 פרויקטים</div>
-            <div class="nav-item" onclick="showTab('contacts', this)">👥 אנשי קשר</div>
-            <div class="nav-item" onclick="showTab('quote', this)">✉️ הצעת מחיר</div>
-        </div>
-    </nav>
+    <header>
+        <svg class="crane-icon" viewBox="0 0 24 24"><path d="M18,16H16V13.82L13,11V16H11V8.33L14.75,11.08L16.17,9.67L12.08,6.58C12.72,6.21 13.37,6 14,6C16.21,6 18,7.79 18,10V16M11,18H13V22H11V18M2,22V18H4V16.18L2.83,15.17L4.25,13.75L6,15.18V16H8V15.18L9.75,13.75L11.17,15.17L10,16.18V18H12V16H10.18L13.18,13H11V11.18L9.18,13H7V11.18L5.18,13H3V11.18L1,13V22H2M22,10V16H20V11.82L17,9V16H15V6.33L18.75,9.08L20.17,7.67L16.08,4.58C16.72,4.21 17.37,4 18,4C20.21,4 22,5.79 22,8V10Z" /></svg>
+        <span class="brand-name">NMR PERFORMANCE</span>
+    </header>
 
     <div class="container">
         <div id="dashboard" class="tab-content active">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
-                <div class="card" style="text-align:center; border-bottom: 5px solid var(--blue);"><h4>מחזור</h4><h2 id="total-sales">0 ₪</h2></div>
-                <div class="card" style="text-align:center; border-bottom: 5px solid var(--danger);"><h4>עלויות</h4><h2 id="total-costs">0 ₪</h2></div>
-                <div class="card" style="text-align:center; border-bottom: 5px solid var(--success);"><h4>רווח</h4><h2 id="total-profit">0 ₪</h2></div>
+            <div class="stat-grid">
+                <div class="stat-box full"><span class="stat-label">רווח נקי</span><div id="m-profit" class="stat-val" style="color:var(--success)">0 ₪</div></div>
+                <div class="stat-box"><span class="stat-label">מחזור</span><div id="m-sales" class="stat-val" style="color:var(--blue)">0 ₪</div></div>
+                <div class="stat-box"><span class="stat-label">עלויות</span><div id="m-costs" class="stat-val" style="color:var(--danger)">0 ₪</div></div>
             </div>
-            <div class="card">
-                <h3>רווחיות פרויקטים</h3>
-                <table>
-                    <thead><tr><th>פרויקט</th><th>עלות קבלן</th><th>מכירה</th><th>רווח</th></tr></thead>
-                    <tbody id="profit-body"></tbody>
-                </table>
-            </div>
+            <h3 style="margin-top:25px;">רווחיות פרויקטים</h3>
+            <div id="profit-list-mobile"></div>
         </div>
 
         <div id="projects" class="tab-content">
             <div class="card">
                 <h3>פרויקט חדש</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <input type="text" id="p-name" placeholder="שם הפרויקט">
-                    <input type="text" id="p-contractor" placeholder="קבלן מבצע">
-                    <input type="number" id="p-cost" placeholder="עלות קבלן (₪)">
-                    <input type="number" id="p-price" placeholder="מחיר מכירה (₪)">
-                </div>
-                <button class="btn btn-orange" style="width:100%" onclick="addProject()">שמור במערכת +</button>
+                <input type="text" id="p-name" placeholder="שם הפרויקט">
+                <input type="text" id="p-contractor" placeholder="קבלן">
+                <input type="number" id="p-cost" placeholder="עלות">
+                <input type="number" id="p-price" placeholder="מכירה">
+                <button class="btn btn-orange" onclick="addProject()">שמור פרויקט</button>
             </div>
-            <div id="projects-list"></div>
+            <div id="projects-list-mobile"></div>
         </div>
 
         <div id="contacts" class="tab-content">
             <div class="card">
                 <h3>הוסף איש קשר</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <input type="text" id="c-name" placeholder="שם מלא">
-                    <input type="text" id="c-phone" placeholder="מספר טלפון">
-                </div>
-                <button class="btn btn-blue" style="width:100%" onclick="addContact()">הוסף לרשימה +</button>
+                <input type="text" id="c-name" placeholder="שם מלא">
+                <input type="tel" id="c-phone" placeholder="טלפון">
+                <button class="btn btn-blue" onclick="addContact()">הוסף לרשימה</button>
             </div>
-            <div class="card"><table id="contacts-table"><thead><tr><th>שם</th><th>טלפון</th><th>פעולה</th></tr></thead><tbody id="contacts-body"></tbody></table></div>
+            <div id="contacts-list-mobile"></div>
         </div>
 
         <div id="quote" class="tab-content">
             <div class="card">
-                <h3>הצעת מחיר מפורטת</h3>
+                <h3>הצעה בוואטסאפ</h3>
                 <input type="text" id="q-client" placeholder="שם הלקוח">
-                <textarea id="q-desc" placeholder="פירוט העבודה והשירות..." rows="4"></textarea>
-                <input type="number" id="q-amount" placeholder="סכום לפני מע''מ (₪)" oninput="calcQ()">
-                <div style="background:#000; padding:20px; border-radius:18px; margin-bottom:20px; border: 1px solid #222;">
-                    <p style="margin:0 0 10px 0; color: var(--gray);">מע''מ (18%): <span id="q-vat">0</span> ₪</p>
-                    <h2 style="margin:0; font-size: 28px;">סה''כ: <span id="q-total" style="color:var(--orange)">0</span> ₪</h2>
+                <textarea id="q-desc" placeholder="פירוט עבודה..." rows="3"></textarea>
+                <input type="number" id="q-amount" placeholder="סכום לפני מע''מ" oninput="calcQ()">
+                <div style="background:#000; padding:15px; border-radius:12px; margin:15px 0; text-align:center;">
+                    <span style="color:var(--gray)">סה''כ כולל מע''מ</span>
+                    <h1 id="q-total" style="margin:5px 0; color:var(--orange)">0 ₪</h1>
                 </div>
-                <button class="btn btn-orange" style="width:100%; background:#25d366; color:#fff; font-size: 18px;" onclick="sendWA()">שלח הצעה בוואטסאפ ✉️</button>
+                <button class="btn btn-orange" style="background:#25d366;" onclick="sendWA()">שלח הצעה ✉️</button>
             </div>
         </div>
     </div>
 
-    <div id="calc-trigger" onclick="toggleCalc()">🧮</div>
-    <div id="calc-floating">
-        <div class="calc-header"><span>מחשבון NMR</span><span onclick="toggleCalc()" style="cursor:pointer; font-size: 20px;">✕</span></div>
-        
-        <div class="basic-calc">
-            <input type="text" id="res" readonly placeholder="0">
-            <button class="calc-btn" onclick="ins('7')">7</button><button class="calc-btn" onclick="ins('8')">8</button><button class="calc-btn" onclick="ins('9')">9</button><button class="calc-btn op" onclick="ins('/')">/</button>
-            <button class="calc-btn" onclick="ins('4')">4</button><button class="calc-btn" onclick="ins('5')">5</button><button class="calc-btn" onclick="ins('6')">6</button><button class="calc-btn op" onclick="ins('*')">*</button>
-            <button class="calc-btn" onclick="ins('1')">1</button><button class="calc-btn" onclick="ins('2')">2</button><button class="calc-btn" onclick="ins('3')">3</button><button class="calc-btn op" onclick="ins('-')">-</button>
-            <button class="calc-btn op" onclick="document.getElementById('res').value=''">C</button><button class="calc-btn" onclick="ins('0')">0</button><button class="calc-btn op" onclick="ins('.')">.</button><button class="calc-btn op" onclick="ins('+')">+</button>
-            <button class="calc-btn eq" onclick="run()">=</button>
-        </div>
-
-        <div style="padding:20px; border-top: 1px solid #333;">
-            <div style="font-size:14px; color:var(--orange); margin-bottom:10px; font-weight:700; letter-spacing: 0.5px;">מחשבון עלויות מ"ר / יח':</div>
-            <input type="number" id="f-sqm" placeholder="כמות" style="margin-bottom:8px; padding: 10px;">
-            <input type="number" id="f-price" placeholder="מחיר ליחידה" style="margin-bottom:8px; padding: 10px;">
-            <div id="f-total" style="text-align:center; font-weight:800; color:var(--blue); font-size:22px; margin:10px 0;">0 ₪</div>
-            <button class="btn btn-blue" style="width:100%; padding:10px; font-size: 14px;" onclick="document.getElementById('f-total').innerText = (document.getElementById('f-sqm').value * document.getElementById('f-price').value).toLocaleString() + ' ₪'">חשב עלות</button>
-        </div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showTab('dashboard', this)"><span>📊</span>דוחות</div>
+        <div class="nav-item" onclick="showTab('projects', this)"><span>📂</span>פרויקטים</div>
+        <div class="nav-item" onclick="showTab('contacts', this)"><span>👥</span>קשר</div>
+        <div class="nav-item" onclick="showTab('quote', this)"><span>✉️</span>הצעה</div>
     </div>
+
+    <div id="calc-trigger" onclick="alert('בנייד מומלץ להשתמש במחשבון הטלפון לנוחות מירבית')">🧮</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // הגדרות Firebase - זהות לקוד הקודם
         const firebaseConfig = { apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM", authDomain: "nmr-projects.firebaseapp.com", projectId: "nmr-projects", storageBucket: "nmr-projects.appspot.com", messagingSenderId: "635398254882", appId: "1:635398254882:web:785f7a0b5a3e1458e08d66" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // לוגיקת UI מעודכנת
         window.showTab = (id, el) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
+            window.scrollTo(0,0);
         };
-        window.toggleCalc = () => { const c = document.getElementById('calc-floating'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; };
 
-        // לוגיקת מחשבון בסיסי
-        window.ins = (v) => document.getElementById('res').value += v;
-        window.run = () => { try { document.getElementById('res').value = eval(document.getElementById('res').value); } catch { document.getElementById('res').value = 'Error'; } };
-
-        // פעולות Firebase
         window.addProject = async () => {
-            if(!document.getElementById('p-name').value) return alert("נא להזין שם פרויקט");
             await addDoc(collection(db, "projects_pro"), { name: document.getElementById('p-name').value, contractor: document.getElementById('p-contractor').value, cost: parseFloat(document.getElementById('p-cost').value)||0, price: parseFloat(document.getElementById('p-price').value)||0 });
             location.reload();
         };
+
         window.addContact = async () => {
-            if(!document.getElementById('c-name').value) return alert("נא להזין שם");
             await addDoc(collection(db, "contacts"), { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value });
             location.reload();
         };
-        window.del = async (c, id) => { if(confirm("האם למחוק פריט זה לצמיתות?")) { await deleteDoc(doc(db, c, id)); location.reload(); } };
 
-        // חישוב הצעה וטעינה
-        window.calcQ = () => { 
-            const v = parseFloat(document.getElementById('q-amount').value)||0; 
-            document.getElementById('q-vat').innerText = (v*0.18).toLocaleString('he-IL', {maximumFractionDigits: 2}); 
-            document.getElementById('q-total').innerText = (v*1.18).toLocaleString('he-IL', {maximumFractionDigits: 2}); 
-        };
-        window.sendWA = () => { 
-            const msg = `הצעת מחיר NMR PERFORMANCE עבור ${document.getElementById('q-client').value}:\n${document.getElementById('q-desc').value}\nסה''כ: ${document.getElementById('q-total').innerText} ש''ח כולל מע''מ.`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); 
-        };
+        window.del = async (c, id) => { if(confirm("למחוק?")) { await deleteDoc(doc(db, c, id)); location.reload(); } };
+
+        window.calcQ = () => { const v = parseFloat(document.getElementById('q-amount').value)||0; document.getElementById('q-total').innerText = (v*1.18).toLocaleString() + ' ₪'; };
+        
+        window.sendWA = () => { window.open(`https://wa.me/?text=${encodeURIComponent("הצעה מ-NMR PERFORMANCE ל"+document.getElementById('q-client').value+": "+document.getElementById('q-total').innerText)}`); };
 
         async function load() {
             const pSnap = await getDocs(collection(db, "projects_pro"));
             let s=0, c=0;
             pSnap.forEach(d => {
                 const p = d.data(); s+=p.price; c+=p.cost;
-                document.getElementById('profit-body').innerHTML += `<tr><td>${p.name}</td><td>${p.cost.toLocaleString()} ₪</td><td>${p.price.toLocaleString()} ₪</td><td class="profit-val">${(p.price-p.cost).toLocaleString()} ₪</td></tr>`;
-                document.getElementById('projects-list').innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;"><span><strong>${p.name}</strong> (${p.contractor})</span><button class="calc-btn op" style="padding:8px 15px; font-size:12px;" onclick="del('projects_pro','${d.id}')">מחק</button></div>`;
+                document.getElementById('profit-list-mobile').innerHTML += `
+                    <div class="list-item">
+                        <div class="list-info"><span class="list-title">${p.name}</span><span class="list-sub">רווח: ${(p.price-p.cost).toLocaleString()} ₪</span></div>
+                        <span style="color:var(--success); font-weight:800;">${Math.round(((p.price-p.cost)/p.price)*100)}%</span>
+                    </div>`;
+                document.getElementById('projects-list-mobile').innerHTML += `
+                    <div class="list-item">
+                        <div class="list-info"><span class="list-title">${p.name}</span><span class="list-sub">קבלן: ${p.contractor}</span></div>
+                        <button onclick="del('projects_pro','${d.id}')" style="background:none; border:none; color:var(--danger)">מחק</button>
+                    </div>`;
             });
-            document.getElementById('total-sales').innerText = s.toLocaleString() + ' ₪';
-            document.getElementById('total-costs').innerText = c.toLocaleString() + ' ₪';
-            document.getElementById('total-profit').innerText = (s-c).toLocaleString() + ' ₪';
+            document.getElementById('m-sales').innerText = s.toLocaleString() + ' ₪';
+            document.getElementById('m-costs').innerText = c.toLocaleString() + ' ₪';
+            document.getElementById('m-profit').innerText = (s-c).toLocaleString() + ' ₪';
 
             const cSnap = await getDocs(collection(db, "contacts"));
-            cSnap.forEach(d => { document.getElementById('contacts-body').innerHTML += `<tr><td>${d.data().name}</td><td>${d.data().phone}</td><td><button class="calc-btn op" style="padding:8px 15px; font-size:12px;" onclick="del('contacts','${d.id}')">מחק</button></td></tr>`; });
+            cSnap.forEach(d => {
+                document.getElementById('contacts-list-mobile').innerHTML += `
+                    <div class="list-item">
+                        <div class="list-info"><span class="list-title">${d.data().name}</span><span class="list-sub">${d.data().phone}</span></div>
+                        <a href="tel:${d.data().phone}" style="text-decoration:none;">📞</a>
+                    </div>`;
+            });
         }
         load();
     </script>
