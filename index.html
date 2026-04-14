@@ -3,123 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת ניהול פרויקטים - NMR</title>
+    <title>NMR Performance - ניהול ובקרה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --bg: #f4f7f6;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-            color: #333;
+            font-family: 'Assistant', sans-serif;
+            background-color: var(--bg);
+            margin: 0; padding: 0;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+        .section-card {
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+
+        h2 { border-bottom: 2px solid var(--accent); padding-bottom: 10px; color: var(--primary); }
+
+        /* עיצוב מחשבון הצעות מחיר */
+        .calc-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { 
+            padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;
+            transition: 0.3s;
         }
-        .project-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            transition: transform 0.2s;
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; margin-right: 10px; }
+        .btn-whatsapp { background: #25d366; color: white; width: 100%; margin-top: 10px; }
+
+        /* רשימת פרויקטים */
+        .project-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; border-bottom: 1px solid #eee;
         }
-        .project-card:hover {
-            transform: scale(1.01);
-            border-color: #3498db;
-        }
-        #loading {
-            text-align: center;
-            font-style: italic;
-            color: #7f8c8d;
-        }
-        .error {
-            color: #e74c3c;
-            background: #fdf2f2;
-            padding: 10px;
-            border-radius: 5px;
-        }
+
+        .project-item:last-child { border: none; }
+
+        /* עיצוב ה-Dashboard הקטן (המחשבון) */
+        .mini-calc { background: #ebf5fb; border: 1px dashed var(--accent); }
+
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
+<header>
+    <div style="font-size: 24px; font-weight: 800;">NMR PERFORMANCE</div>
+    <div>מחובר: מנהל פרויקטים</div>
+</header>
+
 <div class="container">
-    <h1>לוח בקרה - NMR Projects</h1>
-    
-    <div id="loading">טוען נתונים מהמערכת...</div>
-    <div id="data-container"></div>
+    <div class="grid">
+        
+        <div class="main-content">
+            <div class="section-card">
+                <h2>פרויקטים פעילים</h2>
+                <div id="projects-list">טוען נתונים...</div>
+            </div>
+
+            <div class="section-card">
+                <h2>הצעת מחיר מהירה (WhatsApp)</h2>
+                <label>שם הלקוח:</label>
+                <input type="text" id="cust-name" class="calc-input" placeholder="ישראל ישראלי">
+                <label>סכום לפני מע"מ:</label>
+                <input type="number" id="amount" class="calc-input" placeholder="0.00" oninput="calculateTotal()">
+                
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p>מע"מ (18%): <span id="vat-amount">0</span> ₪</p>
+                    <p><strong>סה"כ לתשלום: <span id="total-amount">0</span> ₪</strong></p>
+                </div>
+                
+                <button class="btn btn-whatsapp" onclick="sendWhatsApp()">שלח הצעה בוואטסאפ ✉️</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="section-card mini-calc">
+                <h3>מחשבון עלויות מהיר</h3>
+                <label>מ"ר:</label>
+                <input type="number" id="sqm" class="calc-input" placeholder="כמות מ"ר">
+                <label>מחיר למ"ר:</label>
+                <input type="number" id="price-sqm" class="calc-input" placeholder="מחיר">
+                <button class="btn btn-primary" style="width: 100%;" onclick="alert('סהכ: ' + (document.getElementById('sqm').value * document.getElementById('price-sqm').value) + ' ₪')">חשב</button>
+            </div>
+
+            <div class="section-card">
+                <h3>אנשי קשר</h3>
+                <div id="contacts-list"></div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // הגדרות ה-Firebase שלך (מעודכן לפי הצילומים ששלחת)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
-    authDomain: "nmr-projects.firebaseapp.com",
-    projectId: "nmr-projects",
-    storageBucket: "nmr-projects.appspot.com",
-    messagingSenderId: "635398254882",
-    appId: "1:635398254882:web:785f7a0b5a3e1458e08d66"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
+        authDomain: "nmr-projects.firebaseapp.com",
+        projectId: "nmr-projects",
+        storageBucket: "nmr-projects.appspot.com",
+        messagingSenderId: "635398254882",
+        appId: "1:635398254882:web:785f7a0b5a3e1458e08d66"
+    };
 
-  // אתחול המערכת
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  // פונקציה למשיכת הפרויקטים מה-Database
-  async function loadProjects() {
-    const container = document.getElementById('data-container');
-    const loading = document.getElementById('loading');
+    // פונקציית חישוב מע"מ 18%
+    window.calculateTotal = () => {
+        const amount = parseFloat(document.getElementById('amount').value) || 0;
+        const vat = amount * 0.18;
+        const total = amount + vat;
+        document.getElementById('vat-amount').innerText = vat.toLocaleString();
+        document.getElementById('total-amount').innerText = total.toLocaleString();
+    };
 
-    try {
-        // ניסיון למשוך נתונים מאוסף שנקרא 'projects'
-        const querySnapshot = await getDocs(collection(db, "projects"));
-        loading.style.display = 'none';
+    // שליחת וואטסאפ
+    window.sendWhatsApp = () => {
+        const name = document.getElementById('cust-name').value;
+        const total = document.getElementById('total-amount').innerText;
+        const text = `שלום ${name}, הצעת המחיר עבורך מחברת NMR Performance היא ${total} ש"ח כולל מע"מ.`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
 
-        if (querySnapshot.empty) {
-            container.innerHTML = "<p>לא נמצאו פרויקטים במסד הנתונים. הוסף נתונים ב-Firebase Console.</p>";
-            return;
-        }
-
-        let html = "";
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            html += `
-                <div class="project-card">
-                    <h3>${data.name || 'פרויקט ללא שם'}</h3>
-                    <p><strong>סטטוס:</strong> ${data.status || 'בביצוע'}</p>
-                    <p><strong>תיאור:</strong> ${data.description || 'אין פירוט זמין'}</p>
-                </div>
+    // טעינת ומחיקת נתונים
+    async function loadData() {
+        // פרויקטים
+        const projSnap = await getDocs(collection(db, "projects"));
+        const projList = document.getElementById('projects-list');
+        projList.innerHTML = "";
+        projSnap.forEach(projDoc => {
+            const d = projDoc.data();
+            const div = document.createElement('div');
+            div.className = 'project-item';
+            div.innerHTML = `
+                <div><strong>${d.name || 'פרויקט'}</strong> - ${d.status || 'פעיל'}</div>
+                <button class="btn btn-danger" onclick="deleteItem('projects', '${projDoc.id}')">מחק</button>
             `;
+            projList.appendChild(div);
         });
-        container.innerHTML = html;
-
-    } catch (error) {
-        console.error("Error loading data:", error);
-        loading.style.display = 'none';
-        container.innerHTML = `
-            <div class="error">
-                <h3>שגיאה בחיבור לנתונים</h3>
-                <p>וודא שהגדרת את ה-Rules ב-Firebase ל-Public (if true).</p>
-                <p>קוד שגיאה: ${error.code}</p>
-            </div>
-        `;
     }
-  }
 
-  // הפעלה
-  loadProjects();
+    // פונקציית מחיקה גנרית
+    window.deleteItem = async (folder, id) => {
+        if(confirm("בטוח שברצונך למחוק?")) {
+            await deleteDoc(doc(db, folder, id));
+            location.reload();
+        }
+    };
+
+    loadData();
 </script>
 
 </body>
