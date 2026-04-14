@@ -3,95 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NMR Pro | מערכת ניהול ורווחיות</title>
+    <title>NMR Pro | מערכת ניהול מושלמת</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0b;
-            --panel: #161618;
-            --orange: #ff8c00;
-            --blue: #007bff;
-            --text: #ffffff;
-            --gray: #888;
-            --success: #2ecc71;
-            --danger: #e74c3c;
+            --bg: #0a0a0b; --panel: #161618; --orange: #ff8c00; --blue: #007bff;
+            --text: #ffffff; --gray: #888; --success: #2ecc71; --danger: #e74c3c;
         }
 
-        body {
-            font-family: 'Assistant', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0; padding: 0;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Assistant', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
 
-        /* Nav Bar - Premium Style */
+        /* Navigation */
         nav {
-            background: rgba(0,0,0,0.9);
-            border-bottom: 1px solid #333;
+            background: rgba(0,0,0,0.9); border-bottom: 1px solid #333;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 50px; height: 80px; position: sticky; top: 0; z-index: 1000;
-            backdrop-filter: blur(10px);
+            padding: 0 40px; height: 70px; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);
         }
-
-        .brand { line-height: 1.1; }
-        .brand .main { font-size: 24px; font-weight: 800; color: var(--text); }
-        .brand .sub { font-size: 12px; color: var(--orange); font-weight: 600; letter-spacing: 1px; }
-
-        .nav-links { display: flex; gap: 15px; }
-        .nav-item {
-            padding: 10px 20px; border-radius: 30px; cursor: pointer;
-            font-weight: 600; color: var(--gray); transition: 0.3s;
-        }
+        .brand .main { font-size: 22px; font-weight: 800; }
+        .brand .sub { font-size: 11px; color: var(--orange); font-weight: 600; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-item { padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--gray); font-weight: 600; transition: 0.3s; }
         .nav-item:hover, .nav-item.active { background: var(--orange); color: #000; }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
 
-        /* Dashboard Stats Cards */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px; margin-bottom: 40px;
-        }
-        .stat-card {
-            background: var(--panel); padding: 25px; border-radius: 20px;
-            border: 1px solid #333; text-align: center;
-        }
-        .stat-card h4 { margin: 0; color: var(--gray); font-size: 14px; }
-        .stat-card div { font-size: 28px; font-weight: 800; margin-top: 10px; }
-
-        /* Forms & Cards */
-        .card {
-            background: var(--panel); padding: 30px; border-radius: 24px;
-            border: 1px solid #333; margin-bottom: 30px;
-        }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* Cards & UI */
+        .card { background: var(--panel); padding: 25px; border-radius: 20px; border: 1px solid #333; margin-bottom: 25px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, textarea { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
         
-        input {
-            background: #222; border: 1px solid #444; color: white;
-            padding: 15px; border-radius: 12px; font-size: 16px; width: 100%;
-            box-sizing: border-box;
+        .btn { padding: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn-orange { background: var(--orange); color: black; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-danger { background: var(--danger); color: white; width: auto; padding: 5px 12px; }
+
+        /* Floating Calculator */
+        #calc-floating {
+            position: fixed; bottom: 20px; left: 20px; width: 250px; 
+            background: #1e1e20; border: 2px solid var(--orange); border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; z-index: 2000;
         }
+        .calc-header { background: var(--orange); color: black; padding: 10px; border-radius: 12px 12px 0 0; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; }
+        .calc-body { padding: 15px; }
+        #calc-trigger { position: fixed; bottom: 20px; left: 20px; background: var(--orange); color: black; padding: 15px; border-radius: 50%; cursor: pointer; font-weight: 800; box-shadow: 0 5px 15px rgba(255,140,0,0.4); z-index: 1999; }
 
-        .btn-action {
-            background: var(--blue); color: white; border: none; padding: 15px;
-            border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer;
-            margin-top: 20px; font-size: 18px; transition: 0.3s;
-        }
-        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
-
-        /* Projects Table Style */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th { text-align: right; padding: 15px; color: var(--gray); border-bottom: 1px solid #333; }
-        .data-table td { padding: 15px; border-bottom: 1px solid #222; }
-
-        .profit-pos { color: var(--success); font-weight: 700; }
-        .profit-neg { color: var(--danger); font-weight: 700; }
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: right; color: var(--gray); padding: 10px; border-bottom: 1px solid #333; }
+        td { padding: 12px; border-bottom: 1px solid #222; }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -99,35 +62,27 @@
     <nav>
         <div class="brand">
             <div class="main">NMR PERFORMANCE</div>
-            <div class="sub">BY MONKAF (MOF) SYSTEM</div>
+            <div class="sub">BY MOF SYSTEM</div>
         </div>
         <div class="nav-links">
             <div class="nav-item active" onclick="showTab('dashboard', this)">📊 דוחות</div>
             <div class="nav-item" onclick="showTab('projects', this)">📂 פרויקטים</div>
-            <div class="nav-item" onclick="showTab('quote', this)">✉️ הצעה</div>
+            <div class="nav-item" onclick="showTab('contacts', this)">👥 אנשי קשר</div>
+            <div class="nav-item" onclick="showTab('quote', this)">✉️ הצעת מחיר</div>
         </div>
     </nav>
 
     <div class="container">
-
         <div id="dashboard" class="tab-content active">
-            <div class="stats-grid">
-                <div class="stat-card"><h4>סה"כ מחזור (מכירה)</h4><div id="stat-sales" style="color: var(--blue);">0 ₪</div></div>
-                <div class="stat-card"><h4>סה"כ עלויות קבלן</h4><div id="stat-costs" style="color: var(--danger);">0 ₪</div></div>
-                <div class="stat-card"><h4>רווח נקי</h4><div id="stat-profit" style="color: var(--success);">0 ₪</div></div>
+            <div class="grid-2" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card" style="text-align:center;"><h4>מחזור</h4><h2 id="total-sales" style="color:var(--blue)">0 ₪</h2></div>
+                <div class="card" style="text-align:center;"><h4>עלויות קבלן</h4><h2 id="total-costs" style="color:var(--danger)">0 ₪</h2></div>
+                <div class="card" style="text-align:center;"><h4>רווח נקי</h4><h2 id="total-profit" style="color:var(--success)">0 ₪</h2></div>
             </div>
             <div class="card">
-                <h3>פירוט רווחיות פרויקטים</h3>
-                <table class="data-table" id="profit-table">
-                    <thead>
-                        <tr>
-                            <th>פרויקט</th>
-                            <th>קבלן</th>
-                            <th>עלות</th>
-                            <th>מכירה</th>
-                            <th>רווח/הפסד</th>
-                        </tr>
-                    </thead>
+                <h3>פירוט פרויקטים ורווחיות</h3>
+                <table id="profit-table">
+                    <thead><tr><th>פרויקט</th><th>עלות</th><th>מכירה</th><th>רווח</th></tr></thead>
                     <tbody id="profit-body"></tbody>
                 </table>
             </div>
@@ -135,31 +90,65 @@
 
         <div id="projects" class="tab-content">
             <div class="card">
-                <h3>יצירת פרויקט חדש</h3>
-                <div class="form-grid">
+                <h3>הוספת פרויקט חדש</h3>
+                <div class="grid-2">
                     <input type="text" id="p-name" placeholder="שם הפרויקט">
                     <input type="text" id="p-contractor" placeholder="קבלן מבצע">
-                    <input type="number" id="p-cost" placeholder="מחיר עלות (₪)">
-                    <input type="number" id="p-price" placeholder="מחיר מכירה (₪)">
+                    <input type="number" id="p-cost" placeholder="מחיר עלות">
+                    <input type="number" id="p-price" placeholder="מחיר מכירה">
                 </div>
-                <button class="btn-action" style="background: var(--orange); color: black;" onclick="addProject()">צור פרויקט ושמור נתונים +</button>
+                <button class="btn btn-orange" onclick="addProject()">שמור פרויקט במערכת</button>
             </div>
-            <div id="full-list" class="card" style="background: transparent; border: none; padding: 0;"></div>
+            <div id="projects-list"></div>
+        </div>
+
+        <div id="contacts" class="tab-content">
+            <div class="card">
+                <h3>הוספת איש קשר</h3>
+                <div class="grid-2">
+                    <input type="text" id="c-name" placeholder="שם מלא">
+                    <input type="text" id="c-role" placeholder="תפקיד / חברה">
+                    <input type="text" id="c-phone" placeholder="טלפון">
+                    <input type="text" id="c-email" placeholder="אימייל">
+                </div>
+                <button class="btn btn-blue" onclick="addContact()">הוסף איש קשר</button>
+            </div>
+            <div class="card">
+                <h3>רשימת אנשי קשר</h3>
+                <table id="contacts-table">
+                    <thead><tr><th>שם</th><th>תפקיד</th><th>טלפון</th><th>פעולה</th></tr></thead>
+                    <tbody id="contacts-body"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="quote" class="tab-content">
             <div class="card">
-                <h3>מחשבון הצעה לוואטסאפ</h3>
-                <input type="text" id="q-client" placeholder="שם לקוח">
-                <input type="number" id="q-val" placeholder="סכום לפני מע"מ" oninput="calcVAT()">
-                <div style="margin: 20px 0; padding: 20px; background: #000; border-radius: 15px;">
-                    <p>מע"מ (18%): <span id="q-vat" style="color: var(--orange)">0.00</span> ₪</p>
-                    <h2>סה"כ לתשלום: <span id="q-total" style="color: var(--blue)">0.00</span> ₪</h2>
+                <h3>יצירת הצעת מחיר מפורטת</h3>
+                <input type="text" id="q-client" placeholder="שם הלקוח">
+                <textarea id="q-desc" placeholder="תיאור העבודה והשירות שיינתן..." rows="3"></textarea>
+                <div class="grid-2">
+                    <input type="number" id="q-amount" placeholder="סכום (לפני מעמ)" oninput="calcQ()">
+                    <input type="text" id="q-terms" placeholder="תנאי תשלום (למשל: שוטף+30)">
                 </div>
-                <button class="btn-action" style="background: #25d366;" onclick="sendWA()">שלח הצעה רשמית ✉️</button>
+                <div style="background:#000; padding:15px; border-radius:10px; margin:10px 0;">
+                    <p>מע"מ (18%): <span id="q-vat">0</span> ₪</p>
+                    <h2 style="margin:0;">סה"כ כולל מע"מ: <span id="q-total" style="color:var(--orange)">0</span> ₪</h2>
+                </div>
+                <button class="btn btn-orange" style="background:#25d366; color:white;" onclick="sendWA()">שלח הצעה רשמית לוואטסאפ</button>
             </div>
         </div>
+    </div>
 
+    <div id="calc-trigger" onclick="toggleCalc()">🧮</div>
+    <div id="calc-floating">
+        <div class="calc-header" onclick="toggleCalc()"><span>מחשבון מהיר</span> <span>X</span></div>
+        <div class="calc-body">
+            <input type="number" id="f-sqm" placeholder="כמות (מ''ר/יח')">
+            <input type="number" id="f-price" placeholder="מחיר ליחידה">
+            <div id="f-res" style="text-align:center; font-weight:800; font-size:20px; margin:10px 0; color:var(--orange);">0 ₪</div>
+            <button class="btn btn-orange" onclick="document.getElementById('f-res').innerText = (document.getElementById('f-sqm').value * document.getElementById('f-price').value).toLocaleString() + ' ₪'">חשב</button>
+        </div>
     </div>
 
     <script type="module">
@@ -174,10 +163,10 @@
             messagingSenderId: "635398254882",
             appId: "1:635398254882:web:785f7a0b5a3e1458e08d66"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // UI Logic
         window.showTab = (id, el) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -185,70 +174,69 @@
             el.classList.add('active');
         };
 
+        window.toggleCalc = () => {
+            const c = document.getElementById('calc-floating');
+            c.style.display = c.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // Actions
         window.addProject = async () => {
-            const data = {
-                name: document.getElementById('p-name').value,
-                contractor: document.getElementById('p-contractor').value,
+            const data = { 
+                name: document.getElementById('p-name').value, 
                 cost: parseFloat(document.getElementById('p-cost').value) || 0,
                 price: parseFloat(document.getElementById('p-price').value) || 0,
-                date: new Date().toLocaleDateString()
+                contractor: document.getElementById('p-contractor').value
             };
-            if(!data.name) return alert("שם פרויקט חובה");
             await addDoc(collection(db, "projects_pro"), data);
             location.reload();
         };
 
-        async function load() {
-            const snap = await getDocs(collection(db, "projects_pro"));
-            let sales = 0, costs = 0;
-            const body = document.getElementById('profit-body');
-            const list = document.getElementById('full-list');
-            
-            snap.forEach(d => {
-                const p = d.data();
-                sales += p.price; costs += p.cost;
-                const profit = p.price - p.cost;
-                const profitClass = profit >= 0 ? 'profit-pos' : 'profit-neg';
+        window.addContact = async () => {
+            const data = { 
+                name: document.getElementById('c-name').value, 
+                role: document.getElementById('c-role').value,
+                phone: document.getElementById('c-phone').value,
+                email: document.getElementById('c-email').value
+            };
+            await addDoc(collection(db, "contacts"), data);
+            location.reload();
+        };
 
-                body.innerHTML += `
-                    <tr>
-                        <td>${p.name}</td>
-                        <td>${p.contractor}</td>
-                        <td>${p.cost.toLocaleString()} ₪</td>
-                        <td>${p.price.toLocaleString()} ₪</td>
-                        <td class="${profitClass}">${profit.toLocaleString()} ₪</td>
-                    </tr>
-                `;
+        window.del = async (coll, id) => {
+            if(confirm("בטוח?")) { await deleteDoc(doc(db, coll, id)); location.reload(); }
+        };
 
-                list.innerHTML += `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><strong>${p.name}</strong> | קבלן: ${p.contractor}</div>
-                        <button onclick="del('${d.id}')" style="background:var(--danger); border:none; color:white; padding:5px 15px; border-radius:8px; cursor:pointer;">מחק</button>
-                    </div>
-                `;
-            });
-
-            document.getElementById('stat-sales').innerText = sales.toLocaleString() + ' ₪';
-            document.getElementById('stat-costs').innerText = costs.toLocaleString() + ' ₪';
-            document.getElementById('stat-profit').innerText = (sales - costs).toLocaleString() + ' ₪';
-        }
-
-        window.del = async (id) => {
-            if(confirm("למחוק?")) { await deleteDoc(doc(db, "projects_pro", id)); location.reload(); }
-        }
-
-        window.calcVAT = () => {
-            const v = parseFloat(document.getElementById('q-val').value) || 0;
-            const vat = v * 0.18;
-            document.getElementById('q-vat').innerText = vat.toFixed(2);
-            document.getElementById('q-total').innerText = (v + vat).toFixed(2);
-        }
+        window.calcQ = () => {
+            const val = parseFloat(document.getElementById('q-amount').value) || 0;
+            const vat = val * 0.18;
+            document.getElementById('q-vat').innerText = vat.toLocaleString();
+            document.getElementById('q-total').innerText = (val + vat).toLocaleString();
+        };
 
         window.sendWA = () => {
-            const txt = `הצעה מחברת NMR: עבור ${document.getElementById('q-client').value}, סה"כ לתשלום ${document.getElementById('q-total').innerText} ש"ח כולל מע"מ.`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
-        }
+            const text = `הצעה רשמית - NMR Performance\nעבור: ${document.getElementById('q-client').value}\nתיאור: ${document.getElementById('q-desc').value}\nסה"כ לתשלום: ${document.getElementById('q-total').innerText} ש"ח (כולל מע"מ)\nתנאי תשלום: ${document.getElementById('q-terms').value}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        };
 
+        // Load Data
+        async function load() {
+            const pSnap = await getDocs(collection(db, "projects_pro"));
+            let s=0, c=0;
+            pSnap.forEach(d => {
+                const p = d.data(); s+=p.price; c+=p.cost;
+                document.getElementById('profit-body').innerHTML += `<tr><td>${p.name}</td><td>${p.cost}</td><td>${p.price}</td><td style="color:var(--success)">${p.price-p.cost}</td></tr>`;
+                document.getElementById('projects-list').innerHTML += `<div class="card" style="display:flex; justify-content:space-between"><span>${p.name} (${p.contractor})</span><button class="btn-danger" onclick="del('projects_pro','${d.id}')">מחק</button></div>`;
+            });
+            document.getElementById('total-sales').innerText = s.toLocaleString() + ' ₪';
+            document.getElementById('total-costs').innerText = c.toLocaleString() + ' ₪';
+            document.getElementById('total-profit').innerText = (s-c).toLocaleString() + ' ₪';
+
+            const cSnap = await getDocs(collection(db, "contacts"));
+            cSnap.forEach(d => {
+                const con = d.data();
+                document.getElementById('contacts-body').innerHTML += `<tr><td>${con.name}</td><td>${con.role}</td><td>${con.phone}</td><td><button class="btn-danger" onclick="del('contacts','${d.id}')">מחק</button></td></tr>`;
+            });
+        }
         load();
     </script>
 </body>
