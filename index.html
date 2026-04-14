@@ -3,276 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נ.מ.ר פרויקטים - ניהול ובקרה</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>מערכת ניהול פרויקטים - NMR</title>
     <style>
-        :root {
-            --bg: #080b10; --surface: #0f1318; --surface2: #161c24; --accent: #f5a623;
-            --accent2: #e8890a; --text: #eef2f7; --muted: #6b7888; --border: #1e2530;
-            --red: #ff6b6b; --green: #4ecb71;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
-
-        /* AUTH SCREEN */
-        #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; text-align: center; }
-        .auth-logo { font-size: 42px; font-weight: 900; color: var(--accent); margin-bottom: 20px; }
-
-        /* APP SCREEN */
-        #app-screen { display: none; }
-        .nav-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; sticky: top; }
-        .nav-item { flex: 1; padding: 15px; border: none; background: none; color: var(--muted); cursor: pointer; font-weight: bold; min-width: 90px; }
-        .nav-item.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
-
-        .container { padding: 20px; max-width: 800px; margin: auto; }
-        .page { display: none; }
-        .page.active { display: block; }
-
-        .card { background: var(--surface); border-radius: 14px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); position: relative; }
-        input, select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; width: 100%; margin: 8px 0; }
-        
-        .btn { cursor: pointer; padding: 12px; border-radius: 10px; border: none; font-weight: 700; width: 100%; transition: 0.2s; }
-        .btn-main { background: var(--accent); color: #000; }
-        .btn-del { background: none; color: var(--red); border: 1px solid var(--red); width: auto; padding: 5px 10px; font-size: 12px; margin-top: 10px; }
-        .btn-whatsapp { background: #25D366; color: white; margin-top: 15px; }
-
-        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; }
-        .kpi-val { font-size: 18px; font-weight: 900; }
-        
-        .quote-item { display: grid; grid-template-columns: 1fr 60px 80px; gap: 8px; margin-bottom: 8px; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .project-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .project-card:hover {
+            transform: scale(1.01);
+            border-color: #3498db;
+        }
+        #loading {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <div class="auth-box">
-        <div class="auth-logo">נ.מ.ר</div>
-        <input type="email" id="login-email" placeholder="אימייל">
-        <input type="password" id="login-pass" placeholder="סיסמה">
-        <button class="btn btn-main" onclick="login()">התחברות</button>
-        <div id="auth-error" style="color:var(--red); margin-top:10px; font-size:13px;"></div>
-    </div>
+<div class="container">
+    <h1>לוח בקרה - NMR Projects</h1>
+    
+    <div id="loading">טוען נתונים מהמערכת...</div>
+    <div id="data-container"></div>
 </div>
 
-<div id="app-screen">
-    <nav class="nav-bar">
-        <button class="nav-item active" onclick="showPage('home', this)">🏠 סיכום</button>
-        <button class="nav-item" onclick="showPage('projs', this)">🏗️ פרויקטים</button>
-        <button class="nav-item" onclick="showPage('quotes', this)">📝 הצעה</button>
-        <button class="nav-item" onclick="showPage('finance', this)">💰 כספים</button>
-        <button class="nav-item" onclick="showPage('contacts', this)">📞 קשר</button>
-    </nav>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <div class="container">
-        <div id="home" class="page active">
-            <div class="kpi-grid">
-                <div class="kpi"><small>הכנסות</small><div id="h-inc" class="kpi-val" style="color:var(--green)">₪0</div></div>
-                <div class="kpi"><small>הוצאות</small><div id="h-exp" class="kpi-val" style="color:var(--red)">₪0</div></div>
-                <div class="kpi"><small>רווח נקי</small><div id="h-net" class="kpi-val" style="color:var(--accent)">₪0</div></div>
-            </div>
-            <div class="card">
-                <h3>סטטיסטיקה</h3>
-                <p>פרויקטים פעילים: <span id="h-pcount">0</span></p>
-                <p>אנשי קשר: <span id="h-ccount">0</span></p>
-            </div>
-        </div>
-
-        <div id="projs" class="page">
-            <div class="card">
-                <h3>🆕 הקמת פרויקט (0-100)</h3>
-                <input type="text" id="p_name" placeholder="שם הפרויקט">
-                <input type="number" id="p_target" placeholder="תקציב לקוח">
-                <input type="number" id="p_cost" placeholder="מחיר עלות משוער">
-                <button class="btn btn-main" onclick="addProject()">שמור פרויקט</button>
-            </div>
-            <div id="p-list"></div>
-        </div>
-
-        <div id="quotes" class="page">
-            <div class="card">
-                <h3>📝 מחשבון הצעת מחיר לוואטסאפ</h3>
-                <input type="text" id="q_client" placeholder="שם הלקוח">
-                <div id="quote-items">
-                    <div class="quote-item">
-                        <input type="text" placeholder="סעיף" class="q-desc">
-                        <input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()">
-                        <input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">
-                    </div>
-                </div>
-                <button class="btn" style="background:var(--surface2); color:white;" onclick="addQuoteRow()">+ הוסף סעיף</button>
-                <div style="margin-top:20px; font-size:1.2em;">סה"כ: <strong id="quote-total" style="color:var(--accent)">₪0</strong></div>
-                <button class="btn btn-whatsapp" onclick="sendWhatsApp()">שלח הצעה בוואטסאפ ✅</button>
-            </div>
-        </div>
-
-        <div id="finance" class="page">
-            <div class="card">
-                <h3>💸 רישום תנועה</h3>
-                <select id="sel-p"><option value="">בחר פרויקט...</option></select>
-                <input type="number" id="t_amt" placeholder="סכום">
-                <select id="t_type"><option value="income">הכנסה (+)</option><option value="expense">הוצאה (-)</option></select>
-                <button class="btn btn-main" onclick="addTransaction()">עדכן</button>
-            </div>
-        </div>
-
-        <div id="contacts" class="page">
-            <div class="card">
-                <h3>👤 איש קשר חדש</h3>
-                <input type="text" id="c_name" placeholder="שם">
-                <input type="tel" id="c_phone" placeholder="טלפון">
-                <button class="btn btn-main" onclick="addContact()">שמור איש קשר</button>
-            </div>
-            <div id="c-list"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-// CONFIG FIREBASE (מעודכן לפי התמונה שלך)
-const firebaseConfig = {
+  // הגדרות ה-Firebase שלך (מעודכן לפי הצילומים ששלחת)
+  const firebaseConfig = {
     apiKey: "AIzaSyBb-7PPYP2GFIPMVnMlJRT2U5jBxDsg_vM",
     authDomain: "nmr-projects.firebaseapp.com",
     projectId: "nmr-projects",
     storageBucket: "nmr-projects.appspot.com",
     messagingSenderId: "635398254882",
     appId: "1:635398254882:web:785f7a0b5a3e1458e08d66"
-};
+  };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+  // אתחול המערכת
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// AUTH
-async function login() {
-    const e = document.getElementById('login-email').value;
-    const p = document.getElementById('login-pass').value;
+  // פונקציה למשיכת הפרויקטים מה-Database
+  async function loadProjects() {
+    const container = document.getElementById('data-container');
+    const loading = document.getElementById('loading');
+
     try {
-        await auth.signInWithEmailAndPassword(e, p);
-    } catch (err) {
-        document.getElementById('auth-error').innerText = "פרטים שגויים";
-    }
-}
+        // ניסיון למשוך נתונים מאוסף שנקרא 'projects'
+        const querySnapshot = await getDocs(collection(db, "projects"));
+        loading.style.display = 'none';
 
-auth.onAuthStateChanged(user => {
-    if(user) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'block';
-        loadAll();
-    } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app-screen').style.display = 'none';
-    }
-});
-
-function showPage(id, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-}
-
-// DATA ACTIONS
-function userDoc() { return db.collection('users').doc(auth.currentUser.uid); }
-
-async function addProject() {
-    const name = document.getElementById('p_name').value;
-    const target = parseFloat(document.getElementById('p_target').value) || 0;
-    const cost = parseFloat(document.getElementById('p_cost').value) || 0;
-    if(name) { await userDoc().collection('projects').add({ name, target, cost }); location.reload(); }
-}
-
-async function addContact() {
-    const name = document.getElementById('c_name').value;
-    const phone = document.getElementById('c_phone').value;
-    if(name && phone) { await userDoc().collection('contacts').add({ name, phone }); location.reload(); }
-}
-
-async function addTransaction() {
-    const pid = document.getElementById('sel-p').value;
-    const amt = parseFloat(document.getElementById('t_amt').value) || 0;
-    const type = document.getElementById('t_type').value;
-    if(pid && amt) { await userDoc().collection('transactions').add({ pid, amt, type, date: new Date() }); location.reload(); }
-}
-
-async function deleteItem(col, id) {
-    if(confirm("למחוק לצמיתות?")) { await userDoc().collection(col).doc(id).delete(); location.reload(); }
-}
-
-// LOAD & RENDER
-async function loadAll() {
-    const pSnap = await userDoc().collection('projects').get();
-    const cSnap = await userDoc().collection('contacts').get();
-    const tSnap = await userDoc().collection('transactions').get();
-
-    document.getElementById('h-pcount').innerText = pSnap.size;
-    document.getElementById('h-ccount').innerText = cSnap.size;
-
-    let ti=0, te=0;
-    tSnap.forEach(d => {
-        const t = d.data();
-        const val = parseFloat(t.amt) || 0;
-        if(t.type === 'income') ti += val; else te += val;
-    });
-
-    document.getElementById('h-inc').innerText = `₪${ti.toLocaleString()}`;
-    document.getElementById('h-exp').innerText = `₪${te.toLocaleString()}`;
-    document.getElementById('h-net').innerText = `₪${(ti-te).toLocaleString()}`;
-
-    pSnap.forEach(doc => {
-        const p = doc.data();
-        document.getElementById('sel-p').innerHTML += `<option value="${doc.id}">${p.name}</option>`;
-        document.getElementById('p-list').innerHTML += `<div class="card">
-            <strong>${p.name}</strong><br><small>יעד: ₪${(p.target||0).toLocaleString()} | עלות: ₪${(p.cost||0).toLocaleString()}</small><br>
-            <button class="btn-del" onclick="deleteItem('projects','${doc.id}')">מחק פרויקט 🗑️</button>
-        </div>`;
-    });
-
-    cSnap.forEach(doc => {
-        const c = doc.data();
-        document.getElementById('c-list').innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-            <span><strong>${c.name}</strong>: ${c.phone}</span>
-            <button onclick="deleteItem('contacts','${doc.id}')" style="background:none; border:none; color:var(--red);">🗑️</button>
-        </div>`;
-    });
-}
-
-// QUOTE LOGIC
-function addQuoteRow() {
-    const row = document.createElement('div');
-    row.className = 'quote-item';
-    row.innerHTML = `<input type="text" placeholder="סעיף" class="q-desc"><input type="number" placeholder="כמות" class="q-qty" oninput="calcQuote()"><input type="number" placeholder="מחיר" class="q-price" oninput="calcQuote()">`;
-    document.getElementById('quote-items').appendChild(row);
-}
-
-function calcQuote() {
-    let t = 0;
-    document.querySelectorAll('.quote-item').forEach(r => {
-        t += (parseFloat(r.querySelector('.q-qty').value)||0) * (parseFloat(r.querySelector('.q-price').value)||0);
-    });
-    document.getElementById('quote-total').innerText = `₪${t.toLocaleString()}`;
-}
-
-function sendWhatsApp() {
-    const client = document.getElementById('q_client').value || "לקוח";
-    let msg = `*הצעת מחיר - נ.מ.ר פרויקטים*\nלכבוד: ${client}\n\n`;
-    let total = 0;
-    document.querySelectorAll('.quote-item').forEach(r => {
-        const d = r.querySelector('.q-desc').value;
-        const q = parseFloat(r.querySelector('.q-qty').value) || 0;
-        const p = parseFloat(r.querySelector('.q-price').value) || 0;
-        if(d && q && p) {
-            msg += `• ${d}: ${q} יח' x ₪${p.toLocaleString()} = *₪${(q*p).toLocaleString()}*\n`;
-            total += (q*p);
+        if (querySnapshot.empty) {
+            container.innerHTML = "<p>לא נמצאו פרויקטים במסד הנתונים. הוסף נתונים ב-Firebase Console.</p>";
+            return;
         }
-    });
-    msg += `\n*סה"כ לתשלום: ₪${total.toLocaleString()}*\n\nנשמח לעמוד לשירותכם.`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-}
+
+        let html = "";
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            html += `
+                <div class="project-card">
+                    <h3>${data.name || 'פרויקט ללא שם'}</h3>
+                    <p><strong>סטטוס:</strong> ${data.status || 'בביצוע'}</p>
+                    <p><strong>תיאור:</strong> ${data.description || 'אין פירוט זמין'}</p>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+    } catch (error) {
+        console.error("Error loading data:", error);
+        loading.style.display = 'none';
+        container.innerHTML = `
+            <div class="error">
+                <h3>שגיאה בחיבור לנתונים</h3>
+                <p>וודא שהגדרת את ה-Rules ב-Firebase ל-Public (if true).</p>
+                <p>קוד שגיאה: ${error.code}</p>
+            </div>
+        `;
+    }
+  }
+
+  // הפעלה
+  loadProjects();
 </script>
+
 </body>
 </html>
